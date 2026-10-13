@@ -1,8 +1,8 @@
 "use client";
 
+import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, Button, Skeleton } from "antd";
-import Image from "next/image";
 import Link from "next/link";
 import { getRooms } from "@/modules/lessons";
 import { ImageCard } from "@/modules/lessons/components/image-card/ImageCard";
@@ -11,7 +11,6 @@ import { LessonsBackButton } from "./components/lessons-back-button/lessons-back
 import { LessonsTopHud } from "./components/lessons-top-hud/lessons-top-hud";
 import { LessonsBottomDock } from "./components/lessons-bottom-dock/lessons-bottom-dock";
 import { ExitFullscreenButton } from "@/components/ExitFullscreenButton";
-import { enterFullscreenAndLockLandscape } from "@/utils";
 import "./lessons-list-view.scss";
 
 /**
@@ -31,27 +30,39 @@ function LessonsListView() {
 
   const rooms = roomsQuery.data ?? [];
 
+  // Hỗ trợ kéo chuột trái/phải trên desktop khi ở giao diện dạng thẻ trượt
+  const gridRef = useRef<HTMLUListElement>(null);
+  const isDraggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLUListElement>) => {
+    const el = gridRef.current;
+    if (!el) return;
+    isDraggingRef.current = true;
+    startXRef.current = e.pageX - el.offsetLeft;
+    scrollLeftRef.current = el.scrollLeft;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLUListElement>) => {
+    if (!isDraggingRef.current) return;
+    const el = gridRef.current;
+    if (!el) return;
+    const x = e.pageX - el.offsetLeft;
+    const walk = (x - startXRef.current) * 1.3;
+    el.scrollLeft = scrollLeftRef.current - walk;
+  };
+
+  const stopDragging = () => {
+    isDraggingRef.current = false;
+  };
+
   return (
-    <>
-      {/* Overlay nhắc xoay ngang thiết bị (chỉ hiện trên mobile dọc) */}
-      <div
-        className="landscape-prompt"
-        onClick={() => void enterFullscreenAndLockLandscape()}
-        style={{ cursor: "pointer" }}
-      >
-        <p>Vui lòng xoay ngang màn hình để trải nghiệm tốt nhất</p>
-        <span style={{ fontSize: "0.85rem", opacity: 0.8, marginTop: 8 }}>
-          (Chạm vào màn hình để tự động xoay ngang)
-        </span>
-      </div>
-
-      <div className="levels-page">
-        <LessonsBackButton href="/?landing=true" />
-        <LessonsTopHud />
-        <LessonsBottomDock />
-        <ExitFullscreenButton />
-
-
+    <div className="levels-page">
+      <LessonsBackButton href="/?landing=true" />
+      <LessonsTopHud />
+      <LessonsBottomDock />
+      <ExitFullscreenButton />
 
       {roomsQuery.isLoading ? (
         <div style={{ maxWidth: 800, margin: "0 auto" }}>
@@ -81,11 +92,15 @@ function LessonsListView() {
           </Link>
         </div>
       ) : (
-        <ul className="levels-page__grid">
+        <ul
+          ref={gridRef}
+          className="levels-page__grid"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={stopDragging}
+          onMouseLeave={stopDragging}
+        >
           {rooms.map((room, index) => {
-            const levelNum = String(index + 1).padStart(2, "0");
-            const lessonCount = room._count?.lessons ?? 0;
-
             return (
               <ImageCard
                 key={room.id}
@@ -99,7 +114,6 @@ function LessonsListView() {
         </ul>
       )}
     </div>
-    </>
   );
 }
 

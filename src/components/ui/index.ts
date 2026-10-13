@@ -9,3 +9,4 @@ export * from './game-button';
 export * from './game-card';
 export * from './game-modal';
 export * from './game-toast';
+export * from './coin-icon';

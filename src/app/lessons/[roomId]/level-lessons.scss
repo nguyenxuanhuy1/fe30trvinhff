@@ -35,30 +35,6 @@ main:has(.level-lessons) {
   width: 100%;
 }
 
-.landscape-prompt {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: #000;
-  color: #fff;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  font-weight: bold;
-  text-align: center;
-  padding: 2rem;
-}
-
-@media screen and (max-width: 768px) and (orientation: portrait) {
-  .landscape-prompt {
-    display: flex;
-  }
-
-  .level-lessons {
-    display: none !important;
-  }
-}
 
 .level-lessons {
   margin-inline: auto;

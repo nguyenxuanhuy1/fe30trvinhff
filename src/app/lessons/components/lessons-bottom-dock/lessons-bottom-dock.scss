@@ -492,3 +492,51 @@ $ink: #241710;
     }
   }
 }
+
+// =============================================================
+// MÀN HÌNH DỌC (PORTRAIT) / MOBILE HẸP -> CHỈ ĐỂ ICON, ẨN CHỮ TIÊU ĐỀ
+// =============================================================
+@media (orientation: portrait), (max-width: 650px) {
+  .lessons-bottom-dock {
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    width: min(420px, calc(100vw - 20px));
+  }
+
+  .lessons-dock {
+    &__bar {
+      padding: 6px 8px;
+      gap: 6px;
+      border-radius: 12px;
+    }
+
+    &__item--nav {
+      padding: 7px 4px;
+      gap: 0;
+      justify-content: center;
+      align-items: center;
+    }
+
+    &__icon {
+      width: 22px;
+      height: 22px;
+    }
+
+    // Ẩn text mô tả (Tủ đồ, Giỏ hàng, Bạn bè, Cá nhân) khi ở màn hình dọc/hẹp
+    &__title {
+      display: none !important;
+    }
+
+    &__coin-slot {
+      padding: 5px 6px;
+      gap: 4px;
+    }
+
+    &__coin-icon {
+      font-size: 16px;
+    }
+
+    &__coin-value {
+      font-size: 11px;
+    }
+  }
+}

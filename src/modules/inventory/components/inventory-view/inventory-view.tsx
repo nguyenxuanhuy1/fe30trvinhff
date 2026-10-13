@@ -647,22 +647,11 @@ function InventoryView({
             })}
 
           {ownedItems.length === 0 && (
-            <div className="inventory-retro__empty" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, padding: "20px 12px", textAlign: "center" }}>
-              <span>🎒 Tủ đồ của bạn đang trống. Bạn chưa sở hữu trang bị nào!</span>
-              <Link
-                href="/gio-hang"
-                style={{
-                  display: "inline-block",
-                  padding: "8px 16px",
-                  background: "linear-gradient(180deg, #22c55e 0%, #15803d 100%)",
-                  color: "#ffffff",
-                  borderRadius: 6,
-                  fontWeight: 800,
-                  fontSize: 13,
-                  textDecoration: "none",
-                  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.25)",
-                }}
-              >
+            <div className="inventory-retro__empty">
+              <span className="inventory-retro__empty-text">
+                🎒 Tủ đồ của bạn đang trống. Bạn chưa sở hữu trang bị nào!
+              </span>
+              <Link href="/gio-hang" className="inventory-retro__empty-btn">
                 🛒 Ghé Cửa Hàng
               </Link>
             </div>

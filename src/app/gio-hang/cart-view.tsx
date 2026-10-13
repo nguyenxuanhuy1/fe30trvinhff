@@ -14,6 +14,7 @@ import {
   type ShopOrder,
 } from "@/modules/shop";
 import { toast } from "@/components/ui/game-toast";
+import { CoinIcon } from "@/components/ui/coin-icon";
 import "./cart.scss";
 
 export function CartView() {
@@ -176,7 +177,7 @@ export function CartView() {
           )}
 
           <div className="cart-header__coins-badge" title="Số xu hiện có của bạn">
-            <span className="cart-header__coins-icon">🪙</span>
+            <CoinIcon className="cart-header__coins-icon" />
             <span className="cart-header__coins-value">{coins.toLocaleString("vi-VN")} Xu</span>
           </div>
         </div>
@@ -252,7 +253,7 @@ export function CartView() {
                     {/* Vùng chân card: Giá xu & Nút Mua */}
                     <div className="cart-card-footer">
                       <div className="cart-card-price" title={`Giá: ${item.coinPrice} Xu`}>
-                        <span className="cart-card-price__icon">🪙</span>
+                        <CoinIcon className="cart-card-price__icon" />
                         <span className="cart-card-price__val">{item.coinPrice} Xu</span>
                       </div>
 
@@ -333,7 +334,9 @@ export function CartView() {
               </div>
               <div className="cart-modal-board__preview-info">
                 <h4 className="cart-modal-board__preview-name">{selectedItem.name}</h4>
-                <p className="cart-modal-board__preview-price">Giá: 🪙 {selectedItem.coinPrice} Xu</p>
+                <p className="cart-modal-board__preview-price">
+                  Giá: <CoinIcon size={16} /> {selectedItem.coinPrice} Xu
+                </p>
               </div>
             </div>
 
@@ -492,7 +495,7 @@ export function CartView() {
                       <div className="cart-order-card__right">
                         <div className="cart-order-card__coins-spent">
                           <span>- {ord.coinPrice}</span>
-                          <span>🪙</span>
+                          <CoinIcon size={14} />
                         </div>
                         <span className={`cart-order-card__status ${st.className}`}>{st.label}</span>
                       </div>

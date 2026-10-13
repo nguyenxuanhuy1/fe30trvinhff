@@ -433,3 +433,18 @@ $font-game: var(--font-game, "Baloo 2"), "Baloo 2", cursive, system-ui, sans-ser
     }
   }
 }
+
+// -------------------------------------------------------------
+// VỊ TRÍ DROPDOWN AVATAR KHI MÀN HÌNH DỌC (PORTRAIT) -> Ở BÊN TRÁI PHÍA TRÊN
+// -------------------------------------------------------------
+@media (orientation: portrait) {
+  .lessons-top-hud {
+    right: auto !important;
+    left: calc(14px + env(safe-area-inset-left, 0px)) !important;
+
+    .lessons-top-hud__dropdown {
+      right: auto !important;
+      left: 0 !important;
+    }
+  }
+}

@@ -102,20 +102,7 @@ export async function enterFullscreenAndLockLandscape(): Promise<void> {
     window.dispatchEvent(new Event("fullscreen-toggle"));
   }
 
-  // 3. Khóa xoay ngang màn hình (Landscape orientation) nếu thiết bị hỗ trợ
-  try {
-    const screenOrientation = window.screen?.orientation as
-      | (ScreenOrientation & {
-          lock?: (orientation: "landscape" | "landscape-primary" | "landscape-secondary" | "portrait" | "portrait-primary" | "portrait-secondary" | "natural" | "any") => Promise<void>;
-        })
-      | undefined;
-
-    if (screenOrientation && typeof screenOrientation.lock === "function") {
-      await screenOrientation.lock("landscape");
-    }
-  } catch (err) {
-    console.warn("[Orientation] Screen orientation lock not supported on this device:", err);
-  }
+  // 3. Không ép khóa xoay ngang màn hình để hỗ trợ xoay dọc linh hoạt
 }
 
 /**

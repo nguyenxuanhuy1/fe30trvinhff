@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/modules/auth";
 import { claimDailyReward, getDailyRewardStatus } from "../../services/reward.service";
 import type { DailyRewardStatus } from "../../types";
+import { CoinIcon } from "@/components/ui/coin-icon";
 import "./daily-reward-modal.scss";
 
 interface DailyRewardModalProps {
@@ -121,7 +122,9 @@ export function DailyRewardModal({
         {/* TIÊU ĐỀ BẢNG PHONG CÁCH VINTAGE GOLD */}
         <div className="daily-reward-modal__header">
           <div className="daily-reward-modal__icon-wrap">
-            <span className="daily-reward-modal__chest">🪙</span>
+            <span className="daily-reward-modal__chest">
+              <CoinIcon size={32} />
+            </span>
           </div>
           <h2 className="daily-reward-modal__title">ĐĂNG NHẬP NHẬN XU HÀNG NGÀY</h2>
         </div>
@@ -197,7 +200,7 @@ export function DailyRewardModal({
 
                     <div className="daily-reward-card__coin-box">
                       <span className="daily-reward-card__coin-icon">
-                        {dayNum === 7 ? "👑" : "🪙"}
+                        {dayNum === 7 ? "👑" : <CoinIcon />}
                       </span>
                       <span className="daily-reward-card__amount">+{rewardAmount}</span>
                       <span className="daily-reward-card__unit">XU</span>
@@ -222,7 +225,7 @@ export function DailyRewardModal({
               <div className="daily-reward-modal__user-coins">
                 <span>Số xu hiện tại:</span>
                 <strong className="daily-reward-modal__coin-val">
-                  🪙 {status.userCoins} Xu
+                  <CoinIcon size={16} /> {status.userCoins} Xu
                 </strong>
               </div>
 

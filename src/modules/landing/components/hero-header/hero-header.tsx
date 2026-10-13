@@ -9,7 +9,6 @@ import {
   leftMenuItems,
   rightMenuItems,
 } from "@/modules/landing/data/navigation";
-import { enterFullscreenAndLockLandscape } from "@/utils";
 import type { MenuItem } from "@/modules/landing/types";
 import "./hero-header.scss";
 
@@ -359,8 +358,7 @@ function HeroHeader({ variant = "hero", showBackButton }: HeroHeaderProps) {
           <button
             className="hero-header__play-button"
             type="button"
-            onClick={async () => {
-              void enterFullscreenAndLockLandscape();
+            onClick={() => {
               router.push("/lessons");
             }}
           >

@@ -29,6 +29,7 @@ import {
   ShoppingOutlined,
   InboxOutlined,
 } from "@ant-design/icons";
+import { CoinIcon } from "@/components/ui/coin-icon";
 import {
   createShopItem,
   deleteShopItem,
@@ -306,7 +307,9 @@ export function AdminShopPanel() {
       width: 120,
       sorter: (a, b) => a.coinPrice - b.coinPrice,
       render: (price: number) => (
-        <span>{price.toLocaleString("vi-VN")} xu</span>
+        <span>
+          <CoinIcon size={14} /> {price.toLocaleString("vi-VN")} xu
+        </span>
       ),
     },
     {
@@ -434,7 +437,9 @@ export function AdminShopPanel() {
       key: "coinPrice",
       width: 100,
       render: (price: number) => (
-        <span>{price} xu</span>
+        <span>
+          <CoinIcon size={14} /> {price} xu
+        </span>
       ),
     },
     {
@@ -801,8 +806,8 @@ export function AdminShopPanel() {
             )}
             <div>
               <div style={{ fontSize: 17, fontWeight: 700, color: "#0f172a" }}>{viewingItem.name}</div>
-              <div style={{ fontSize: 14, color: "#2563eb", fontWeight: 600, marginTop: 4 }}>
-                {viewingItem.coinPrice.toLocaleString("vi-VN")} xu
+              <div style={{ fontSize: 14, color: "#b45309", fontWeight: 700, marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
+                <CoinIcon size={16} /> {viewingItem.coinPrice.toLocaleString("vi-VN")} xu
               </div>
               <div style={{ fontSize: 12.5, color: "#64748b", marginTop: 4, display: "flex", gap: 6, alignItems: "center" }}>
                 {viewingItem.isSpecial && <Tag color="gold">Đặc biệt</Tag>}

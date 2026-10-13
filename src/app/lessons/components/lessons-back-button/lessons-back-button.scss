@@ -101,6 +101,16 @@ $font-game: var(--font-game, "Baloo 2"), "Baloo 2", cursive, system-ui, sans-ser
 }
 
 // -------------------------------------------------------------
+// VỊ TRÍ NÚT QUAY LẠI KHI MÀN HÌNH DỌC (PORTRAIT) -> Ở BÊN PHẢI
+// -------------------------------------------------------------
+@media (orientation: portrait) {
+  .lessons-back-btn {
+    left: auto !important;
+    right: calc(14px + env(safe-area-inset-right, 0px)) !important;
+  }
+}
+
+// -------------------------------------------------------------
 // RESPONSIVE CHO DESKTOP (>= 1024px VÀ >= 1440px)
 // -------------------------------------------------------------
 @media (min-width: 1024px) {

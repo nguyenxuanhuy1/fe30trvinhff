@@ -9,6 +9,7 @@ import { getMyGroup } from "@/modules/friends";
 import { useAuth } from "@/modules/auth";
 import { getInventory, useCatalog, type Inventory } from "@/modules/inventory";
 import { LoadingState } from "@/components/ui";
+import { CoinIcon } from "@/components/ui/coin-icon";
 import { AvatarEditor } from "./avatar-editor/avatar-editor";
 import {
   InboxOutlined,
@@ -143,7 +144,7 @@ export function ProfileView({ initialUser, user: propUser }: ProfileViewProps) {
 
         <div className="profile-header__right">
           <div className="profile-header__coins-badge" title="Số xu của bạn">
-            <span className="profile-header__coins-icon">🪙</span>
+            <CoinIcon className="profile-header__coins-icon" />
             <span className="profile-header__coins-value">
               {(user.coins ?? 0).toLocaleString("vi-VN")} Xu
             </span>
@@ -366,7 +367,7 @@ export function ProfileView({ initialUser, user: propUser }: ProfileViewProps) {
 
                         <div className="profile-order-card__right">
                           <span className="profile-order-card__price">
-                            🪙 {ord.coinPrice} Xu
+                            <CoinIcon size={14} /> {ord.coinPrice} Xu
                           </span>
                           <span
                             className={`profile-order-card__status profile-order-card__status--${ord.status.toLowerCase()}`}
@@ -424,7 +425,7 @@ export function ProfileView({ initialUser, user: propUser }: ProfileViewProps) {
                   <div className="profile-info-item">
                     <dt className="profile-info-item__label">Số xu tích lũy</dt>
                     <dd className="profile-info-item__val" style={{ color: "#a75b1f", fontWeight: 800 }}>
-                      🪙 {(user.coins ?? 0).toLocaleString("vi-VN")} Xu
+                      <CoinIcon size={16} /> {(user.coins ?? 0).toLocaleString("vi-VN")} Xu
                     </dd>
                   </div>
 

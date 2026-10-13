@@ -8,7 +8,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { getLessons, getRoom } from "@/modules/lessons";
 import { useInventory, useItemPreload } from "@/modules/inventory";
-import { enterFullscreenAndLockLandscape } from "@/utils";
 import { ExitFullscreenButton } from "@/components/ExitFullscreenButton";
 import "./level-lessons.scss";
 
@@ -97,16 +96,6 @@ export function LevelLessonsView({ roomId }: LevelLessonsViewProps) {
 
   return (
     <>
-      <div
-        className="landscape-prompt"
-        onClick={() => void enterFullscreenAndLockLandscape()}
-        style={{ cursor: "pointer" }}
-      >
-        <p>Vui lòng xoay ngang màn hình để trải nghiệm tốt nhất</p>
-        <span style={{ fontSize: "0.85rem", opacity: 0.8, marginTop: 8 }}>
-          (Chạm vào màn hình để tự động xoay ngang)
-        </span>
-      </div>
 
       {mounted && typeof document !== "undefined" ? (
         createPortal(

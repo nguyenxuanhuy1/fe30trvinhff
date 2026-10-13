@@ -7,6 +7,7 @@ import { useAuth } from "@/modules/auth";
 import { useRouter } from "next/navigation";
 import { getReceivedInvitations } from "@/modules/friends/services/friends.service";
 import { toast } from "@/components/ui/game-toast";
+import { CoinIcon } from "@/components/ui/coin-icon";
 import "./lessons-bottom-dock.scss";
 
 export function LessonsBottomDock() {
@@ -100,7 +101,7 @@ export function LessonsBottomDock() {
           >
             <div className="lessons-dock__coin-slot">
               <span className="lessons-dock__coin-icon" aria-hidden="true">
-                🪙
+                <CoinIcon size={18} />
               </span>
               <span className="lessons-dock__coin-value">{coins.toLocaleString("vi-VN")}</span>
             </div>

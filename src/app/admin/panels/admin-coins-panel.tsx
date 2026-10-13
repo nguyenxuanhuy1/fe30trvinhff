@@ -15,10 +15,10 @@ import {
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
-  DollarOutlined,
   SaveOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
+import { CoinIcon } from "@/components/ui/coin-icon";
 import {
   adjustUserCoins,
   getDailyRewardConfig,
@@ -134,7 +134,9 @@ export function AdminCoinsPanel() {
       width: 150,
       sorter: (a, b) => a.coins - b.coins,
       render: (coins: number) => (
-        <span>{coins.toLocaleString("vi-VN")} xu</span>
+        <span>
+          <CoinIcon size={14} /> {coins.toLocaleString("vi-VN")} xu
+        </span>
       ),
     },
     {
@@ -161,7 +163,7 @@ export function AdminCoinsPanel() {
           type="primary"
           ghost
           size="small"
-          icon={<DollarOutlined />}
+          icon={<CoinIcon size={14} />}
           onClick={() => {
             setAdjustingUser(record);
             setAdjustAmount(10);
