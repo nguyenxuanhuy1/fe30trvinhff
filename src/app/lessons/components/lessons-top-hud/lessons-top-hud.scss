@@ -1,0 +1,435 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap');
+
+$font-game: var(--font-game, "Baloo 2"), "Baloo 2", cursive, system-ui, sans-serif;
+
+.lessons-top-hud {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: calc(16px + env(safe-area-inset-right, 0px));
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  user-select: none;
+
+  @media (max-width: 640px) {
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    right: calc(10px + env(safe-area-inset-right, 0px));
+  }
+
+  // Avatar + tên và Dropdown
+  &__user-wrap {
+    position: relative;
+  }
+
+  &__user-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    height: 42px;
+    padding: 2px 14px 2px 3px;
+    border: 2px solid #5a3824;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #442a1b 0%, #2a160d 100%);
+    box-shadow:
+      inset 0 -3px 0 #1f1008,
+      inset 0 1px 0 rgba(255, 220, 180, 0.2),
+      0 4px 10px rgba(0, 0, 0, 0.45);
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.12s ease, filter 0.12s ease;
+    white-space: nowrap;
+
+    &:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.08);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    @media (max-width: 640px) {
+      height: 32px;
+      padding: 2px 5px 2px 2px;
+      gap: 4px;
+    }
+  }
+
+  &__avatar-frame {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid #f59e0b;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    background: #1c1109;
+    flex-shrink: 0;
+
+    @media (max-width: 640px) {
+      width: 26px;
+      height: 26px;
+      border-width: 1.5px;
+    }
+  }
+
+  &__avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__username {
+    font-family: $font-game;
+    font-weight: 800;
+    font-size: 12.5px;
+    color: #fef3c7;
+    line-height: 1;
+    letter-spacing: 0.25px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    @media (max-width: 640px) {
+      display: none; // Ẩn tên user dưới 640px theo yêu cầu
+    }
+  }
+
+  &__chevron {
+    width: 14px;
+    height: 14px;
+    stroke: #caa082;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+
+    &--open {
+      transform: rotate(180deg);
+    }
+
+    @media (max-width: 640px) {
+      display: none;
+    }
+  }
+
+
+  // Dropdown
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 190px;
+    padding: 8px;
+    border: 2px solid #6b3e26;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #442a1b 0%, #28140a 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.15),
+      0 12px 28px rgba(0, 0, 0, 0.65);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 200;
+    animation: lessonsHudDropdownIn 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+      min-width: 150px;
+      padding: 5px;
+      border-radius: 10px;
+      border-width: 1.5px;
+      gap: 2px;
+      top: calc(100% + 5px);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        0 8px 20px rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  &__dropdown-header {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 10px 10px;
+    border-bottom: 1.5px solid rgba(107, 62, 38, 0.7);
+    margin-bottom: 4px;
+
+    @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+      padding: 4px 6px 5px;
+      margin-bottom: 2px;
+      border-bottom-width: 1px;
+    }
+  }
+
+  &__dropdown-name {
+    font-family: $font-game;
+    font-size: 14px;
+    color: #fef08a;
+    letter-spacing: 0.3px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+      font-size: 11.5px;
+    }
+  }
+
+  &__dropdown-role {
+    font-size: 11px;
+    color: #caa082;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+
+    @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+      font-size: 9.5px;
+      margin-top: 1px;
+    }
+  }
+
+  &__dropdown-coins {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px;
+    margin-top: 6px;
+    background: rgba(202, 138, 4, 0.2);
+    border: 1px solid rgba(202, 138, 4, 0.4);
+    border-radius: 6px;
+    font-size: 12px;
+    color: #fef08a;
+
+    strong {
+      color: #fde047;
+      font-weight: 800;
+    }
+
+    @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+      padding: 3px 5px;
+      margin-top: 3px;
+      font-size: 10px;
+      border-radius: 4px;
+    }
+  }
+
+  &__dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: #fef3c7;
+    font-family: $font-game;
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: 0.2px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
+    width: 100%;
+    text-align: left;
+
+    @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+      padding: 5px 7px;
+      font-size: 10px;
+      gap: 6px;
+      border-radius: 6px;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(202, 160, 130, 0.3);
+      transform: translateX(2px);
+      color: #fff;
+    }
+
+    &--admin {
+      color: #93c5fd;
+
+      &:hover {
+        background: rgba(59, 130, 246, 0.2);
+        border-color: rgba(59, 130, 246, 0.4);
+        color: #bfdbfe;
+      }
+    }
+
+    &--coin {
+      color: #fde047;
+
+      &:hover {
+        background: rgba(234, 179, 8, 0.2);
+        border-color: rgba(234, 179, 8, 0.4);
+        color: #fef08a;
+      }
+    }
+
+    &--logout {
+      color: #fca5a5;
+
+      &:hover {
+        background: rgba(220, 38, 38, 0.2);
+        border-color: rgba(220, 38, 38, 0.4);
+        color: #fecaca;
+      }
+    }
+  }
+
+  &__dropdown-item-icon {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    flex-shrink: 0;
+
+    @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+      width: 13px;
+      height: 13px;
+    }
+  }
+
+  &__dropdown-gift-icon {
+    font-size: 16px;
+    color: #f59e0b;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+      font-size: 13px;
+    }
+  }
+}
+
+@keyframes lessonsHudDropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// -------------------------------------------------------------
+// RESPONSIVE CHO DESKTOP (>= 1024px VÀ >= 1440px)
+// Phóng to avatar, nút user, tên hiển thị theo yêu cầu
+// -------------------------------------------------------------
+@media (min-width: 1024px) {
+  .lessons-top-hud {
+    top: calc(20px + env(safe-area-inset-top, 0px));
+    right: calc(28px + env(safe-area-inset-right, 0px));
+
+    &__user-btn {
+      height: 52px;
+      padding: 4px 18px 4px 4px;
+      gap: 12px;
+      border-width: 2.5px;
+      box-shadow:
+        inset 0 -4px 0 #1f1008,
+        inset 0 1px 0 rgba(255, 220, 180, 0.25),
+        0 6px 14px rgba(0, 0, 0, 0.48);
+    }
+
+    &__avatar-frame {
+      width: 44px;
+      height: 44px;
+      border-width: 2.5px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.55);
+    }
+
+    &__username {
+      font-size: 14px;
+      max-width: 160px;
+      letter-spacing: 0.3px;
+    }
+
+    &__chevron {
+      width: 17px;
+      height: 17px;
+    }
+
+    &__dropdown {
+      min-width: 220px;
+      padding: 10px;
+      border-radius: 16px;
+      top: calc(100% + 10px);
+    }
+
+    &__dropdown-user-name {
+      font-size: 14px;
+    }
+
+    &__dropdown-item {
+      font-size: 12.5px;
+      padding: 10px 14px;
+      gap: 10px;
+    }
+
+    &__dropdown-item-icon {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+@media (min-width: 1440px) {
+  .lessons-top-hud {
+    top: calc(26px + env(safe-area-inset-top, 0px));
+    right: calc(36px + env(safe-area-inset-right, 0px));
+
+    &__user-btn {
+      height: 58px;
+      padding: 5px 22px 5px 5px;
+      gap: 14px;
+      border-width: 3px;
+      box-shadow:
+        inset 0 -4px 0 #1f1008,
+        inset 0 1px 0 rgba(255, 220, 180, 0.3),
+        0 8px 18px rgba(0, 0, 0, 0.52);
+    }
+
+    &__avatar-frame {
+      width: 48px;
+      height: 48px;
+      border-width: 3px;
+    }
+
+    &__username {
+      font-size: 15px;
+      max-width: 200px;
+      letter-spacing: 0.4px;
+    }
+
+    &__chevron {
+      width: 19px;
+      height: 19px;
+    }
+
+    &__dropdown {
+      min-width: 240px;
+      padding: 12px;
+      border-radius: 18px;
+      top: calc(100% + 12px);
+    }
+
+    &__dropdown-user-name {
+      font-size: 15px;
+    }
+
+    &__dropdown-item {
+      font-size: 13.5px;
+      padding: 11px 16px;
+    }
+
+    &__dropdown-item-icon {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}

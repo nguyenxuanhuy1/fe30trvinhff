@@ -1,0 +1,99 @@
+.camera-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  // Chiếm hết chiều cao cột, nếu không stage co lại theo nội dung và để lại
+  // khoảng tối dưới cùng
+  flex: 1;
+  min-height: 0;
+}
+
+.camera-preview__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.camera-preview__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.camera-preview__stage {
+  position: relative;
+  // 1 để chiếm hết phần còn lại, 0 để phần tử co lại trong flex column
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: #0b0d12;
+}
+
+.camera-preview__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  object-fit: cover;
+  // Camera mặc định lật ngang, giữ đúng như soi gương
+  transform: scaleX(-1);
+}
+
+.camera-preview__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  transform: scaleX(-1);
+  pointer-events: none;
+}
+
+.camera-preview__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.camera-preview__hint {
+  margin: 0;
+  color: #b6bece;
+  font-size: 14px;
+}
+
+.camera-preview__empty {
+  margin: 0;
+  color: #8d95a5;
+  font-size: 14px;
+}
+
+.camera-preview__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    font-size: 13px;
+  }
+}

@@ -1,0 +1,88 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+.event-list {
+  display: grid;
+  gap: $space-4;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.event-list__item {
+  display: block;
+}
+
+.event-list__card {
+  @include card;
+  display: grid;
+  gap: $space-3;
+  padding: $space-5;
+}
+
+.event-list__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $space-3;
+}
+
+.event-list__title {
+  margin: 0;
+  color: $color-text;
+  font-size: 1.125rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.event-list__badge {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba($color-danger, 0.1);
+  color: $color-danger;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.event-list__description {
+  margin: 0;
+  color: $color-text-secondary;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.event-list__details {
+  display: grid;
+  gap: $space-2;
+  margin: 0;
+  padding-top: $space-3;
+  border-top: 1px solid $color-border;
+}
+
+.event-list__detail {
+  display: flex;
+  gap: $space-3;
+}
+
+.event-list__detail-label {
+  flex-shrink: 0;
+  width: 96px;
+  color: $color-text-secondary;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.event-list__detail-value {
+  margin: 0;
+  color: $color-text;
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+
+.event-list__empty {
+  margin: 0;
+  color: $color-text-secondary;
+  font-size: 0.9375rem;
+}

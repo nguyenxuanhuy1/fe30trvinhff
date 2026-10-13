@@ -1,0 +1,93 @@
+// Hướng dẫn chỉnh sửa:
+// 1. Đổi màu: --inventory-btn-light / --inventory-btn-color (mặt nút), --inventory-btn-color-dark (viền sẫm 3D).
+// 2. Đổi độ cong: sửa FACE_PATH, BASE_PATH, EDGE_PATH trong file .tsx (đổi cả 3 cùng nhau).
+// 3. Đổi độ dày viền sẫm: độ dày = số cuối của BASE_PATH trừ 48 (hiện 50 - 48 = 2). Sửa viewBox, height nút và padding-bottom cho khớp.
+
+.inventory-tab {
+  --inventory-btn-light: #ffc54d;
+  --inventory-btn-color: #f08c05;
+  --inventory-btn-color-dark: #c26500;
+
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 50;
+  width: 260px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: visible; // không hidden, kẻo cụt mũi sẫm
+  text-decoration: none;
+  cursor: pointer;
+
+  // Chỉ bóng mềm đổ xuống trang. Độ dày 3D do path SVG đảm nhiệm.
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25));
+
+  @supports (top: env(safe-area-inset-top)) {
+    top: env(safe-area-inset-top);
+  }
+
+  &__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible; // cho mũi sẫm x = -2 lòi ra được
+    z-index: 0;
+  }
+
+  &__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-left: 85px;
+    padding-bottom: 2px;
+    color: #fff;
+  }
+
+  &__icon {
+    width: 24px;
+    height: 24px;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+  }
+
+  &__label {
+    font-weight: 700;
+    font-size: 18px;
+    text-shadow: 0 1px 0 rgba(120, 60, 0, 0.55), 0 2px 3px rgba(120, 60, 0, 0.35);
+    white-space: nowrap;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: -4px;
+  }
+
+  // Đang bấm: không dịch chuyển, chỉ thu bóng đổ lại
+  &:active {
+    filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+  }
+
+  @media (max-width: 639px) {
+    width: 200px;
+    height: 52px;
+
+    &__content {
+      padding-left: 65px;
+      gap: 8px;
+    }
+
+    &__icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    &__label {
+      font-size: 16px;
+    }
+  }
+}

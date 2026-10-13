@@ -1,0 +1,20 @@
+{
+  "hat_circle": {
+    "name": "Mũ bảo hộ tròn",
+    "unlockedBy": ""
+  },
+  "hat_cap": {
+    "name": "Mũ nón",
+    "unlockedBy": ""
+  },
+  "mask_matla": {
+    "name": "Mặt nạ đen",
+    "unlockedBy": "",
+    "ext": "png"
+  },
+  "glasses_kinh": {
+    "name": "Kính râm",
+    "unlockedBy": "",
+    "ext": "png"
+  }
+}

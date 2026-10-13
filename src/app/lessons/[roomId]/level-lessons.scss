@@ -1,0 +1,957 @@
+@use "@/styles/variables" as *;
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap');
+
+$font-game: var(--font-game, "Baloo 2"), "Baloo 2", cursive, system-ui, sans-serif;
+
+html:has(.level-lessons),
+body:has(.level-lessons) {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 46px, rgba(120, 90, 60, .10) 46px 48px, transparent 48px 120px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .18) 0 3px, transparent 3px 71px),
+    #e8dccb !important;
+  background-attachment: fixed !important;
+  overflow-x: hidden;
+  overflow-y: auto !important;
+}
+
+.page-scale:has(.level-lessons) {
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
+.page-wrapper:has(.level-lessons) {
+  transform: none !important;
+  will-change: auto !important;
+  width: 100% !important;
+  background: transparent !important;
+}
+
+main:has(.level-lessons) {
+  background: transparent !important;
+  width: 100%;
+}
+
+.landscape-prompt {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000;
+  color: #fff;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 2rem;
+}
+
+@media screen and (max-width: 768px) and (orientation: portrait) {
+  .landscape-prompt {
+    display: flex;
+  }
+
+  .level-lessons {
+    display: none !important;
+  }
+}
+
+.level-lessons {
+  margin-inline: auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+  padding: calc(5rem + env(safe-area-inset-top, 0px)) max(clamp(16px, 4vw, 50px), env(safe-area-inset-right, 0px)) calc(4rem + env(safe-area-inset-bottom, 0px)) max(clamp(16px, 4vw, 50px), env(safe-area-inset-left, 0px));
+  width: 100%;
+  color: #2a2523;
+  font-family: inherit;
+  box-sizing: border-box;
+
+  &,
+  * {
+    box-sizing: border-box;
+  }
+
+  &__nav-bar {
+    display: contents;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(8px, 1.4vw, 18px);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    @media (max-width: 640px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+  }
+
+  &__item {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__empty {
+    width: 100%;
+    max-width: 480px;
+    margin: 2rem auto;
+    padding: clamp(24px, 5vw, 36px) clamp(20px, 4vw, 32px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(180deg, #fdf4e7 0%, #f7e6d0 50%, #ecd0b4 100%);
+    border: 2.5px solid #543320;
+    border-radius: 20px;
+    box-shadow:
+      inset 0 -5px 0 #caa082,
+      inset 0 2px 0 rgba(255, 255, 255, 0.8),
+      0 0 0 2.5px #241710,
+      0 6px 0 2.5px #241710,
+      0 12px 18px rgba(0, 0, 0, 0.22);
+    position: relative;
+    box-sizing: border-box;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      right: 6px;
+      height: 38%;
+      border-radius: 14px 14px 0 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
+      pointer-events: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 54px clamp(12px, 3vw, 24px) 2.5rem;
+  }
+}
+
+.empty-board {
+  &__icon-wrap {
+    width: clamp(52px, 11vw, 68px);
+    height: clamp(52px, 11vw, 68px);
+    margin-bottom: 14px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #ecd8c3 0%, #dbba9e 100%);
+    border: 2.5px solid #543320;
+    box-shadow:
+      inset 0 -3px 0 #b3896c,
+      inset 0 2px 0 rgba(255, 255, 255, 0.8),
+      0 2px 0 1.5px #241710,
+      0 5px 10px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__icon {
+    font-size: clamp(26px, 5.5vw, 34px);
+    line-height: 1;
+    filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.2));
+    user-select: none;
+  }
+
+  &__title {
+    margin: 0 0 8px;
+    font-family: $font-game;
+    font-weight: 800;
+    font-size: clamp(20px, 4.5vw, 25px);
+    line-height: 1.25;
+    color: #fff;
+    -webkit-text-stroke: 3px #3b2012;
+    paint-order: stroke fill;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  &__desc {
+    margin: 0;
+    font-size: clamp(14px, 2.8vw, 15px);
+    line-height: 1.5;
+    color: #6d4631;
+    font-weight: 600;
+    max-width: 380px;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+  }
+}
+
+// =============================================================
+// GAME CARD UI - ÁP DỤNG ĐỒNG BỘ CHUẨN CARD 3D TOÀN HỆ THỐNG
+// =============================================================
+.news-card {
+  --card-border-color: #1a1512;        // Viền tổng quát là màu đen
+  --card-brown-dark: #623f2b;          // Bên trên viền đen là màu nâu
+  --card-brown-light: #c29a80;         // Trên màu nâu là màu nâu nhạt hơn
+  --card-highlight-white: rgba(255, 255, 255, 0.65); // Dưới viền đen có 1 viền trắng nhỏ tạo độ bóng
+  --card-bg: linear-gradient(180deg, #ecd8c3 0%, #e6cfbe 50%, #d8b29c 100%);
+  --card-radius: 14px;
+
+  // 1. DESKTOP (Mặc định >= 1024px)
+  --card-border-w: 2px;
+  --card-highlight-w: 1.5px;
+  --card-brown-dark-h: 3px;
+  --card-brown-light-h: 6px;
+  --card-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  aspect-ratio: 6 / 7;
+  container-type: inline-size;
+  border: var(--card-border-w) solid var(--card-border-color);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  text-decoration: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+
+  // Lớp viền 3D nổi trên mọi nội dung (ảnh thumbnail, gradient thân card không bị che)
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: calc(var(--card-radius) - var(--card-border-w));
+    pointer-events: none;
+    z-index: 4;
+    box-shadow:
+      // Phía bên trên: dưới viền đen có 1 viền trắng nhỏ tạo độ bóng
+      inset 0 var(--card-highlight-w) 0 var(--card-highlight-white),
+      // Viền ở dưới: bên trên viền đen là màu nâu (vẽ đè lên dải nâu nhạt)
+      inset 0 calc(-1 * var(--card-brown-dark-h)) 0 var(--card-brown-dark),
+      // Viền ở dưới: trên màu nâu là màu nâu nhạt hơn
+      inset 0 calc(-1 * var(--card-brown-light-h)) 0 var(--card-brown-light);
+    transition: box-shadow 0.15s ease;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.32);
+  }
+
+  &:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+
+    &::after {
+      box-shadow:
+        inset 0 var(--card-highlight-w) 0 var(--card-highlight-white),
+        inset 0 calc(-1 * (var(--card-brown-dark-h) - 0.5px)) 0 var(--card-brown-dark),
+        inset 0 calc(-1 * (var(--card-brown-light-h) - 1px)) 0 var(--card-brown-light);
+    }
+  }
+
+  // 2. IPAD / TABLET (769px -> 1023px)
+  @media (min-width: 769px) and (max-width: 1023px) {
+    --card-border-w: 1.5px;
+    --card-radius: 12px;
+    --card-highlight-w: 1px;
+    --card-brown-dark-h: 2px;
+    --card-brown-light-h: 4.5px;
+    --card-shadow: 0 3px 7px rgba(0, 0, 0, 0.22);
+  }
+
+  // 3. MOBILE (<= 768px và Mobile Landscape)
+  @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+    --card-border-w: 1.4px;      // Viền đen dày dặn hơn
+    --card-radius: 9.5px;
+    --card-highlight-w: 0.9px;   // Viền trắng bóng
+    --card-brown-dark-h: 1.4px;  // Viền nâu dưới
+    --card-brown-light-h: 2.6px; // Viền nâu nhạt hơn
+    --card-shadow: 0 1.8px 4px rgba(0, 0, 0, 0.2); // Box shadow đen nhẹ
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2.5px 6px rgba(0, 0, 0, 0.24);
+    }
+
+    &:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+    }
+  }
+
+  /* Vùng ảnh: Chiếm chính xác 50% chiều cao card */
+  &__thumb {
+    position: relative;
+    width: 100%;
+    height: 50%;
+    flex: 0 0 50%;
+    max-height: 50%;
+    min-height: 0;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.06);
+    border-bottom: 2px solid rgba(68, 42, 27, 0.55);
+
+    @media (max-width: 768px) {
+      border-bottom: 1.5px solid rgba(68, 42, 27, 0.5);
+    }
+  }
+
+  &__image {
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover &__image {
+    transform: scale(1.05);
+  }
+
+  &__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: var(--brown-dark, #623f2b);
+    font-weight: 700;
+    font-size: 0.95rem;
+
+    &-icon {
+      font-size: 2.4rem;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+
+      @media (min-width: 1024px) {
+        font-size: 2.8rem;
+      }
+
+      @media (max-width: 768px) {
+        font-size: 1.8rem;
+      }
+    }
+
+    &-text {
+      font-size: 13px;
+      font-family: $font-game;
+      font-weight: 800;
+
+      @media (min-width: 1024px) {
+        font-size: 15px;
+      }
+
+      @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+        font-size: 9.5px;
+      }
+    }
+  }
+
+  /* Vùng chữ / nội dung: Chiếm chính xác 50% chiều cao card */
+  &__body {
+    position: relative;
+    width: 100%;
+    height: 50%;
+    flex: 0 0 50%;
+    max-height: 50%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 10px 12px 8px;
+    box-sizing: border-box;
+    background: linear-gradient(180deg, #efe3d3 0%, #e8d0bf 45%, #d8b19a 100%);
+    overflow: visible;
+
+    @media (min-width: 1024px) {
+      padding: 12px 14px 10px;
+    }
+
+    @media (min-width: 1440px) {
+      padding: 14px 16px 12px;
+    }
+
+    @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+      padding: 4px 7px 3px;
+    }
+  }
+
+  /* Tag ("NEWS" / "MỚI"): căn lề trái chuẩn cùng với tiêu đề, không thụt lề */
+  &__tag {
+    display: block;
+    margin: 0 0 2px 0;
+    padding: 0 1px;
+    align-self: flex-start;
+    text-align: left;
+    font-family: $font-game;
+    font-weight: 800;
+    font-size: 13px;
+    line-height: 1.2;
+    color: #4f8f0e;
+    -webkit-text-stroke: 1px #000;
+    paint-order: stroke fill;
+    letter-spacing: 0.3px;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    @media (min-width: 1024px) {
+      font-size: 15px;
+      margin-bottom: 3px;
+      -webkit-text-stroke: 1.1px #000;
+    }
+
+    @media (min-width: 1440px) {
+      font-size: 17px;
+      margin-bottom: 4px;
+      -webkit-text-stroke: 1.2px #000;
+    }
+
+    @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+      font-size: 15px;
+      padding: 0 1px;
+      margin-bottom: 1px;
+      line-height: 1.15;
+      -webkit-text-stroke: 0.45px #000;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 6.5px;
+      -webkit-text-stroke: 0.4px #000;
+    }
+  }
+
+  /* Title: To rõ trên Desktop, nhỏ hơn và giới hạn 2 dòng trên Mobile để không bị che bởi footer / nút tim */
+  &__title {
+    margin: 1px 0 0 0;
+    padding: 0 1.5px;
+    box-sizing: border-box;
+    max-width: 100%;
+    width: 100%;
+    font-family: $font-game;
+    font-weight: 800;
+    font-size: 20px;
+    line-height: 1.3;
+    max-height: calc(1.3em * 3);
+    color: #ffffff;
+    -webkit-text-stroke: 1.4px #000;
+    paint-order: stroke fill;
+    text-shadow: 0 1.5px 0 rgba(0, 0, 0, 0.5);
+    letter-spacing: 0.25px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    flex-shrink: 1;
+
+    @media (min-width: 1024px) {
+      font-size: 24px;
+      line-height: 1.32;
+      max-height: calc(1.32em * 3);
+      -webkit-text-stroke: 1.6px #000;
+      letter-spacing: 0.35px;
+    }
+
+    @media (min-width: 1440px) {
+      font-size: 27px;
+      line-height: 1.32;
+      max-height: calc(1.32em * 3);
+      -webkit-text-stroke: 1.8px #000;
+      letter-spacing: 0.45px;
+    }
+
+@media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+  font-size: 18px;
+  line-height: 1.2;
+  max-height: calc(1.2em * 3);
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-text-stroke: 0.45px #000;
+  letter-spacing: 0.05px;
+  margin-top: 0;
+  padding: 0 1px;
+}
+
+    @media (max-width: 480px) {
+      font-size: 7.5px;
+      line-height: 1.18;
+      max-height: calc(1.18em * 2);
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-text-stroke: 0.4px #000;
+      padding: 0 1px;
+    }
+  }
+
+  /* Footer chứa nút tim (yêu thích) */
+  &__footer {
+    margin-top: auto;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    z-index: 6;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  &__heart-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2.5px 8px;
+    background: rgba(30, 24, 20, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.22);
+    transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    &:hover {
+      transform: scale(1.06);
+      background: rgba(30, 24, 20, 0.8);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
+
+    &--active {
+      background: rgba(100, 16, 28, 0.85);
+      border-color: #ff3355;
+      box-shadow: 0 1.5px 5px rgba(255, 51, 85, 0.35);
+
+      .news-card__heart-icon {
+        filter: drop-shadow(0 0 4px rgba(255, 51, 85, 0.8));
+        transform: scale(1.08);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      padding: 3.5px 10px;
+      gap: 4px;
+    }
+
+    @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+      padding: 1.5px 5px;
+    }
+  }
+
+  &__heart-icon {
+    width: 13px;
+    height: 13px;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+
+    @media (min-width: 1024px) {
+      width: 16px;
+      height: 16px;
+    }
+
+    @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+      width: 10px;
+      height: 10px;
+    }
+  }
+
+  &__heart-count {
+    font-family: $font-game;
+    font-weight: 800;
+    font-size: 11px;
+    line-height: 1;
+    color: #fff;
+    -webkit-text-stroke: 0.8px #000;
+    paint-order: stroke fill;
+    text-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.7);
+
+    @media (min-width: 1024px) {
+      font-size: 13px;
+    }
+
+    @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+      font-size: 8.5px;
+    }
+  }
+}
+
+.close-btn {
+  --lift: 3px;
+  --ink: #2a1214;
+  /* viền đen ngoài cùng */
+  --red-dark: #6e0f1c;
+  /* viền đỏ sẫm */
+  --red-edge: #a30f22;
+  /* gờ đỏ đậm ở đáy */
+  --red-top: #ff4d5e;
+  --red-bottom: #d0152c;
+
+  position: fixed !important;
+  top: clamp(16px, 2.5vw, 24px) !important;
+  right: clamp(16px, 2.5vw, 28px) !important;
+  z-index: 9999 !important;
+  width: 62px;
+  height: 58px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--red-dark);
+  border-radius: 13px;
+  background: linear-gradient(180deg, var(--red-top) 0%, var(--red-bottom) 100%);
+  box-shadow:
+    inset 0 -5px 0 var(--red-edge),
+    inset 0 0 0 2px rgba(255, 190, 195, .55),
+    0 var(--lift) 0 2px var(--ink),
+    0 calc(var(--lift) + 3px) 6px rgba(0, 0, 0, .3);
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+  -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+
+  @supports (top: env(safe-area-inset-top)) {
+    top: max(clamp(16px, 2.5vw, 24px), env(safe-area-inset-top));
+    right: max(clamp(16px, 2.5vw, 28px), env(safe-area-inset-right));
+  }
+
+  /* dải bóng kính nửa trên */
+  &::before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    right: 3px;
+    height: 42%;
+    border-radius: 9px 9px 14px 14px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .4), rgba(255, 255, 255, .08));
+    pointer-events: none;
+  }
+
+  &__icon {
+    position: relative;
+    font-family: $font-game;
+    font-weight: 800;
+    font-size: 38px;
+    line-height: 1;
+    color: #fff;
+    -webkit-text-stroke: 3.5px var(--red-dark);
+    paint-order: stroke fill;
+    text-shadow: 0 2.5px 0 rgba(0, 0, 0, .4);
+    margin-top: -2px;
+    user-select: none;
+  }
+
+  &:hover {
+    --lift: 5px;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    --lift: 1px;
+    transform: translateY(3px);
+  }
+
+  &:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 4px;
+  }
+
+  @media (min-width: 1024px) {
+    width: 68px;
+    height: 64px;
+    top: 24px !important;
+    right: 28px !important;
+
+    &__icon {
+      font-size: 42px;
+    }
+  }
+
+  @media (min-width: 1440px) {
+    width: 76px;
+    height: 70px;
+    top: 28px !important;
+    right: 36px !important;
+
+    &__icon {
+      font-size: 46px;
+    }
+  }
+
+  @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+    top: 6px !important;
+    right: 8px !important;
+    width: 28px;
+    height: 26px;
+    border-radius: 7px;
+    border-width: 1.5px;
+    --lift: 1.5px;
+    box-shadow:
+      inset 0 -2px 0 var(--red-edge),
+      inset 0 0 0 1px rgba(255, 190, 195, .55),
+      0 var(--lift) 0 1px var(--ink),
+      0 calc(var(--lift) + 1.5px) 3px rgba(0, 0, 0, .25);
+
+    @supports (top: env(safe-area-inset-top)) {
+      top: max(6px, env(safe-area-inset-top)) !important;
+      right: max(8px, env(safe-area-inset-right)) !important;
+    }
+
+    &::before {
+      top: 1.5px;
+      left: 1.5px;
+      right: 1.5px;
+      height: 38%;
+      border-radius: 5px 5px 7px 7px;
+    }
+
+    &__icon {
+      font-size: 13px;
+      -webkit-text-stroke: 1px var(--red-dark);
+      margin-top: -1px;
+      text-shadow: 0 1px 0 rgba(0, 0, 0, .4);
+    }
+  }
+}
+
+.tab-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  pointer-events: none;
+  /* Let clicks pass through empty areas */
+
+  @media (min-width: 1024px) {
+    gap: 16px;
+  }
+
+  @media (min-width: 1440px) {
+    gap: 20px;
+  }
+
+  @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+    gap: 8px;
+    top: 0;
+  }
+}
+
+.tab-bar>.tab {
+  pointer-events: auto;
+  /* Enable clicks on the tabs themselves */
+}
+
+.tab {
+  --lift: 3px;
+  --ink: #241710;
+  /* đen */
+  --brown-dark: #4a2f20;
+  /* nâu đậm (viền) */
+  --brown-light: #8d6046;
+  /* nâu nhạt (gờ đáy) */
+  --brown-top: #7b5238;
+  --brown-bottom: #5d3b29;
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 50px;
+  padding: 0 22px 3px;
+  border: 2px solid var(--brown-dark);
+  border-top: 0;
+  border-radius: 0 0 14px 14px;
+  background: linear-gradient(180deg, var(--brown-top) 0%, var(--brown-bottom) 100%);
+  box-shadow:
+    inset 0 -4px 0 var(--brown-light),
+    0 0 0 1.5px var(--ink),
+    0 var(--lift) 0 1.5px var(--ink),
+    0 calc(var(--lift) + 2px) 5px rgba(0, 0, 0, .28);
+  clip-path: inset(0 -5px -14px -5px);
+  cursor: pointer;
+  font-family: $font-game;
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1;
+  color: #fff;
+  -webkit-text-stroke: 2.2px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 1.5px 0 rgba(0, 0, 0, .35);
+  transition: transform .12s ease, box-shadow .12s ease, height .12s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  &:hover {
+    height: 50px;
+  }
+
+  &:active {
+    --lift: 1px;
+    height: 51px;
+  }
+
+  &.is-active {
+    --brown-top: #9a6a48;
+    --brown-bottom: #70452d;
+    height: 53px;
+  }
+
+  @media (min-width: 1024px) {
+    height: 56px;
+    padding: 0 26px 4px;
+    font-size: 20px;
+    gap: 10px;
+
+    &:hover {
+      height: 56px;
+    }
+    &:active {
+      height: 57px;
+    }
+    &.is-active {
+      height: 60px;
+    }
+  }
+
+  @media (min-width: 1440px) {
+    height: 62px;
+    padding: 0 32px 5px;
+    font-size: 22px;
+    gap: 12px;
+
+    &:hover {
+      height: 62px;
+    }
+    &:active {
+      height: 63px;
+    }
+    &.is-active {
+      height: 66px;
+    }
+  }
+
+  @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+    --lift: 1.5px;
+    height: 35px !important;
+    padding: 0 13px 2px;
+    font-size: 13px;
+    -webkit-text-stroke: 1.1px var(--ink);
+    border-radius: 0 0 9px 9px;
+    border-width: 1.5px;
+    box-shadow:
+      inset 0 -2.5px 0 var(--brown-light),
+      0 0 0 1px var(--ink),
+      0 var(--lift) 0 1px var(--ink),
+      0 calc(var(--lift) + 1px) 3px rgba(0, 0, 0, .22);
+    clip-path: inset(0 -4px -10px -4px);
+
+    &:hover {
+      height: 36px !important;
+    }
+
+    &:active {
+      --lift: 0.8px;
+      height: 37px !important;
+    }
+
+    &.is-active {
+      height: 39px !important;
+      --brown-top: #9a6a48;
+      --brown-bottom: #70452d;
+    }
+  }
+}
+
+.tab__icon {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  filter: drop-shadow(0 1.5px 0 rgba(0, 0, 0, .35));
+
+  @media (min-width: 1024px) {
+    width: 34px;
+    height: 34px;
+    font-size: 27px;
+  }
+
+  @media (min-width: 1440px) {
+    width: 38px;
+    height: 38px;
+    font-size: 30px;
+  }
+
+  @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+    width: 18px;
+    height: 18px;
+    font-size: 14px;
+  }
+}
+
+/* icon "C" của Creators */
+.tab__icon--creator {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: linear-gradient(180deg, #3be08a, #12a95a);
+  border: 1.8px solid #0a5a30;
+  font-family: inherit;
+  font-size: 17px;
+  color: #fff;
+
+  @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
+    width: 16px;
+    height: 16px;
+    font-size: 11px;
+    border-width: 1.2px;
+    border-radius: 5px;
+  }
+}
+
+.tab__label {
+  position: relative;
+  top: 1px;
+}
+
+// =============================================================
+// MOBILE LANDSCAPE (ĐIỆN THOẠI XOAY NGANG)
+// =============================================================
+@media (max-height: 520px) and (orientation: landscape), (max-height: 480px) {
+  .level-lessons {
+    padding: 54px clamp(16px, 4vw, 36px) 24px !important;
+
+    &__grid {
+      gap: 8px;
+      justify-content: center;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 205px));
+      max-width: 960px;
+      margin: 0 auto;
+    }
+  }
+}

@@ -1,0 +1,937 @@
+// =============================================================
+// MODAL ĐĂNG NHẬP NHẬN XU HÀNG NGÀY (PHIÊN BẢN GỌN GÀNG, TỐI GIẢN)
+// Căn giữa màn hình hoàn hảo cả chiều ngang & dọc
+// =============================================================
+
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap');
+
+$font-game: var(--font-game, "Baloo 2"), "Baloo 2", cursive, system-ui, sans-serif;
+$brown-dark: #3b2214;
+$brown-light: #caa082;
+$ink: #241710;
+
+// -------------------------------------------------------------
+// OVERLAY — Căn giữa 100% cả chiều rộng và chiều cao
+// -------------------------------------------------------------
+.daily-reward-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 10, 5, 0.75);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+  animation: dailyOverlayFadeIn 0.2s ease-out;
+}
+
+@keyframes dailyOverlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+// -------------------------------------------------------------
+// MODAL CONTAINER — Khung gỗ nhỏ gọn, căn giữa màn hình
+// -------------------------------------------------------------
+.daily-reward-modal {
+  position: relative;
+  margin: auto;
+  width: 100%;
+  max-width: 410px;
+  max-height: min(90vh, 90dvh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: linear-gradient(180deg, #ecd8c3 0%, #e6cfbe 50%, #d8b29c 100%);
+  border: 2px solid $brown-dark;
+  border-radius: 14px;
+  box-shadow:
+    inset 0 -2.5px 0 $brown-light,
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.70),
+    0 8px 24px rgba(0, 0, 0, 0.45);
+  padding: 12px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  box-sizing: border-box;
+  animation: dailyModalSlideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &::-webkit-scrollbar {
+    width: 3px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $brown-light;
+    border-radius: 3px;
+  }
+
+  @media (min-width: 769px) {
+    max-width: 580px;
+    padding: 22px 22px 18px;
+    gap: 12px;
+    border-radius: 18px;
+    border-width: 2.5px;
+    box-shadow:
+      inset 0 -3.5px 0 $brown-light,
+      inset 0 2px 0 rgba(255, 255, 255, 0.75),
+      0 12px 36px rgba(0, 0, 0, 0.55);
+  }
+
+  @media (min-width: 1200px) {
+    max-width: 640px;
+    padding: 26px 26px 22px;
+    gap: 14px;
+    border-radius: 20px;
+  }
+
+  @media (max-width: 480px) {
+    max-width: 330px;
+    padding: 10px 8px 8px;
+    gap: 6px;
+    border-radius: 12px;
+    border-width: 1.5px;
+  }
+
+  // ---------- NÚT ĐÓNG (X) ----------
+  &__close-btn {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 25px;
+    height: 25px;
+    border: 1.5px solid #5a0b16;
+    border-radius: 7px;
+    background: linear-gradient(180deg, #ff4d5e 0%, #d0152c 100%);
+    box-shadow:
+      inset 0 -1.5px 0 #a30f22,
+      inset 0 0 0 1px rgba(255, 190, 195, .45),
+      0 1.5px 4px rgba(0, 0, 0, 0.22);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .12s ease, box-shadow .12s ease;
+    font-family: $font-game;
+    line-height: 1;
+    z-index: 5;
+    -webkit-tap-highlight-color: transparent;
+
+    @media (min-width: 769px) {
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      font-size: 14px;
+      border-radius: 9px;
+      border-width: 2px;
+    }
+
+    @media (min-width: 1200px) {
+      top: 14px;
+      right: 14px;
+      width: 36px;
+      height: 36px;
+      font-size: 16px;
+      border-radius: 10px;
+    }
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 -1.5px 0 #a30f22,
+        0 3px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    &:active {
+      transform: translateY(1px);
+      box-shadow: inset 0 -1px 0 #a30f22;
+    }
+  }
+
+  // ---------- HEADER ----------
+  &__header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+
+  &__icon-wrap {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #ffe27a 0%, #f5a800 100%);
+    border: 1.8px solid $brown-dark;
+    box-shadow:
+      inset 0 -2px 0 #b87b00,
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      0 2px 6px rgba(180, 110, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @media (min-width: 769px) {
+      width: 48px;
+      height: 48px;
+      border-width: 2.4px;
+    }
+
+    @media (min-width: 1200px) {
+      width: 54px;
+      height: 54px;
+      border-width: 2.8px;
+    }
+  }
+
+  &__chest {
+    font-size: 17px;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25));
+
+    @media (min-width: 769px) {
+      font-size: 26px;
+    }
+
+    @media (min-width: 1200px) {
+      font-size: 30px;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-family: $font-game;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: #fff;
+    -webkit-text-stroke: 1.3px $brown-dark;
+    paint-order: stroke fill;
+    text-shadow: 0 1.2px 0 rgba(0, 0, 0, 0.35);
+
+    @media (min-width: 769px) {
+      font-size: 20px;
+      -webkit-text-stroke: 1.8px $brown-dark;
+      letter-spacing: 0.6px;
+    }
+
+    @media (min-width: 1200px) {
+      font-size: 23px;
+      -webkit-text-stroke: 2px $brown-dark;
+      letter-spacing: 0.8px;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 12.5px;
+      -webkit-text-stroke: 1.1px $brown-dark;
+      letter-spacing: 0.15px;
+    }
+  }
+
+  // ---------- THÔNG BÁO / LỖI ----------
+  &__error {
+    padding: 5px 8px;
+    background: linear-gradient(180deg, #fde8e8 0%, #ffd5d5 100%);
+    border: 1.2px solid #a30f22;
+    border-radius: 6px;
+    box-shadow: inset 0 -1px 0 #a30f22;
+    color: #a30f22;
+    font-family: $font-game;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  // ---------- LOADING ----------
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 0;
+    gap: 6px;
+    color: #6a4733;
+    font-family: $font-game;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  &__spinner {
+    width: 22px;
+    height: 22px;
+    border: 2px solid $brown-light;
+    border-top-color: $brown-dark;
+    border-radius: 50%;
+    animation: dailySpin 0.75s linear infinite;
+  }
+
+  // ---------- FEATURE DISABLED ----------
+  &__disabled-box {
+    text-align: center;
+    padding: 14px 10px;
+    color: #6a4733;
+    font-family: $font-game;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px dashed #8d6046;
+    border-radius: 8px;
+  }
+
+  &__lock-icon {
+    font-size: 22px;
+    filter: drop-shadow(0 1.5px 2px rgba(0,0,0,0.25));
+  }
+}
+
+@keyframes dailySpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes dailyModalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// =============================================================
+// LƯỚI 7 THẺ NGÀY NHẬN XU (4 Cột - 2 Hàng gọn gàng)
+// =============================================================
+.daily-reward-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (min-width: 769px) {
+    gap: 9px;
+  }
+
+  @media (min-width: 1200px) {
+    gap: 12px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 4px;
+  }
+}
+
+.daily-reward-card {
+  position: relative;
+  background: linear-gradient(180deg, #fffaf3 0%, #f6ecdc 100%);
+  border: 1.5px solid $brown-dark;
+  border-radius: 8px;
+  box-shadow:
+    inset 0 -2px 0 $brown-light,
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 1.5px 4px rgba(0, 0, 0, 0.08);
+  padding: 5px 3px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1px;
+  min-height: 62px;
+  box-sizing: border-box;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 -2px 0 $brown-light,
+      0 3px 6px rgba(0, 0, 0, 0.14);
+  }
+
+  @media (min-width: 769px) {
+    min-height: 92px;
+    padding: 8px 6px 7px;
+    border-radius: 11px;
+    border-width: 1.8px;
+    box-shadow:
+      inset 0 -2.5px 0 $brown-light,
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.65),
+      0 2.5px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (min-width: 1200px) {
+    min-height: 106px;
+    padding: 10px 8px 9px;
+    border-radius: 13px;
+    border-width: 2px;
+  }
+
+  @media (max-width: 480px) {
+    min-height: 55px;
+    padding: 4px 2px 3px;
+    gap: 1px;
+    border-radius: 6.5px;
+    border-width: 1.2px;
+    box-shadow:
+      inset 0 -1.5px 0 $brown-light,
+      inset 0 1px 0 rgba(255, 255, 255, 0.6),
+      0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+
+  // NGÀY 7 — SPAN 2 CỘT
+  &--big {
+    grid-column: span 2;
+    background: linear-gradient(135deg, #ffe27a 0%, #f5c842 40%, #f5a800 100%);
+    border: 1.8px solid $brown-dark;
+    box-shadow:
+      inset 0 -2.5px 0 #b87b00,
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      0 3px 8px rgba(180, 110, 0, 0.28);
+
+    @media (min-width: 769px) {
+      border-width: 2.2px;
+      box-shadow:
+        inset 0 -3px 0 #b87b00,
+        inset 0 1.5px 0 rgba(255, 255, 255, 0.65),
+        0 4px 10px rgba(180, 110, 0, 0.3);
+    }
+
+    @media (max-width: 480px) {
+      border-width: 1.4px;
+      box-shadow:
+        inset 0 -1.8px 0 #b87b00,
+        0 1.5px 4px rgba(180, 110, 0, 0.22);
+    }
+  }
+
+  // HEAD — tên ngày + badge
+  &__head {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2px;
+    padding: 0 1px;
+  }
+
+  &__day {
+    font-family: $font-game;
+    font-size: 8px;
+    font-weight: 700;
+    color: #fff;
+    -webkit-text-stroke: 0.9px $brown-dark;
+    paint-order: stroke fill;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+    letter-spacing: 0.1px;
+    white-space: nowrap;
+
+    @media (min-width: 769px) {
+      font-size: 12px;
+      -webkit-text-stroke: 1.1px $brown-dark;
+      letter-spacing: 0.2px;
+    }
+
+    @media (min-width: 1200px) {
+      font-size: 13.5px;
+      -webkit-text-stroke: 1.3px $brown-dark;
+      letter-spacing: 0.3px;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 7.2px;
+      -webkit-text-stroke: 0.7px $brown-dark;
+      letter-spacing: 0;
+    }
+  }
+
+  &__badge {
+    font-family: $font-game;
+    font-size: 6.5px;
+    font-weight: 800;
+    padding: 0.8px 3px;
+    border-radius: 3px;
+    letter-spacing: 0.1px;
+    line-height: 1.1;
+    white-space: nowrap;
+
+    @media (min-width: 769px) {
+      font-size: 9px;
+      padding: 1.5px 5px;
+      border-radius: 4px;
+    }
+
+    @media (min-width: 1200px) {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    &--claimed {
+      background: #4a5a4c;
+      border: 1px solid #334335;
+      color: #b0cbb2;
+    }
+
+    &--today {
+      background: linear-gradient(180deg, #ff4d5e 0%, #d0152c 100%);
+      border: 1px solid #5a0b16;
+      box-shadow: inset 0 -1px 0 #a30f22;
+      color: #fff;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 6px;
+      padding: 0.5px 2px;
+    }
+  }
+
+  // COIN BOX
+  &__coin-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0px;
+  }
+
+  &__coin-icon {
+    font-size: 16px;
+    filter: drop-shadow(0 1px 1.2px rgba(0,0,0,0.2));
+    line-height: 1;
+
+    @media (min-width: 769px) {
+      font-size: 25px;
+    }
+
+    @media (min-width: 1200px) {
+      font-size: 30px;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 13.5px;
+    }
+  }
+
+  &__amount {
+    font-family: $font-game;
+    font-size: 12px;
+    font-weight: 800;
+    color: #fff;
+    -webkit-text-stroke: 1.1px $brown-dark;
+    paint-order: stroke fill;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+    line-height: 1;
+
+    @media (min-width: 769px) {
+      font-size: 17px;
+      -webkit-text-stroke: 1.3px $brown-dark;
+    }
+
+    @media (min-width: 1200px) {
+      font-size: 20px;
+      -webkit-text-stroke: 1.5px $brown-dark;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 10px;
+      -webkit-text-stroke: 0.9px $brown-dark;
+    }
+  }
+
+  &__unit {
+    font-family: $font-game;
+    font-size: 7px;
+    font-weight: 700;
+    color: #6a4733;
+    letter-spacing: 0.3px;
+    line-height: 1;
+
+    @media (min-width: 769px) {
+      font-size: 9.5px;
+      letter-spacing: 0.4px;
+    }
+
+    @media (min-width: 1200px) {
+      font-size: 11px;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 6px;
+    }
+  }
+
+  &__lock-hint {
+    font-family: $font-game;
+    font-size: 7px;
+    color: #9e8371;
+    font-weight: 600;
+    letter-spacing: 0.1px;
+
+    @media (min-width: 769px) {
+      font-size: 9.5px;
+    }
+
+    @media (min-width: 1200px) {
+      font-size: 11px;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 6px;
+    }
+  }
+
+  // ---------- TRẠNG THÁI: ĐÃ NHẬN (TỐI ĐI RÕ RỆT) ----------
+  &--claimed {
+    background: linear-gradient(180deg, #968679 0%, #827266 100%) !important;
+    border-color: #554437 !important;
+    box-shadow:
+      inset 0 1px 2px rgba(0, 0, 0, 0.45),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.08) !important;
+    opacity: 0.65;
+    filter: grayscale(0.6) brightness(0.85);
+    transform: none !important;
+    cursor: default !important;
+
+    &:hover {
+      transform: none !important;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.45) !important;
+    }
+
+    .daily-reward-card__day {
+      color: #ded6ce;
+      -webkit-text-stroke: 0.7px #38291e;
+    }
+
+    .daily-reward-card__coin-icon {
+      filter: grayscale(0.7) brightness(0.8);
+      opacity: 0.75;
+    }
+
+    .daily-reward-card__amount {
+      -webkit-text-stroke: 0.8px #2b2016;
+      color: #c4b9af;
+    }
+
+    .daily-reward-card__unit {
+      color: #a89a8c;
+    }
+  }
+
+  // ---------- TRẠNG THÁI: HÔM NAY CHƯA NHẬN (SÁNG VÀNG NỔI BẬT) ----------
+  &--today {
+    background: linear-gradient(180deg, #fffceb 0%, #ffea8a 100%);
+    border: 1.8px solid #f5a800;
+    box-shadow:
+      inset 0 -2px 0 #b87b00,
+      inset 0 1px 0 rgba(255, 255, 255, 0.7),
+      0 0 10px rgba(245, 168, 0, 0.45);
+    transform: translateY(-1.5px);
+    z-index: 2;
+
+    &:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow:
+        inset 0 -2px 0 #b87b00,
+        0 0 14px rgba(245, 168, 0, 0.6);
+    }
+
+    @media (max-width: 480px) {
+      border-width: 1.4px;
+      box-shadow:
+        inset 0 -1.5px 0 #b87b00,
+        inset 0 1px 0 rgba(255, 255, 255, 0.7),
+        0 0 6px rgba(245, 168, 0, 0.4);
+      transform: translateY(-1px);
+    }
+  }
+
+  // ---------- TRẠNG THÁI: CHƯA MỞ ----------
+  &--locked {
+    opacity: 0.6;
+    filter: grayscale(0.25);
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+// Tag "Bấm nhận" bên trong thẻ today
+.daily-reward-card--today .daily-reward-card__tap-hint {
+  font-family: $font-game;
+  font-size: 7px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(180deg, #ff4d5e 0%, #d0152c 100%);
+  border: 1px solid #5a0b16;
+  border-radius: 3px;
+  padding: 0.5px 4px;
+  box-shadow: inset 0 -1px 0 #a30f22;
+  letter-spacing: 0.1px;
+  animation: tapPulse 1.2s ease-in-out infinite;
+  white-space: nowrap;
+
+  @media (min-width: 769px) {
+    font-size: 9px;
+    padding: 1.5px 6px;
+    border-radius: 4px;
+  }
+
+  @media (min-width: 1200px) {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 6px;
+    padding: 0.4px 2.5px;
+  }
+}
+
+@keyframes tapPulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.04); }
+}
+
+// =============================================================
+// CHÂN MODAL & NÚT NHẬN (TỐI GIẢN, CO NGẮN THEO CHỮ)
+// =============================================================
+.daily-reward-modal__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 1px;
+  border-top: 1.2px solid rgba(59, 34, 20, 0.15);
+  padding-top: 7px;
+
+  @media (min-width: 769px) {
+    gap: 10px;
+    padding-top: 10px;
+    border-top-width: 1.8px;
+  }
+
+  @media (min-width: 1200px) {
+    gap: 12px;
+    padding-top: 14px;
+    border-top-width: 2px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 5px;
+    padding-top: 5px;
+  }
+}
+
+.daily-reward-modal__user-coins {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px dashed rgba(141, 96, 70, 0.6);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 10.5px;
+  color: #6a4733;
+  font-weight: 600;
+  font-family: $font-game;
+
+  @media (min-width: 769px) {
+    padding: 5px 12px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+
+  @media (min-width: 1200px) {
+    padding: 7px 16px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 2.5px 6px;
+    font-size: 9.5px;
+  }
+}
+
+.daily-reward-modal__coin-val {
+  font-family: $font-game;
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  -webkit-text-stroke: 1.1px $brown-dark;
+  paint-order: stroke fill;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+
+  @media (min-width: 769px) {
+    font-size: 15px;
+    -webkit-text-stroke: 1.3px $brown-dark;
+  }
+
+  @media (min-width: 1200px) {
+    font-size: 17px;
+    -webkit-text-stroke: 1.5px $brown-dark;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 10.5px;
+    -webkit-text-stroke: 0.9px $brown-dark;
+  }
+}
+
+.daily-reward-modal__action-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+// ---------- NÚT HÀNH ĐỘNG — TỐI GIẢN, CO NGẮN GỌN GÀNG ----------
+.daily-reward-modal__btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  max-width: max-content;
+  padding: 6px 18px;
+  font-family: $font-game;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.25px;
+  cursor: pointer;
+  border-radius: 7px;
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+  text-align: center;
+  white-space: nowrap;
+
+  @media (min-width: 769px) {
+    padding: 9px 28px;
+    font-size: 15px;
+    border-radius: 9px;
+    letter-spacing: 0.4px;
+    border-width: 2px;
+  }
+
+  @media (min-width: 1200px) {
+    padding: 11px 34px;
+    font-size: 17px;
+    border-radius: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  // Lớp bóng highlight nhẹ
+  &::before {
+    content: "";
+    position: absolute;
+    top: 1px;
+    left: 2px;
+    right: 2px;
+    height: 38%;
+    border-radius: 5px 5px 8px 8px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .45), rgba(255, 255, 255, .08));
+    pointer-events: none;
+  }
+
+  &__btn-text {
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+  }
+
+  // 1. NÚT NHẬN XU (TỐI GIẢN, VỪA VẶN)
+  &--claim {
+    background: linear-gradient(180deg, #ffe27a 0%, #f5a800 100%);
+    border: 1.6px solid #4a2c1b;
+    box-shadow:
+      inset 0 -2px 0 #b87b00,
+      inset 0 0 0 1px rgba(255, 240, 140, .5),
+      0 2px 5px rgba(180, 110, 0, 0.25);
+    color: #fff;
+    -webkit-text-stroke: 0.9px #4a2c1b;
+    paint-order: stroke fill;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 -2px 0 #b87b00,
+        0 3px 8px rgba(180, 110, 0, 0.35);
+      filter: brightness(1.04);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(1px);
+      box-shadow: inset 0 -1px 0 #b87b00;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  // 2. NÚT ĐÃ NHẬN (DISABLE, TỐI GIẢN, CO NGẮN GỌN GÀNG)
+  &--done {
+    background: #55483e;
+    border: 1.4px solid #3d3129;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+    color: #c4b9af;
+    -webkit-text-stroke: 0.5px #261e18;
+    paint-order: stroke fill;
+    text-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.85;
+    padding: 4.5px 14px;
+    font-size: 11px;
+    letter-spacing: 0.15px;
+
+    @media (min-width: 769px) {
+      padding: 7px 22px;
+      font-size: 13.5px;
+      border-width: 1.8px;
+    }
+
+    @media (min-width: 1200px) {
+      padding: 9px 26px;
+      font-size: 15px;
+    }
+
+    &::before {
+      display: none;
+    }
+
+    &:hover, &:active {
+      transform: none;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 5px 14px;
+    font-size: 10.5px;
+    border-radius: 6px;
+
+    &--done {
+      padding: 4px 11px;
+      font-size: 10px;
+    }
+  }
+}

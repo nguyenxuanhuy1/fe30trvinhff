@@ -1,0 +1,50 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: $space-6;
+  margin-bottom: $space-8;
+
+  @include respond(md) {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: $space-4;
+  }
+
+  &__content {
+    display: grid;
+    gap: $space-2;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    color: $color-primary;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    margin: 0;
+    color: $color-text;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    line-height: 1.2;
+  }
+
+  &__description {
+    max-width: 640px;
+    margin: 0;
+    color: $color-text-secondary;
+    line-height: 1.6;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-3;
+  }
+}

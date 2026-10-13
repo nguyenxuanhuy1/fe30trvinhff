@@ -1,0 +1,925 @@
+@use "sass:color";
+@use "@/styles/variables" as *;
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap');
+
+// -------------------------------------------------------------
+// PALETTE & TOKENS PHONG CÁCH GAME RPG (ĐỒNG BỘ /BAN-BE & /LESSON/ID)
+// -------------------------------------------------------------
+$ink: #241710;
+$brown-dark: #3b2214;
+$brown-light: #caa082;
+$font-game: var(--font-game, "Baloo 2"), "Baloo 2", cursive, system-ui, sans-serif;
+
+html:has(.inventory-retro),
+body:has(.inventory-retro) {
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: #1e1510 !important;
+  color: #2a2523;
+}
+
+.inventory-retro,
+.inventory-retro * {
+  box-sizing: border-box;
+}
+
+.inventory-retro {
+  --inv-header-h: 74px;
+
+  @media (min-width: 1024px) {
+    --inv-header-h: 82px;
+  }
+
+  @media (min-width: 1440px) {
+    --inv-header-h: 90px;
+  }
+
+  @media (max-width: 640px), (max-height: 520px) {
+    --inv-header-h: 48px;
+  }
+
+  &::before {
+    display: none;
+  }
+}
+
+// -------------------------------------------------------------
+// 1. HEADER THANH GỖ GAME (ĐỒNG BỘ HOÀN TOÀN VỚI /GIO-HANG)
+// -------------------------------------------------------------
+.inventory-retro__header {
+  position: relative;
+  z-index: 100;
+  height: var(--inv-header-h);
+  min-height: var(--inv-header-h);
+  background: linear-gradient(180deg, #5c3b28 0%, #442a1b 100%);
+  border-bottom: 3.5px solid $brown-dark;
+  box-shadow:
+    inset 0 -4px 0 #28170e,
+    0 4px 14px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(16px, 2.5vw, 32px);
+  gap: 16px;
+  flex-shrink: 0;
+
+  @media (min-width: 1024px) {
+    padding: 0 32px;
+    gap: 20px;
+  }
+
+  @media (min-width: 1440px) {
+    padding: 0 40px;
+    gap: 24px;
+  }
+
+  @media (max-width: 640px), (max-height: 520px) {
+    height: 48px;
+    min-height: 48px;
+    padding: 0 10px;
+    gap: 8px;
+    border-bottom: 1.5px solid $brown-dark;
+    box-shadow:
+      inset 0 -1.5px 0 #28170e,
+      0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.inventory-retro__header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  min-width: 0;
+
+  @media (max-width: 640px), (max-height: 520px) {
+    gap: 6px;
+  }
+}
+
+.inventory-retro__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  @media (min-width: 1024px) {
+    gap: 14px;
+  }
+
+  @media (min-width: 1440px) {
+    gap: 16px;
+  }
+
+  @media (max-width: 640px), (max-height: 520px) {
+    gap: 5px;
+  }
+}
+
+.inventory-retro__title {
+  margin: 0;
+  color: #fff;
+  font-family: $font-game;
+  font-size: 20px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  -webkit-text-stroke: 1.8px $brown-dark;
+  paint-order: stroke fill;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (min-width: 1024px) {
+    font-size: 26px;
+    letter-spacing: 0.8px;
+    -webkit-text-stroke: 2.4px $brown-dark;
+    text-shadow: 0 2.5px 0 rgba(0, 0, 0, 0.5);
+  }
+
+  @media (min-width: 1440px) {
+    font-size: 30px;
+    letter-spacing: 1px;
+    -webkit-text-stroke: 2.8px $brown-dark;
+    text-shadow: 0 3px 0 rgba(0, 0, 0, 0.55);
+  }
+
+  @media (max-width: 640px), (max-height: 520px) {
+    font-size: clamp(11.5px, 3.2vw, 14px);
+    -webkit-text-stroke: 1px $brown-dark;
+    letter-spacing: 0.2px;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  }
+}
+
+// -------------------------------------------------------------
+// CÁC NÚT TRONG HEADER (ĐỒNG BỘ VỚI /GIO-HANG)
+// -------------------------------------------------------------
+.inventory-header__btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 18px;
+  border-radius: 12px;
+  font-family: $font-game;
+  font-size: 15px;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  paint-order: stroke fill;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+
+  @media (min-width: 1024px) {
+    height: 54px;
+    padding: 0 24px;
+    font-size: 17px;
+    border-radius: 14px;
+    gap: 10px;
+    letter-spacing: 0.4px;
+  }
+
+  @media (min-width: 1440px) {
+    height: 60px;
+    padding: 0 30px;
+    font-size: 19px;
+    border-radius: 16px;
+    gap: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  @media (max-width: 640px), (max-height: 520px) {
+    height: 32px;
+    padding: 0 9px;
+    font-size: 10.5px;
+    border-radius: 8px;
+    gap: 4px;
+    letter-spacing: 0.2px;
+  }
+
+  // Lớp bóng highlight kính mỏng nhẹ ở nửa trên
+  &::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    height: 42%;
+    border-radius: 8px 8px 12px 12px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.08) 100%);
+    pointer-events: none;
+  }
+
+  // 1. Nút quay lại & Đóng (đồng bộ hoàn toàn với /gio-hang)
+  &--back,
+  &--close {
+    border: 2px solid #5a0b16;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #ff4d5e 0%, #d0152c 100%);
+    box-shadow:
+      inset 0 -2.5px 0 #a30f22,
+      inset 0 0 0 1px rgba(255, 190, 195, 0.45),
+      0 2.5px 6px rgba(0, 0, 0, 0.25);
+    color: #fff !important;
+    font-family: $font-game;
+    font-weight: 800;
+    font-size: 15px;
+    -webkit-text-stroke: 1.3px #6e0f1c;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+
+    @media (min-width: 1024px) {
+      height: 54px;
+      padding: 0 24px;
+      gap: 10px;
+      border-width: 2.5px;
+      border-radius: 14px;
+      font-size: 17px;
+      -webkit-text-stroke: 1.5px #6e0f1c;
+      box-shadow:
+        inset 0 -3px 0 #a30f22,
+        inset 0 0 0 1.2px rgba(255, 190, 195, 0.5),
+        0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    @media (min-width: 1440px) {
+      height: 60px;
+      padding: 0 30px;
+      gap: 12px;
+      border-width: 3px;
+      border-radius: 16px;
+      font-size: 19px;
+      -webkit-text-stroke: 1.8px #6e0f1c;
+      box-shadow:
+        inset 0 -3.5px 0 #a30f22,
+        inset 0 0 0 1.5px rgba(255, 190, 195, 0.55),
+        0 5px 12px rgba(0, 0, 0, 0.35);
+    }
+
+    @media (max-width: 640px), (max-height: 520px) {
+      height: 32px;
+      padding: 0 9px;
+      font-size: 10.5px;
+      -webkit-text-stroke: 0.9px #6e0f1c;
+      border-radius: 8px;
+      gap: 4px;
+      border-width: 2px;
+      box-shadow:
+        inset 0 -2px 0 #a30f22,
+        inset 0 0 0 1px rgba(255, 190, 195, 0.45),
+        0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 -2px 0 #a30f22,
+        inset 0 0 0 1px rgba(255, 190, 195, 0.45),
+        0 3px 8px rgba(0, 0, 0, 0.3);
+      filter: brightness(1.06);
+      color: #fff !important;
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(1.5px);
+      box-shadow:
+        inset 0 -1px 0 #a30f22,
+        0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  // 2. Nút camera đang BẬT -> bấm để TẮT (màu đỏ cam arcade 3D)
+  &--camera-off {
+    border: 2px solid #6b1d10;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #ff5e42 0%, #d32b13 100%);
+    box-shadow:
+      inset 0 -2.5px 0 #a01d0a,
+      inset 0 0 0 1px rgba(255, 200, 190, 0.45),
+      0 2.5px 6px rgba(0, 0, 0, 0.24);
+    color: #fff;
+    -webkit-text-stroke: 1.2px #6b1d10;
+    text-shadow: 0 1.5px 0 rgba(0, 0, 0, 0.35);
+
+    @media (min-width: 1024px) {
+      border-width: 2.5px;
+      border-radius: 14px;
+      -webkit-text-stroke: 1.4px #6b1d10;
+      box-shadow:
+        inset 0 -3px 0 #a01d0a,
+        inset 0 0 0 1.2px rgba(255, 200, 190, 0.5),
+        0 3px 8px rgba(0, 0, 0, 0.28);
+    }
+
+    @media (max-width: 640px), (max-height: 520px) {
+      height: 32px;
+      padding: 0 9px;
+      font-size: 10.5px;
+      border-radius: 8px;
+      gap: 4px;
+      border-width: 1.5px;
+      -webkit-text-stroke: 0.9px #6b1d10;
+      box-shadow:
+        inset 0 -1.5px 0 #a01d0a,
+        inset 0 0 0 1px rgba(255, 200, 190, 0.45),
+        0 1.5px 3px rgba(0, 0, 0, 0.18);
+    }
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 -2.5px 0 #a01d0a,
+        inset 0 0 0 1px rgba(255, 200, 190, 0.5),
+        0 4px 9px rgba(0, 0, 0, 0.3);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(1.5px);
+      box-shadow: inset 0 -1px 0 #a01d0a, 0 1px 2px rgba(0, 0, 0, 0.18);
+    }
+  }
+
+  // 3. Nút camera đang TẮT -> bấm để BẬT (màu xanh lá arcade 3D)
+  &--camera-on {
+    border: 2px solid #145e23;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #4ed966 0%, #22a33d 100%);
+    box-shadow:
+      inset 0 -2.5px 0 #1b7a2e,
+      inset 0 0 0 1px rgba(195, 255, 205, 0.45),
+      0 2.5px 6px rgba(0, 0, 0, 0.24);
+    color: #fff;
+    -webkit-text-stroke: 1.2px #145e23;
+    text-shadow: 0 1.5px 0 rgba(0, 0, 0, 0.35);
+
+    @media (min-width: 1024px) {
+      border-width: 2.5px;
+      border-radius: 14px;
+      -webkit-text-stroke: 1.4px #145e23;
+      box-shadow:
+        inset 0 -3px 0 #1b7a2e,
+        inset 0 0 0 1.2px rgba(195, 255, 205, 0.5),
+        0 3px 8px rgba(0, 0, 0, 0.28);
+    }
+
+    @media (max-width: 640px), (max-height: 520px) {
+      height: 32px;
+      padding: 0 9px;
+      font-size: 10.5px;
+      border-radius: 8px;
+      gap: 4px;
+      border-width: 1.5px;
+      -webkit-text-stroke: 0.9px #145e23;
+      box-shadow:
+        inset 0 -1.5px 0 #1b7a2e,
+        inset 0 0 0 1px rgba(195, 255, 205, 0.45),
+        0 1.5px 3px rgba(0, 0, 0, 0.18);
+    }
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 -2.5px 0 #1b7a2e,
+        inset 0 0 0 1px rgba(195, 255, 205, 0.5),
+        0 4px 9px rgba(0, 0, 0, 0.3);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(1.5px);
+      box-shadow: inset 0 -1px 0 #1b7a2e, 0 1px 2px rgba(0, 0, 0, 0.18);
+    }
+  }
+
+  // 4. Nút Sửa / Thêm ảnh đại diện (màu vàng kim arcade 3D)
+  &--upload {
+    border: 2px solid #6b3d00;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #ffd700 0%, #e69500 100%);
+    box-shadow:
+      inset 0 -2.5px 0 #b37400,
+      inset 0 0 0 1px rgba(255, 245, 190, 0.45),
+      0 2.5px 6px rgba(0, 0, 0, 0.24);
+    color: #fff;
+    -webkit-text-stroke: 1.2px #6b3d00;
+    text-shadow: 0 1.5px 0 rgba(0, 0, 0, 0.35);
+
+    @media (min-width: 1024px) {
+      border-width: 2.5px;
+      border-radius: 14px;
+      -webkit-text-stroke: 1.4px #6b3d00;
+      box-shadow:
+        inset 0 -3px 0 #b37400,
+        inset 0 0 0 1.2px rgba(255, 245, 190, 0.5),
+        0 3px 8px rgba(0, 0, 0, 0.28);
+    }
+
+    @media (max-width: 640px), (max-height: 520px) {
+      height: 32px;
+      padding: 0 9px;
+      font-size: 10.5px;
+      border-radius: 8px;
+      gap: 4px;
+      border-width: 1.5px;
+      -webkit-text-stroke: 0.9px #6b3d00;
+      box-shadow:
+        inset 0 -1.5px 0 #b37400,
+        inset 0 0 0 1px rgba(255, 245, 190, 0.45),
+        0 1.5px 3px rgba(0, 0, 0, 0.18);
+    }
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 -2.5px 0 #b37400,
+        inset 0 0 0 1px rgba(255, 245, 190, 0.5),
+        0 4px 9px rgba(0, 0, 0, 0.3);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(1.5px);
+      box-shadow: inset 0 -1px 0 #b37400, 0 1px 2px rgba(0, 0, 0, 0.18);
+    }
+  }
+
+  // 5. Nút VÀO CHƠI (màu xanh lá arcade 3D sáng đẹp)
+  &--enter {
+    border: 2px solid #0d5c21;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #57f278 0%, #14a337 100%);
+    box-shadow:
+      inset 0 -2.5px 0 #0d6e24,
+      inset 0 0 0 1px rgba(210, 255, 220, 0.55),
+      0 3px 9px rgba(20, 163, 55, 0.32);
+    color: #fff;
+    -webkit-text-stroke: 1.2px #0a4f1c;
+    text-shadow: 0 1.5px 0 rgba(0, 0, 0, 0.4);
+    font-size: 14.5px;
+    font-weight: 800;
+    padding: 0 18px;
+    letter-spacing: 0.4px;
+
+    @media (min-width: 1024px) {
+      font-size: 16.5px;
+      padding: 0 24px;
+      border-width: 2.5px;
+      border-radius: 14px;
+      -webkit-text-stroke: 1.4px #0a4f1c;
+      box-shadow:
+        inset 0 -3px 0 #0d6e24,
+        inset 0 0 0 1.2px rgba(210, 255, 220, 0.6),
+        0 4px 12px rgba(20, 163, 55, 0.38);
+    }
+
+    @media (min-width: 1440px) {
+      font-size: 18.5px;
+      padding: 0 28px;
+      border-radius: 16px;
+      border-width: 3px;
+    }
+
+    @media (max-width: 640px), (max-height: 520px) {
+      height: 32px;
+      padding: 0 9px;
+      font-size: 10.5px;
+      border-radius: 8px;
+      gap: 4px;
+      letter-spacing: 0.15px;
+      -webkit-text-stroke: 0.8px #0a4f1c;
+      border-width: 1.5px;
+      box-shadow:
+        inset 0 -1.5px 0 #0d6e24,
+        inset 0 0 0 1px rgba(210, 255, 220, 0.55),
+        0 1.5px 4px rgba(20, 163, 55, 0.25);
+    }
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+      box-shadow:
+        inset 0 -2.5px 0 #0d6e24,
+        inset 0 0 0 1px rgba(210, 255, 220, 0.65),
+        0 5px 12px rgba(20, 163, 55, 0.42);
+      color: #fff;
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(1.5px);
+      box-shadow: inset 0 -1px 0 #0d6e24, 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(0.4);
+  }
+
+  &__btn-svg {
+    width: 18px;
+    height: 18px;
+    stroke: #fff;
+    stroke-width: 2.5;
+    fill: none;
+    flex-shrink: 0;
+
+    @media (min-width: 1024px) {
+      width: 20px;
+      height: 20px;
+    }
+
+    @media (min-width: 1440px) {
+      width: 22px;
+      height: 22px;
+    }
+
+    @media (max-width: 640px), (max-height: 520px) {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  &__btn-icon {
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    @media (min-width: 1024px) {
+      font-size: 18px;
+    }
+
+    @media (min-width: 1440px) {
+      font-size: 20px;
+    }
+
+    @media (max-width: 640px), (max-height: 520px) {
+      font-size: 12px;
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// 2. KHUNG CHÍNH (CAMERA TOÀN MÀN HÌNH VỚI ITEM LƠ LỬNG)
+// -------------------------------------------------------------
+.inventory-retro__body {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  height: calc(100vh - var(--inv-header-h));
+  height: calc(100dvh - var(--inv-header-h));
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  display: block; // Camera phủ trọn 100% diện tích bên dưới
+}
+
+// -------------------------------------------------------------
+// 3. CAMERA TOÀN MÀN HÌNH (FULLSCREEN CAMERA WRAPPER)
+// -------------------------------------------------------------
+.inventory-retro__camera-wrapper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  background:
+    radial-gradient(circle at center, rgba(253, 244, 231, 0.4) 0%, rgba(59, 34, 20, 0.85) 100%),
+    repeating-linear-gradient(90deg, transparent 0 46px, rgba(120, 90, 60, .10) 46px 48px, transparent 48px 120px),
+    #dfd2be;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 1;
+
+  &::before,
+  &::after {
+    display: none;
+  }
+}
+
+.inventory-retro__camera {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  display: block;
+  border: none;
+  border-radius: 0;
+  background: #1e1510;
+}
+
+.inventory-retro__camera-error {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  background: rgba(180, 20, 20, 0.85);
+  backdrop-filter: blur(8px);
+  border: 2px solid #5a0b16;
+  border-radius: 14px;
+  font-family: $font-game;
+  text-align: center;
+  padding: 16px 24px;
+  font-size: 1.1rem;
+  z-index: 40;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.inventory-retro__overlay {
+  position: absolute;
+  pointer-events: none;
+  image-rendering: pixelated;
+  object-fit: contain;
+  z-index: 5;
+}
+
+// -------------------------------------------------------------
+// 4. CÁC CỘT Ô ĐỒ LƠ LỬNG TRONG CAMERA (FLOATING GEAR COLUMNS)
+// -------------------------------------------------------------
+.inventory-retro__col {
+  --slot-size: clamp(74px, 11vh, 92px);
+  position: absolute;
+  top: 20px;
+  bottom: 20px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  justify-content: flex-start;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 8px 20px;
+  pointer-events: auto;
+
+  // Lớp filter mượt mà
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(202, 160, 130, 0.7);
+    border-radius: 4px;
+  }
+
+  &--left {
+    left: clamp(14px, 2.5vw, 36px);
+  }
+
+  &--right {
+    right: clamp(14px, 2.5vw, 36px);
+  }
+}
+
+// -------------------------------------------------------------
+// 5. CÁC Ô CHỌN ĐỒ HIỆU ỨNG LƠ LỬNG (FLOATING GLASS/WOODEN TILES)
+// -------------------------------------------------------------
+.inventory-retro__gear {
+  flex: 0 0 auto;
+  width: var(--slot-size);
+  height: var(--slot-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+
+  // Nền cuộn giấy RPG bán trong suốt kết hợp backdrop-filter blur lơ lửng
+  background: linear-gradient(180deg, rgba(255, 252, 246, 0.88) 0%, rgba(246, 235, 218, 0.92) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2.5px solid rgba(59, 34, 20, 0.92);
+  border-radius: 18px;
+
+  // Chỉ giữ viền và gờ bóng bên trong (inset), không có shadow ngoài tràn ra khoảng trống giữa các nút
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -4px 0 rgba(202, 160, 130, 0.85);
+  transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+  position: relative;
+
+  // Lớp kính bóng bẩy phản chiếu ánh sáng trên đỉnh
+  &::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    right: 4px;
+    height: 40%;
+    border-radius: 14px 14px 20px 20px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.05) 100%);
+    pointer-events: none;
+  }
+
+  // Hover: nhấc nhẹ không đổ bóng đen ra ngoài
+  &:not(.inventory-retro__gear--on):hover {
+    transform: translateY(-2px) scale(1.03);
+    border-color: #ffd700;
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 1),
+      inset 0 -4px 0 rgba(202, 160, 130, 0.9);
+  }
+
+  &:active {
+    transform: translateY(1px) scale(0.98);
+    box-shadow:
+      inset 0 -2px 0 rgba(202, 160, 130, 0.9);
+  }
+
+  // Đang chọn / đã trang bị: vàng hoàng gia sáng sạch không shadow ngoài
+  &--on {
+    background: linear-gradient(180deg, rgba(255, 253, 230, 0.95) 0%, rgba(250, 230, 158, 0.98) 100%);
+    border: 2.5px solid #8c5d14;
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 1),
+      inset 0 -4px 0 #d99f26;
+
+    &:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 1),
+        inset 0 -4px 0 #d99f26;
+    }
+  }
+
+  // Huy hiệu tích xanh 3D nổi bật ở góc
+  &--on::after {
+    content: "✓";
+    position: absolute;
+    bottom: -5px;
+    right: -4px;
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(180deg, #4ed966 0%, #22a33d 100%);
+    border: 1.5px solid #145e23;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  }
+}
+
+.inventory-retro__gear-img {
+  max-width: 65%;
+  max-height: 65%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
+  filter: none;
+}
+
+// -------------------------------------------------------------
+// 6. THÔNG BÁO TỦ ĐỒ TRỐNG LƠ LỬNG
+// -------------------------------------------------------------
+.inventory-retro__empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  padding: 18px 26px;
+  max-width: 440px;
+  text-align: center;
+  color: #4a2f20;
+  font-family: $font-game;
+  font-size: clamp(14px, 2vh, 16px);
+  line-height: 1.45;
+  background: linear-gradient(180deg, rgba(255, 250, 243, 0.94) 0%, rgba(246, 236, 220, 0.96) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2.5px solid #3b2214;
+  border-radius: 18px;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -4px 0 #caa082,
+    0 12px 32px rgba(0, 0, 0, 0.5);
+  z-index: 35;
+}
+
+// -------------------------------------------------------------
+// 7. GUEST VIEW (CHƯA ĐĂNG NHẬP)
+// -------------------------------------------------------------
+.inventory-retro__body--guest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 36px 28px;
+  background: linear-gradient(180deg, #fdf4e7 0%, #f7e6d0 50%, #ecd0b4 100%);
+  border: 3px solid $brown-dark;
+  border-radius: 22px;
+  max-width: 480px;
+  width: 90%;
+  margin: auto;
+  box-shadow:
+    inset 0 -6px 0 #caa082,
+    inset 0 2px 0 rgba(255, 255, 255, 0.8),
+    0 12px 32px rgba(0, 0, 0, 0.25);
+  position: relative;
+  z-index: 10;
+}
+
+.inventory-retro__guest-text {
+  color: #fff;
+  font-family: $font-game;
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  text-transform: uppercase;
+  margin: 0;
+  -webkit-text-stroke: 2px $brown-dark;
+  paint-order: stroke fill;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+.inventory-retro__guest-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 28px;
+  background: linear-gradient(180deg, #ffd700 0%, #e69500 100%);
+  border: 2px solid #6b3d00;
+  border-radius: 12px;
+  box-shadow:
+    inset 0 -4px 0 #b37400,
+    inset 0 2px 0 rgba(255, 255, 255, 0.7),
+    0 5px 12px rgba(0, 0, 0, 0.25);
+  color: #fff;
+  font-family: $font-game;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  -webkit-text-stroke: 1.5px #6b3d00;
+  paint-order: stroke fill;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 -4px 0 #b37400,
+      0 8px 18px rgba(0, 0, 0, 0.35);
+  }
+
+  &:active {
+    transform: translateY(2px);
+    box-shadow: inset 0 -2px 0 #b37400;
+  }
+}
+
+// -------------------------------------------------------------
+// 8. RESPONSIVE MOBILE (DƯỚI 640px)
+// -------------------------------------------------------------
+@media (max-width: 640px) {
+  .inventory-retro__col {
+    --slot-size: 68px;
+    position: absolute;
+    top: auto;
+    bottom: 16px;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 6px 10px 12px;
+    width: auto;
+    max-width: calc(100% - 24px);
+    border-radius: 20px;
+    gap: 12px;
+
+    &--left {
+      left: 12px;
+      right: 12px;
+      justify-content: flex-start;
+    }
+
+    &--right {
+      display: none;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inventory-retro,
+  .inventory-retro * {
+    transition-duration: 0.01ms;
+  }
+}

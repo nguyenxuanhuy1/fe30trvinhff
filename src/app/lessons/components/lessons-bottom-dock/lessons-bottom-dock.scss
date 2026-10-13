@@ -1,0 +1,494 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap');
+
+// -------------------------------------------------------------
+// PALETTE & TOKENS ĐỒNG BỘ CHÍNH XÁC VỚI TRANG /BAN-BE (HỖ TRỢ TIẾNG VIỆT)
+// -------------------------------------------------------------
+$font-game: var(--font-game, "Baloo 2"), "Baloo 2", cursive, system-ui, sans-serif;
+$brown-dark: #3b2214;
+$brown-light: #caa082;
+$ink: #241710;
+
+.lessons-bottom-dock {
+  position: fixed;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  width: min(680px, calc(100vw - 24px));
+  pointer-events: auto;
+  user-select: none;
+  font-family: $font-game;
+  font-weight: 800;
+
+  @media (max-width: 650px) {
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    width: min(480px, calc(100vw - 12px));
+  }
+}
+
+// -------------------------------------------------------------
+// KHUNG BAR: ĐẶT TÊN BEM RIÊNG BIỆT TRÁNH XUNG ĐỘT CSS VỚI TRANG KHÁC
+// -------------------------------------------------------------
+.lessons-dock {
+  &__bar {
+    width: 100%;
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.15fr 1fr 1fr;
+    align-items: stretch;
+    gap: 8px;
+    padding: 7px 10px;
+    background: linear-gradient(180deg, #ecd8c3 0%, #e6cfbe 50%, #d8b29c 100%);
+    border: 2px solid $brown-dark;
+    border-radius: 14px;
+    box-shadow:
+      inset 0 -3.5px 0 $brown-light,
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.7),
+      0 6px 18px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+
+    @media (max-width: 650px) {
+      padding: 5px 6px;
+      gap: 5px;
+      border-radius: 11px;
+      border-width: 1.8px;
+    }
+  }
+
+  // -----------------------------------------------------------
+  // ITEM THƯỜNG (TỦ ĐỒ, GIỎ HÀNG, BẠN BÈ, CÁ NHÂN)
+  // -----------------------------------------------------------
+  &__item {
+    position: relative;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+
+    &--nav {
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+      padding: 6px 5px 4px;
+      background: linear-gradient(180deg, #fffaf3 0%, #f6ecdc 100%);
+      border: 1.8px solid $brown-dark;
+      border-radius: 10px;
+      box-shadow:
+        inset 0 -1.8px 0 $brown-light,
+        0 1.5px 4px rgba(0, 0, 0, 0.1);
+      color: $ink;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+
+      @media (max-width: 650px) {
+        padding: 4px 3px 3px;
+        gap: 2px;
+        border-radius: 8px;
+        border-width: 1.5px;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow:
+          inset 0 -1.8px 0 $brown-light,
+          0 3px 8px rgba(0, 0, 0, 0.16);
+      }
+
+      &:active {
+        transform: translateY(1px);
+        box-shadow:
+          inset 0 -1px 0 $brown-light,
+          0 1.5px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      &:focus-visible {
+        outline: 2px solid #bd7d35;
+        outline-offset: 1px;
+      }
+    }
+
+    &--coins {
+      justify-content: center;
+      align-items: stretch;
+    }
+  }
+
+  &__icon {
+    width: 25px;
+    height: 25px;
+    display: grid;
+    place-items: center;
+    filter: drop-shadow(0 1px 2px rgba(59, 34, 20, 0.25));
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+
+    svg {
+      width: 100%;
+      height: 100%;
+      fill: #ffdf85;
+      fill: url(#lessonsDockGoldFill);
+      stroke: $brown-dark;
+      stroke-width: 1.4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  }
+
+  &__item:hover &__icon {
+    transform: scale(1.08);
+  }
+
+  &__title {
+    font-family: $font-game;
+    font-weight: 800;
+    font-size: clamp(11px, 1.05vw, 12.5px);
+    line-height: 1.1;
+    color: $ink;
+    text-align: center;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+  }
+
+  // Badge đỏ đếm số
+  &__badge {
+    position: absolute;
+    top: -4px;
+    right: -3px;
+    min-width: 18px;
+    height: 18px;
+    padding: 1px 5px;
+    background: linear-gradient(180deg, #ff4d5e 0%, #d0152c 100%);
+    color: #fff;
+    font-family: $font-game;
+    font-weight: 800;
+    font-size: 10px;
+    line-height: 14px;
+    border: 1.2px solid #5a0b16;
+    border-radius: 999px;
+    box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.25);
+    text-align: center;
+    pointer-events: none;
+    z-index: 3;
+    animation: dockBadgePulse 2s infinite ease-in-out;
+  }
+
+  // -----------------------------------------------------------
+  // KHUNG Ô HIỂN THỊ SỐ XU Ở GIỮA
+  // -----------------------------------------------------------
+  &__coin-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    width: 100%;
+    padding: 5px 8px 4px;
+    background: linear-gradient(180deg, #dfc8af 0%, #ceb092 100%);
+    border: 1.8px solid $brown-dark;
+    border-radius: 10px;
+    box-shadow:
+      inset 0 2px 4px rgba(59, 34, 20, 0.35),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.6),
+      0 1.5px 4px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: transform 0.12s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 2px 4px rgba(59, 34, 20, 0.35),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.6),
+        0 3px 6px rgba(0, 0, 0, 0.12);
+    }
+  }
+
+  &__coin-icon {
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    filter: drop-shadow(0 1.5px 2px rgba(59, 34, 20, 0.3));
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+    font-size: 20px;
+    line-height: 1;
+    user-select: none;
+  }
+
+  &__item:hover &__coin-icon {
+    transform: scale(1.08);
+  }
+
+  &__coin-value {
+    font-family: $font-game;
+    font-weight: 800;
+    font-size: clamp(12.5px, 1.15vw, 14.5px);
+    color: #ffaa00;
+    line-height: 1.1;
+    white-space: nowrap;
+    -webkit-text-stroke: 1.2px $brown-dark;
+    paint-order: stroke fill;
+    text-shadow: 0 1.5px 0 rgba(0, 0, 0, 0.35);
+    letter-spacing: 0.3px;
+    text-align: center;
+  }
+}
+
+// -------------------------------------------------------------
+// RESPONSIVE CHO MOBILE (< 650px)
+// -------------------------------------------------------------
+@media (max-width: 650px) {
+  .lessons-dock {
+    &__item--nav {
+      padding: 4px 2px 3px;
+      border-radius: 8px;
+    }
+
+    &__icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    &__title {
+      font-size: 8.5px;
+    }
+
+    &__badge {
+      top: -3px;
+      right: -2px;
+      min-width: 15px;
+      height: 15px;
+      font-size: 8px;
+      padding: 0 3px;
+    }
+
+    &__coin-slot {
+      padding: 4px 4px 3px;
+      border-radius: 8px;
+    }
+
+    &__coin-icon {
+      width: 20px;
+      height: 20px;
+      font-size: 17px;
+    }
+
+    &__coin-value {
+      font-size: 9.5px;
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// RESPONSIVE CHO DESKTOP (>= 1024px VÀ >= 1440px)
+// Gọn gàng, độ dài và độ dày vừa phải, không choán chỗ
+// -------------------------------------------------------------
+@media (min-width: 1024px) {
+  .lessons-bottom-dock {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    width: min(780px, calc(100vw - 36px));
+  }
+
+  .lessons-dock {
+    &__bar {
+      padding: 8px 12px;
+      gap: 9px;
+      border-width: 2.2px;
+      border-radius: 16px;
+      box-shadow:
+        inset 0 -4px 0 $brown-light,
+        inset 0 1.5px 0 rgba(255, 255, 255, 0.75),
+        0 8px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    &__item--nav {
+      padding: 7px 6px 5px;
+      border-radius: 11px;
+      border-width: 2px;
+      gap: 3px;
+    }
+
+    &__icon {
+      width: 28px;
+      height: 28px;
+    }
+
+    &__title {
+      font-size: 13.5px;
+      letter-spacing: 0.3px;
+    }
+
+    &__badge {
+      top: -5px;
+      right: -4px;
+      min-width: 19px;
+      height: 19px;
+      font-size: 11px;
+      line-height: 15px;
+      padding: 1px 5px;
+    }
+
+    &__coin-slot {
+      padding: 7px 10px 5px;
+      border-radius: 11px;
+      border-width: 2px;
+      gap: 3px;
+    }
+
+    &__coin-icon {
+      width: 28px;
+      height: 28px;
+      font-size: 24px;
+    }
+
+    &__coin-value {
+      font-size: 16px;
+      -webkit-text-stroke: 1.4px $brown-dark;
+      letter-spacing: 0.4px;
+    }
+  }
+}
+
+@media (min-width: 1440px) {
+  .lessons-bottom-dock {
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    width: min(840px, calc(100vw - 48px));
+  }
+
+  .lessons-dock {
+    &__bar {
+      padding: 9px 14px;
+      gap: 10px;
+      border-radius: 17px;
+      border-width: 2.5px;
+      box-shadow:
+        inset 0 -4.5px 0 $brown-light,
+        inset 0 2px 0 rgba(255, 255, 255, 0.8),
+        0 10px 24px rgba(0, 0, 0, 0.38);
+    }
+
+    &__item--nav {
+      padding: 8px 7px 6px;
+      border-radius: 12px;
+      gap: 4px;
+    }
+
+    &__icon {
+      width: 32px;
+      height: 32px;
+    }
+
+    &__title {
+      font-size: 15px;
+      letter-spacing: 0.35px;
+    }
+
+    &__badge {
+      top: -6px;
+      right: -4px;
+      min-width: 21px;
+      height: 21px;
+      font-size: 12px;
+      line-height: 16px;
+    }
+
+    &__coin-slot {
+      padding: 8px 12px 6px;
+      border-radius: 12px;
+      gap: 3px;
+    }
+
+    &__coin-icon {
+      width: 32px;
+      height: 32px;
+      font-size: 26px;
+    }
+
+    &__coin-value {
+      font-size: 17.5px;
+      -webkit-text-stroke: 1.5px $brown-dark;
+    }
+  }
+}
+
+@keyframes dockBadgePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+// =============================================================
+// MOBILE LANDSCAPE (ĐIỆN THOẠI XOAY NGANG)
+// =============================================================
+@media (max-height: 520px) and (orientation: landscape), (max-height: 480px) {
+  .lessons-bottom-dock {
+    bottom: calc(4px + env(safe-area-inset-bottom, 0px));
+    width: min(460px, calc(100vw - 20px));
+  }
+
+  .lessons-dock {
+    &__bar {
+      padding: 3px 6px;
+      gap: 4px;
+      border-radius: 9px;
+      border-width: 1.5px;
+    }
+
+    &__item--nav {
+      padding: 2.5px 3px 2px;
+      border-radius: 6px;
+      border-width: 1.2px;
+      gap: 1px;
+    }
+
+    &__icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    &__title {
+      font-size: 8.5px;
+    }
+
+    &__badge {
+      min-width: 14px;
+      height: 14px;
+      font-size: 8px;
+      line-height: 11px;
+      padding: 0 3px;
+      top: -3px;
+      right: -2px;
+    }
+
+    &__coin-slot {
+      padding: 2.5px 4px 2px;
+      border-radius: 6px;
+      border-width: 1.2px;
+      gap: 1px;
+    }
+
+    &__coin-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 15px;
+    }
+
+    &__coin-value {
+      font-size: 9.5px;
+      -webkit-text-stroke: 0.9px $brown-dark;
+    }
+  }
+}

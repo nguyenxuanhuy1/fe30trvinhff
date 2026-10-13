@@ -1,0 +1,25 @@
+@use "@/styles/variables" as *;
+
+.page-scale {
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #e6e3d8;
+}
+
+.page-wrapper {
+  --page-design-width: #{$design-width};
+  width: var(--page-design-width);
+  min-height: 1px;
+  margin-inline: auto;
+  transform-origin: top left;
+  will-change: transform;
+}
+
+// Mobile: bỏ canvas cố định 1920px, layout chạy 1:1 theo chiều rộng thật.
+// Dùng !important để thắng custom property inline trước cả khi chưa hydrate.
+@media (max-width: $mobile-max-width) {
+  .page-wrapper {
+    --page-design-width: 100% !important;
+  }
+}

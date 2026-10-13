@@ -1,0 +1,38 @@
+@use "sass:map";
+
+$color-primary: #1677ff;
+$color-primary-dark: #0958d9;
+$color-background: #f5f7fa;
+$color-surface: #ffffff;
+$color-text: #172033;
+$color-text-secondary: #667085;
+$color-border: #e4e7ec;
+$color-danger: #d92d20;
+$color-success: #039855;
+$color-white: #ffffff;
+$font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+$font-game: var(--font-game, "Baloo 2"), "Baloo 2", cursive, system-ui, sans-serif;
+$content-max-width: 1200px;
+$sidebar-width: 256px;
+$sidebar-collapsed-width: 80px;
+$radius-small: 8px;
+$radius-medium: 12px;
+$radius-large: 16px;
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-8: 32px;
+$space-10: 40px;
+$transition-fast: 160ms ease;
+$shadow-card: 0 8px 24px rgba(16, 24, 40, 0.08);
+$breakpoints: (
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+);
+$design-width: 1920px;
+$mobile-max-width: map.get($breakpoints, md);

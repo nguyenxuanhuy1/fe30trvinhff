@@ -1,0 +1,13 @@
+@use "@/styles/variables" as *;
+
+.empty-state {
+  display: grid;
+  justify-items: center;
+  min-height: 240px;
+  padding: $space-8 $space-4;
+  text-align: center;
+
+  &__action {
+    margin-top: $space-4;
+  }
+}

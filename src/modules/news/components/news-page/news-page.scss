@@ -1,0 +1,1255 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+// -------------------------------------------------------------
+// PALETTE & TOKENS ĐỒNG BỘ CHUẨN VỚI TRANG CHỦ (LANDING PAGE)
+// Phong cách giấy điệp, mực nho, son đỏ và vàng đồng cổ
+// -------------------------------------------------------------
+$news-bg: #e8e5dd;
+$news-bg-light: #f2efe7;
+$news-panel: #faf8f1;
+$news-panel-alt: #f3efe6;
+$news-panel-strong: #d8d3c7;
+$news-panel-dark: #2a221b;
+$news-text: #1b2527;
+$news-text-muted: rgba(27, 37, 39, 0.7);
+$news-red: #a53b28;
+$news-red-dark: #6e160a;
+$news-gold: #8b5a1b;
+$news-gold-bright: #d4a359;
+$news-gold-light: #f5e4c3;
+$news-border: rgba(139, 90, 27, 0.22);
+$news-border-strong: rgba(139, 90, 27, 0.36);
+$news-font-serif: var(--font-lora), "Times New Roman", Georgia, serif;
+$news-font-game: var(--font-game, "Baloo 2"), system-ui, sans-serif;
+
+.newspaper-page {
+  position: relative;
+  width: var(--page-design-width, 1920px);
+  min-height: 100vh;
+  margin: 0 auto;
+  background: linear-gradient(180deg, #f2efe7 0%, #e8e5dd 100%);
+  color: $news-text;
+  font-family: $news-font-serif;
+  overflow: hidden;
+
+
+
+  &__container {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 1440px);
+    margin: 0 auto;
+    padding: 32px 48px 80px;
+    box-sizing: border-box;
+
+    @media (max-width: 900px) {
+      padding: 20px 16px 60px;
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// 1. MASTHEAD BÁO CHÍ TRUYỀN THỐNG
+// -------------------------------------------------------------
+.newspaper-masthead {
+  text-align: center;
+  margin-bottom: 48px;
+  padding-bottom: 24px;
+  border-bottom: 3px double $news-border-strong;
+
+  &__meta-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $news-gold;
+    margin-bottom: 16px;
+    padding: 6px 20px;
+    border-top: 1px solid rgba($news-gold, 0.35);
+    border-bottom: 1px solid rgba($news-gold, 0.35);
+  }
+
+  &__dot {
+    font-size: 9px;
+    color: $news-red;
+  }
+
+  &__title-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    margin: 12px 0 16px;
+  }
+
+  &__flourish {
+    flex: 1;
+    max-width: 140px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, $news-gold, transparent);
+
+    &--left {
+      background: linear-gradient(90deg, transparent, $news-gold);
+    }
+    &--right {
+      background: linear-gradient(90deg, $news-gold, transparent);
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-family: $news-font-serif;
+    font-size: clamp(34px, 4vw, 54px);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: $news-text;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+    line-height: 1.15;
+  }
+
+  &__subtitle {
+    margin: 0 auto 28px;
+    max-width: 720px;
+    font-size: 16.5px;
+    line-height: 1.6;
+    color: $news-text-muted;
+    font-style: italic;
+  }
+}
+
+// -------------------------------------------------------------
+// THANH ĐIỀU HƯỚNG CHUYÊN MỤC & TÌM KIẾM
+// -------------------------------------------------------------
+.newspaper-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-top: 16px;
+  border-top: 1px solid $news-border;
+
+  &__tabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 18px;
+    border: 1.5px solid rgba(59, 34, 20, 0.22);
+    border-radius: 999px;
+    background: $news-panel;
+    color: $news-text;
+    font-family: $news-font-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.16s ease;
+
+    &:hover {
+      border-color: $news-gold;
+      color: $news-red;
+      background: #fff;
+      transform: translateY(-1px);
+    }
+
+    &--active {
+      border-color: $news-red;
+      background: $news-red;
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(165, 59, 40, 0.3);
+
+      &:hover {
+        background: $news-red;
+        color: #fff;
+      }
+
+      .newspaper-nav__badge {
+        background: rgba(255, 255, 255, 0.25);
+        color: #fff;
+      }
+    }
+  }
+
+  &__badge {
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: rgba(59, 34, 20, 0.1);
+    color: $news-gold;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  &__search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 280px;
+
+    @media (max-width: 640px) {
+      width: 100%;
+    }
+  }
+
+  &__search-icon {
+    position: absolute;
+    left: 12px;
+    width: 16px;
+    height: 16px;
+    stroke: $news-gold;
+    pointer-events: none;
+  }
+
+  &__search-input {
+    width: 100%;
+    height: 38px;
+    padding: 0 32px 0 36px;
+    border: 1.5px solid $news-border;
+    border-radius: 999px;
+    background: $news-panel;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: $news-text;
+    outline: none;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: $news-gold;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(139, 90, 27, 0.15);
+    }
+
+    &::placeholder {
+      color: rgba(28, 24, 21, 0.45);
+      font-style: italic;
+    }
+  }
+
+  &__search-clear {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 12px;
+    color: $news-text-muted;
+    cursor: pointer;
+    padding: 4px;
+  }
+}
+
+// -------------------------------------------------------------
+// 2. TẦNG TIÊU ĐIỂM: BÀI LỚN BÊN TRÁI + CỘT BÀI NHỎ DỌC BÊN PHẢI
+// -------------------------------------------------------------
+.newspaper-hero-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr);
+  gap: 0;
+  margin-bottom: 48px;
+  align-items: start;
+
+  @media (max-width: 1080px) {
+    grid-template-columns: 1fr;
+  }
+
+  // CỘT TRÁI
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+    padding-right: 32px;
+    padding-top: 0;
+    padding-bottom: 24px;
+
+    @media (max-width: 1080px) {
+      padding-right: 0;
+    }
+  }
+
+  // CỘT PHẢI
+  &__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0 0 24px 32px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    position: sticky;
+    top: 24px;
+
+    @media (max-width: 1080px) {
+      padding: 24px 0 0;
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// BÀI BÁO LỚN TO Ở BÊN TRÁI (LEAD CARD)
+// -------------------------------------------------------------
+.newspaper-lead-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
+  cursor: pointer;
+  transition: none;
+
+  &:hover {
+    .newspaper-lead-card__title {
+      color: $news-red;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .newspaper-read-more {
+      color: $news-red;
+    }
+  }
+
+  &__media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #1b1714;
+    overflow: hidden;
+    margin-bottom: 0;
+  }
+
+  &__image {
+    object-fit: cover;
+    transition: opacity 0.25s ease;
+  }
+
+  &__badge-wrap {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 2;
+  }
+
+  &__body {
+    padding: 16px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: $news-text-muted;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-family: $news-font-serif;
+  }
+
+  &__author {
+    color: $news-red;
+    font-weight: 700;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: $news-font-serif;
+    font-size: clamp(26px, 2.5vw, 36px);
+    font-weight: 800;
+    line-height: 1.22;
+    color: $news-text;
+    transition: color 0.15s ease;
+    letter-spacing: -0.01em;
+  }
+
+  &__excerpt {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.65;
+    color: $news-text-muted;
+    font-family: $news-font-serif;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 8px;
+    padding-top: 0;
+    flex-wrap: wrap;
+  }
+}
+
+.newspaper-meta-sep {
+  color: rgba(59, 34, 20, 0.3);
+}
+
+.newspaper-read-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: $news-gold;
+  transition: all 0.18s ease;
+
+  span {
+    transition: transform 0.18s ease;
+  }
+}
+
+.newspaper-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.newspaper-tag {
+  font-size: 12px;
+  font-style: italic;
+  color: rgba(28, 24, 21, 0.55);
+}
+
+// BADGE STYLES (SON ĐỎ HOÀNG TỘC & VÀNG KIM)
+.newspaper-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-family: $news-font-game;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.2;
+
+  &--tier1 {
+    background: linear-gradient(135deg, #a53b28 0%, #751a0c 100%);
+    color: #fff;
+    border: 1.5px solid rgba(255, 215, 0, 0.45);
+    box-shadow: 0 3px 10px rgba(165, 59, 40, 0.35);
+  }
+
+  &--tier2 {
+    background: linear-gradient(135deg, #8b5a1b 0%, #5f3a09 100%);
+    color: #fcf4e3;
+    border: 1.5px solid rgba(245, 228, 195, 0.35);
+    box-shadow: 0 2px 8px rgba(139, 90, 27, 0.25);
+  }
+
+  &--tier3 {
+    background: #e5dec9;
+    color: #4a382b;
+    border: 1px solid rgba(74, 56, 43, 0.3);
+  }
+
+  &--lead {
+    background: linear-gradient(180deg, #d3452e 0%, #a53b28 100%);
+    color: #fff;
+    border: 1px solid #751a0c;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  }
+
+  &--cat {
+    background: rgba(26, 18, 12, 0.85);
+    backdrop-filter: blur(4px);
+    color: #ffd88a;
+    border: 1px solid rgba(255, 216, 138, 0.4);
+  }
+
+  &--mini {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    padding: 3px 10px;
+    background: rgba(165, 59, 40, 0.92);
+    color: #fff;
+    border-radius: 6px;
+  }
+
+  &--tiny {
+    font-size: 10px;
+    padding: 2px 7px;
+    background: rgba(139, 90, 27, 0.12);
+    color: $news-gold;
+    border: 1px solid rgba(139, 90, 27, 0.25);
+  }
+
+  &--card {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 10.5px;
+    padding: 3px 9px;
+    background: rgba(42, 34, 27, 0.85);
+    color: #f7d598;
+    border: 1px solid rgba(247, 213, 152, 0.35);
+  }
+}
+
+.newspaper-card-datetime {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  color: $news-gold;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+// -------------------------------------------------------------
+// DƯỚI BÀI BÁO TO LÀ CÁC BÀI BÁO NHỎ KHÁC (.newspaper-under-lead)
+// -------------------------------------------------------------
+.newspaper-under-lead {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+
+    @media (max-width: 680px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.newspaper-subhead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+
+  &__ornament {
+    font-size: 14px;
+    color: $news-red;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: $news-font-serif;
+    font-size: 18px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: $news-text;
+    white-space: nowrap;
+  }
+
+  &__line {
+    flex: 1;
+    height: 1.5px;
+    background: linear-gradient(90deg, rgba(139, 90, 27, 0.35), transparent);
+  }
+}
+
+.newspaper-sub-card {
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
+  cursor: pointer;
+  padding-top: 0;
+  transition: none;
+
+  & + & {
+    margin-top: 20px;
+  }
+
+  &:hover {
+    .newspaper-sub-card__title {
+      color: $news-red;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  }
+
+  &__media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: #1b1714;
+  }
+
+  &__image {
+    object-fit: cover;
+    transition: opacity 0.2s ease;
+  }
+
+  &__body {
+    padding: 10px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: $news-font-serif;
+    font-size: 15.5px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: $news-text;
+    transition: color 0.14s ease;
+  }
+
+  &__excerpt {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.55;
+    color: $news-text-muted;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: $news-font-serif;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 8px;
+    font-size: 11.5px;
+  }
+}
+
+.newspaper-card-date {
+  font-size: 11.5px;
+  color: $news-gold;
+  font-weight: 600;
+}
+
+.newspaper-card-author {
+  color: $news-text;
+  font-weight: 700;
+}
+
+.newspaper-card-time {
+  color: $news-text-muted;
+}
+
+// -------------------------------------------------------------
+// 3. CỘT PHẢI: CÁC BÀI BÁO NHỎ DÀI KÉO DỌC XUỐNG
+// -------------------------------------------------------------
+.newspaper-sidebar-header {
+  display: none;
+}
+
+.newspaper-sidebar-empty {
+  padding: 20px 0;
+  font-size: 13px;
+  color: $news-text-muted;
+  font-style: italic;
+  font-family: $news-font-serif;
+}
+
+.newspaper-vertical-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.newspaper-sidebar-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0;
+  cursor: pointer;
+  transition: none;
+
+  &:hover {
+    .newspaper-sidebar-item__title {
+      color: $news-red;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  }
+
+  &__index {
+    font-family: $news-font-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: rgba(27, 37, 39, 0.25);
+    line-height: 1;
+    min-width: 22px;
+    padding-top: 2px;
+  }
+
+  &__media {
+    position: relative;
+    width: 88px;
+    height: 66px;
+    border-radius: 0;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #1b1714;
+  }
+
+  &__img {
+    object-fit: cover;
+    transition: opacity 0.2s ease;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__tags {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10.5px;
+    color: $news-text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+    font-family: $news-font-serif;
+
+    time {
+      color: $news-text-muted;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-family: $news-font-serif;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: $news-text;
+    transition: color 0.14s ease;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__excerpt {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: $news-text-muted;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__meta {
+    font-size: 11px;
+    color: $news-text-muted;
+  }
+}
+
+.newspaper-editorial-box {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 0;
+  background: rgba(139, 90, 27, 0.04);
+  border-left: 3px solid $news-gold;
+  position: relative;
+
+  &__seal {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 28px;
+    height: 28px;
+    border-radius: 0;
+    background: $news-red;
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-family: $news-font-serif;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  &__title {
+    margin: 0 0 6px;
+    font-size: 12px;
+    font-weight: 800;
+    color: $news-gold;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: $news-font-serif;
+  }
+
+  &__text {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.55;
+    color: $news-text-muted;
+    font-style: italic;
+    font-family: $news-font-serif;
+  }
+}
+
+// -------------------------------------------------------------
+// 4. TẦNG DƯỚI CÙNG: LƯỚI BÀI VIẾT MỞ RỘNG TOÀN TRANG
+// -------------------------------------------------------------
+.newspaper-bottom-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 10px;
+  padding-top: 24px;
+  border-top: 1px solid $news-border;
+}
+
+.newspaper-bottom-header {
+  display: none;
+}
+
+.newspaper-bottom-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  border-left: 1.5px solid $news-border-strong;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    border-left: none;
+  }
+}
+
+.newspaper-card {
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  border: none;
+  border-right: 1.5px solid $news-border-strong;
+  border-bottom: 1.5px solid $news-border-strong;
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
+  cursor: pointer;
+  transition: none;
+
+  &:hover {
+    background: rgba(139, 90, 27, 0.03);
+
+    .newspaper-card__title {
+      color: $news-red;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+
+  &__media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: #1b1714;
+    border-bottom: 2px solid $news-text;
+  }
+
+  &__image {
+    object-fit: cover;
+    transition: opacity 0.2s ease;
+  }
+
+  &__body {
+    padding: 16px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+
+  &__meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: $news-text-muted;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-family: $news-font-serif;
+    padding-bottom: 6px;
+    border-bottom: 1px solid $news-border;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: $news-font-serif;
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.35;
+    color: $news-text;
+    transition: color 0.14s ease;
+    letter-spacing: -0.01em;
+  }
+
+  &__excerpt {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: $news-text-muted;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: $news-font-serif;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid $news-border;
+    font-size: 12px;
+  }
+
+  &__author {
+    color: $news-text;
+    font-weight: 700;
+    font-family: $news-font-serif;
+  }
+
+  &__link {
+    color: $news-red;
+    font-weight: 700;
+    font-family: $news-font-serif;
+  }
+
+  &__read-link {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: $news-red;
+    transition: color 0.14s ease;
+    margin-top: 4px;
+    display: inline-block;
+    font-family: $news-font-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+
+    &:hover {
+      color: $news-gold;
+      text-decoration: underline;
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// SỰ KIỆN PHONG CÁCH DI SẢN (TAB SỰ KIỆN)
+// -------------------------------------------------------------
+.newspaper-events-section {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.newspaper-section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &__tag {
+    font-family: $news-font-game;
+    font-size: 12px;
+    color: $news-red;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 800;
+  }
+}
+
+.newspaper-events-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.newspaper-event-card {
+  display: flex;
+  gap: 18px;
+  padding: 22px;
+  background: $news-panel;
+  border: 1.5px solid rgba(139, 90, 27, 0.25);
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(42, 34, 27, 0.06);
+
+  &__date-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    height: 72px;
+    background: linear-gradient(180deg, #d3452e 0%, #a53b28 100%);
+    border: 1.5px solid #6e160a;
+    border-radius: 12px;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 4px 8px rgba(165, 59, 40, 0.3);
+  }
+
+  &__month {
+    font-family: $news-font-game;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+  }
+
+  &__day {
+    font-family: $news-font-game;
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__loc {
+    font-size: 12px;
+    font-weight: 700;
+    color: $news-gold;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 16.5px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  &__desc {
+    margin: 0;
+    font-size: 13.5px;
+    color: $news-text-muted;
+    line-height: 1.5;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: $news-gold;
+    margin-top: 6px;
+  }
+}
+
+// -------------------------------------------------------------
+// MODAL ĐỌC BÀI BÁO (ARTICLE READER)
+// -------------------------------------------------------------
+.article-modal-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: $news-font-game;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.article-modal-header-tag {
+  background: #a53b28;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.article-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  font-family: $news-font-serif;
+  color: $news-text;
+  padding: 4px;
+}
+
+.article-modal-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(139, 90, 27, 0.3);
+}
+
+.article-modal-cover__img {
+  object-fit: cover;
+}
+
+.article-modal-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 13.5px;
+  color: $news-gold;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(59, 34, 20, 0.15);
+}
+
+.article-modal-title {
+  margin: 0;
+  font-family: $news-font-serif;
+  font-size: clamp(22px, 2.5vw, 28px);
+  font-weight: 800;
+  line-height: 1.35;
+  color: $news-text;
+}
+
+.article-modal-lead {
+  margin: 0;
+  padding: 14px 20px;
+  border-left: 3px solid $news-red;
+  background: rgba(165, 59, 40, 0.05);
+  font-size: 15.5px;
+  line-height: 1.65;
+  font-style: italic;
+  color: #3b2214;
+}
+
+.article-modal-body {
+  font-size: 16px;
+  line-height: 1.75;
+  color: #241c16;
+
+  p {
+    margin: 0 0 14px;
+  }
+}
+
+.article-modal-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 13px;
+
+  &__label {
+    font-weight: 700;
+    color: $news-gold;
+  }
+}
+
+.article-modal-tag {
+  background: rgba(139, 90, 27, 0.08);
+  padding: 2px 10px;
+  border-radius: 6px;
+  color: $news-gold;
+  font-weight: 600;
+}
+
+.article-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 18px;
+  border-top: 1.5px solid rgba(59, 34, 20, 0.18);
+  flex-wrap: wrap;
+}
+
+.article-modal-signature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: $news-text-muted;
+
+  &__seal {
+    padding: 3px 8px;
+    background: $news-red;
+    color: #fff;
+    border-radius: 4px;
+    font-family: $news-font-game;
+    font-size: 10px;
+    font-weight: 800;
+  }
+}
+
+.newspaper-btn-retro {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 22px;
+  border: 1.5px solid #6b3e26;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #ecd8c3 0%, #caa082 100%);
+  color: #3b2214;
+  font-family: $news-font-game;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.14s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+.newspaper-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: $news-text-muted;
+  font-size: 16px;
+}

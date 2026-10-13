@@ -1,0 +1,239 @@
+.fanpage {
+  --fanpage-background: #E6E3D8;
+  --fanpage-ink: #241b10;
+  --fanpage-muted: #6c6252;
+  --fanpage-card: #fffdf7;
+  --fanpage-border: rgba(36, 27, 16, 0.14);
+  --fanpage-chip: #ffffff;
+  --fanpage-link: #7a4d12;
+
+  min-height: 100svh;
+  padding: clamp(28px, 5vw, 64px) 16px clamp(36px, 5vw, 72px);
+  background: var(--fanpage-background);
+  color: var(--fanpage-ink);
+  color-scheme: light dark;
+}
+
+.fanpage__container {
+  width: min(100%, 880px);
+  margin: 0 auto;
+}
+
+.fanpage__hero {
+  text-align: center;
+}
+
+.fanpage__name {
+  margin: 0 0 8px;
+  font-size: clamp(1.75rem, 4vw, 2.6rem);
+  line-height: 1.15;
+}
+
+.fanpage__tagline {
+  max-width: 34rem;
+  margin: 0 auto;
+  color: var(--fanpage-muted);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.fanpage__stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 36px;
+  margin: 24px 0 0;
+  padding: 0;
+}
+
+.fanpage__stat {
+  min-width: 130px;
+}
+
+.fanpage__stat-label {
+  color: var(--fanpage-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fanpage__stat-value {
+  margin: 4px 0 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.fanpage__featured {
+  margin-top: 28px;
+}
+
+.fanpage__channels,
+.fanpage__about {
+  margin-top: 40px;
+}
+
+.fanpage__section-title {
+  margin: 0 0 16px;
+  font-size: 1.25rem;
+}
+
+.fanpage__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.fanpage__channel {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 118px;
+  padding: 18px;
+  border: 1px solid var(--fanpage-border);
+  border-radius: 18px;
+  background: var(--fanpage-card);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.fanpage__channel:hover {
+  transform: translateY(-3px);
+  border-color: var(--c);
+}
+
+.fanpage__channel:focus-visible {
+  outline: 3px solid var(--c);
+  outline-offset: 3px;
+}
+
+.fanpage__channel--featured {
+  width: 100%;
+  min-height: 148px;
+  padding: 24px;
+}
+
+.fanpage__channel-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  border: 1px solid var(--fanpage-border);
+  background: var(--fanpage-chip);
+  color: var(--c);
+}
+
+.fanpage__channel--featured .fanpage__channel-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+}
+
+.fanpage__channel-icon svg {
+  width: 58%;
+  height: 58%;
+}
+
+.fanpage__channel-body {
+  display: grid;
+  flex: 1 1 auto;
+  gap: 5px;
+  min-width: 0;
+}
+
+.fanpage__channel-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.fanpage__channel-description,
+.fanpage__channel-followers {
+  color: var(--fanpage-muted);
+  font-size: 0.93rem;
+  line-height: 1.55;
+}
+
+.fanpage__channel-action {
+  flex: 0 0 auto;
+  padding: 10px 18px;
+  border: 1px solid var(--c);
+  border-radius: 999px;
+  color: var(--c);
+  font-size: 0.9rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.fanpage__channel--featured .fanpage__channel-action {
+  background: var(--c);
+  color: #ffffff;
+}
+
+.fanpage__empty,
+.fanpage__about p {
+  color: var(--fanpage-muted);
+  line-height: 1.7;
+}
+
+.fanpage__about a,
+.fanpage__footer a {
+  color: var(--fanpage-link);
+  font-weight: 700;
+}
+
+.fanpage__footer {
+  display: grid;
+  gap: 4px;
+  margin-top: 44px;
+  padding-top: 22px;
+  border-top: 1px solid var(--fanpage-border);
+  color: var(--fanpage-muted);
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+.fanpage__footer p {
+  margin: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .fanpage {
+    --fanpage-background: #14100a;
+    --fanpage-ink: #f4ecdd;
+    --fanpage-muted: #bfb19d;
+    --fanpage-card: #201910;
+    --fanpage-border: rgba(244, 236, 221, 0.18);
+    --fanpage-chip: #fffdf6;
+    --fanpage-link: #f0c973;
+  }
+}
+
+@media (max-width: 560px) {
+  .fanpage__channel,
+  .fanpage__channel--featured {
+    align-items: flex-start;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .fanpage__channel-action {
+    align-self: stretch;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fanpage__channel {
+    transition: none;
+  }
+
+  .fanpage__channel:hover {
+    transform: none;
+  }
+}

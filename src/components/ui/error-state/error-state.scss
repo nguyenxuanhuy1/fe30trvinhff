@@ -1,0 +1,8 @@
+@use "@/styles/variables" as *;
+
+.error-state {
+  min-height: 360px;
+  padding: $space-6;
+  background: $color-surface;
+  border-radius: $radius-medium;
+}

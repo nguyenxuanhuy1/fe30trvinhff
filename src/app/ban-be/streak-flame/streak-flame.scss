@@ -1,0 +1,143 @@
+.streak-flame-widget {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  &__visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__svg {
+    filter:
+      drop-shadow(0 0 10px rgba(243, 156, 18, 0.6))
+      drop-shadow(0 0 20px rgba(232, 65, 24, 0.4));
+  }
+
+  // BIẾN THỂ BĂNG (ICE VARIANT)
+  &--ice {
+    .streak-flame-widget__svg {
+      filter:
+        drop-shadow(0 0 10px rgba(0, 206, 201, 0.75))
+        drop-shadow(0 0 20px rgba(9, 132, 227, 0.5));
+    }
+
+    .streak-flame-widget__badge {
+      background: linear-gradient(180deg, #74b9ff 0%, #0984e3 100%);
+      border: 1px solid #81ecec;
+      box-shadow: 0 4px 12px rgba(9, 132, 227, 0.4);
+    }
+
+    .streak-flame-widget__status {
+      color: #81ecec;
+    }
+  }
+
+  &__path-outer {
+    transform-origin: 50% 110%;
+    animation: flamePulse 2s ease-in-out infinite alternate;
+  }
+
+  &__path-inner {
+    transform-origin: 50% 110%;
+    animation: flameInnerFlicker 1.4s ease-in-out infinite alternate;
+  }
+
+  &__path-left,
+  &__path-right {
+    transform-origin: 50% 110%;
+    animation: flameSubFlicker 1.8s ease-in-out infinite alternate;
+  }
+
+  // Sizes
+  &--sm {
+    .streak-flame-widget__svg {
+      width: 22px;
+      height: 26px;
+    }
+  }
+
+  &--md {
+    .streak-flame-widget__svg {
+      width: 44px;
+      height: 52px;
+    }
+  }
+
+  &--lg {
+    .streak-flame-widget__svg {
+      width: 76px;
+      height: 90px;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #ff9f1a 0%, #eb4d4b 100%);
+    border: 1px solid #ffd32a;
+    box-shadow: 0 4px 12px rgba(235, 77, 75, 0.4);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  &__status {
+    color: #d2a679;
+    font-size: 0.75rem;
+    font-style: italic;
+  }
+}
+
+@keyframes flamePulse {
+  0% {
+    transform: scale(1) rotate(-1deg);
+  }
+  50% {
+    transform: scale(1.05, 0.96) rotate(1.5deg);
+  }
+  100% {
+    transform: scale(0.97, 1.04) rotate(-0.5deg);
+  }
+}
+
+@keyframes flameInnerFlicker {
+  0% {
+    transform: scale(0.96, 1.05) translate(0, 0);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.06, 0.95) translate(1px, -1px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.02, 1) translate(-1px, 1px);
+    opacity: 0.95;
+  }
+}
+
+@keyframes flameSubFlicker {
+  0% {
+    transform: rotate(-2deg);
+  }
+  100% {
+    transform: rotate(2deg);
+  }
+}

@@ -1,0 +1,282 @@
+@use "@/styles/variables" as *;
+
+$base: #efece2;
+$well: #dfdbcb;
+$tile: #e5e1d2;
+$light: #fffef8;
+$dark: #8f8a77;
+$ink: #3b362b;
+$muted: #7a7563;
+$accent: #9b3a30;
+$accent-light: #d98a80;
+$accent-dark: #4f1812;
+$gold: #d6a92b;
+
+$shadow-warm: rgba(59, 54, 43, 0.28);
+$shadow-ink: rgba(59, 54, 43, 0.45);
+
+:root {
+  --bevel-lg: clamp(5px, 0.7vh, 9px);
+  --bevel-sm: clamp(3px, 0.4vh, 5px);
+}
+
+@mixin bevel-raised($w) {
+  border: $w solid;
+  border-color: var(--bev-light) var(--bev-dark) var(--bev-dark) var(--bev-light);
+}
+
+@mixin bevel-sunken($w) {
+  border: $w solid;
+  border-color: var(--bev-dark) var(--bev-light) var(--bev-light) var(--bev-dark);
+}
+
+html:has(.levels-page),
+body:has(.levels-page) {
+  margin: 0;
+  // Khóa cứng chiều cao 1 màn hình và cấm cuộn - dùng dvh để khớp hoàn hảo với Safari trên iPhone
+  height: 100vh;
+  height: 100dvh;
+  min-height: -webkit-fill-available;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 46px, rgba(120, 90, 60, .10) 46px 48px, transparent 48px 120px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .18) 0 3px, transparent 3px 71px),
+    #e8dccb !important;
+  background-attachment: fixed !important;
+  color: #2a2523;
+}
+
+// Safeguards nếu có wrapper thừa ngoài trang
+.page-scale:has(.levels-page) {
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
+.page-wrapper:has(.levels-page) {
+  transform: none !important;
+  will-change: auto !important;
+  width: 100% !important;
+  background: transparent !important;
+}
+
+.landscape-prompt {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000;
+  color: #fff;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 2rem;
+}
+
+@media screen and (max-width: 768px) and (orientation: portrait) {
+  .landscape-prompt {
+    display: flex;
+  }
+
+  .levels-page {
+    display: none !important;
+  }
+}
+
+.levels-page {
+  --bev-light: #{$light};
+  --bev-dark: #{$dark};
+
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: -webkit-fill-available;
+  max-width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  // Khoảng cách an toàn: tránh Top HUD ở trên, Bottom Dock ở dưới, và tai thỏ 2 bên khi xoay ngang
+  padding-top: calc(56px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+
+  @media (min-width: 1024px) {
+    padding-top: calc(88px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(130px + env(safe-area-inset-bottom, 0px));
+  }
+
+  @media (min-width: 1440px) {
+    padding-top: calc(96px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px));
+  }
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  color: $ink;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  box-sizing: border-box;
+  background:
+    radial-gradient(ellipse at 50% 45%, rgba(255, 255, 255, 0.45) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 100%, rgba(68, 42, 27, 0.12) 0%, transparent 70%);
+
+  &,
+  * {
+    box-sizing: border-box;
+  }
+
+  // Grid / Row of Level Cards
+  &__grid {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0;
+    // Đảm bảo mép dưới của các thẻ lớp cách Bottom Dock tối thiểu
+    margin-bottom: max(16px, 1.5vh);
+    padding: 0 clamp(20px, 3.5vw, 60px);
+    gap: clamp(6px, 0.8vw, 12px);
+    list-style: none;
+    box-sizing: border-box;
+
+    .image-card {
+      flex: 0 1 320px;
+      min-width: 0;
+      width: 100%;
+      max-width: 320px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.15s ease, filter 0.15s ease;
+
+      &:hover {
+        transform: translateY(-3px) scale(1.015);
+        filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.28));
+      }
+
+      .image-card__link {
+        width: 100%;
+        height: auto;
+        // Chiều cao khống chế an toàn để không đè lên Top HUD hoặc Bottom Dock
+        max-height: min(52vh, 420px);
+        max-width: calc(min(52vh, 420px) * 411 / 608);
+        margin: 0 auto;
+        aspect-ratio: 411 / 608;
+      }
+
+      .image-card__image {
+        filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.2));
+        transition: filter 0.15s ease;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      gap: clamp(8px, 1vw, 16px);
+      padding: 0 clamp(24px, 4vw, 80px);
+      margin-bottom: max(20px, 2vh);
+
+      .image-card {
+        flex: 0 1 380px;
+        max-width: 380px;
+
+        &:hover {
+          transform: translateY(-3px) scale(1.015);
+          filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.3));
+        }
+
+        .image-card__link {
+          max-height: min(60vh, 540px);
+          max-width: calc(min(60vh, 540px) * 411 / 608);
+        }
+      }
+    }
+
+    @media (min-width: 1440px) {
+      gap: clamp(10px, 1.2vw, 18px);
+
+      .image-card {
+        flex: 0 1 440px;
+        max-width: 440px;
+
+        .image-card__link {
+          max-height: min(62vh, 600px);
+          max-width: calc(min(62vh, 600px) * 411 / 608);
+        }
+      }
+    }
+
+    @media (max-height: 600px) {
+      .image-card .image-card__link {
+        max-height: min(42vh, 260px);
+        max-width: calc(min(42vh, 260px) * 411 / 608);
+      }
+    }
+  }
+
+  &__empty {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: $muted;
+    font-size: 1.1rem;
+    background: $well;
+    @include bevel-sunken(var(--bevel-lg));
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+// =============================================================
+// MOBILE LANDSCAPE (ĐIỆN THOẠI XOAY NGANG)
+// =============================================================
+@media (max-height: 520px) and (orientation: landscape), (max-height: 480px) {
+  .levels-page {
+    height: 100vh !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding-top: calc(44px + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: calc(50px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(16px, env(safe-area-inset-right, 0px)) !important;
+
+    &__grid {
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      padding: 0 clamp(16px, 3vw, 40px) !important;
+      gap: clamp(6px, 1vw, 12px) !important;
+      justify-content: center !important;
+      align-items: center !important;
+      width: 100% !important;
+
+      .image-card {
+        flex: 0 1 auto !important;
+        max-width: none !important;
+
+        .image-card__link {
+          height: min(64vh, calc(100dvh - 102px), 256px) !important;
+          max-height: min(64vh, calc(100dvh - 102px), 256px) !important;
+          width: auto !important;
+          max-width: calc(min(64vh, calc(100dvh - 102px), 256px) * 411 / 608) !important;
+          aspect-ratio: 411 / 608 !important;
+        }
+
+        &:hover {
+          transform: translateY(-2px) scale(1.02) !important;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,123 @@
+$about-text: #1b2527;
+$about-muted: rgba(27, 37, 39, 0.68);
+$about-gold: #8b5a1b;
+$about-panel: #faf8f1;
+
+.game-toast-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(92%, 620px);
+  pointer-events: none;
+}
+
+.game-toast {
+  position: relative;
+  pointer-events: auto;
+  padding: 10px 16px;
+  background: $about-panel;
+  border: 1px solid rgba($about-gold, 0.4);
+  border-left: 4px solid #d49a3a;
+  border-radius: 6px;
+  color: $about-text;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 14px;
+  line-height: 1.45;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(27, 37, 39, 0.18);
+  animation: gameToastSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s ease;
+
+  @keyframes gameToastSlideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-12px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  &__icon {
+    font-size: 17px;
+    line-height: 1;
+    flex-shrink: 0;
+
+    &--success {
+      color: #27ae60;
+    }
+
+    &--error {
+      color: #a53b28;
+    }
+
+    &--warning {
+      color: #e67e22;
+    }
+
+    &--info {
+      color: #d49a3a;
+    }
+
+    &--loading {
+      color: #d49a3a;
+    }
+  }
+
+  &__text {
+    flex: 1;
+    font-weight: 600;
+    min-width: 0;
+    word-break: break-word;
+  }
+
+  &__close {
+    background: transparent;
+    border: none;
+    color: $about-muted;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 4px 6px;
+    line-height: 1;
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+
+    &:hover {
+      color: $about-text;
+      background: rgba(27, 37, 39, 0.08);
+    }
+  }
+
+  // Các biến thể viền theo loại thông báo
+  &--info {
+    border-left-color: #d49a3a;
+  }
+
+  &--success {
+    border-left-color: #27ae60;
+  }
+
+  &--warning {
+    border-left-color: #e67e22;
+  }
+
+  &--error {
+    border-left-color: #a53b28;
+  }
+
+  &--loading {
+    border-left-color: #d49a3a;
+  }
+}

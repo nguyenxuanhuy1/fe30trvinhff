@@ -1,0 +1,147 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+.avatar-editor {
+  display: inline-flex;
+  align-items: center;
+}
+
+.avatar-editor__avatar-container {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    transform: scale(1.04);
+
+    .avatar-editor__edit-badge {
+      transform: scale(1.12);
+      background: #2563eb;
+    }
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.avatar-editor__avatar {
+  display: block;
+  flex-shrink: 0;
+  width: 88px;
+  height: 88px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #ecd8c3;
+  border: 3.5px solid #3b2214;
+  box-shadow:
+    inset 0 -3px 0 #caa082,
+    0 5px 12px rgba(0, 0, 0, 0.25);
+}
+
+.avatar-editor__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar-editor__edit-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #3b82f6;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: transform 150ms ease, background 150ms ease;
+  z-index: 2;
+}
+
+.avatar-editor__edit-icon {
+  font-size: 13px;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.avatar-editor__field {
+  display: grid;
+  flex: 1 1 240px;
+  gap: $space-2;
+}
+
+.avatar-editor__label {
+  color: $color-text-secondary;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.avatar-editor__input {
+  width: 100%;
+  padding: $space-3;
+  border: 1px solid $color-border;
+  border-radius: $radius-small;
+  color: $color-text;
+  transition: border-color $transition-fast, box-shadow $transition-fast;
+
+  &:focus {
+    border-color: $color-primary;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($color-primary, 0.15);
+  }
+}
+
+.avatar-editor__error {
+  flex-basis: 100%;
+  margin: 0;
+  color: $color-danger;
+  font-size: 0.875rem;
+}
+
+.avatar-editor__actions {
+  display: flex;
+  gap: $space-2;
+}
+
+.avatar-editor__button {
+  padding: $space-2 $space-4;
+  background: transparent;
+  border: 1px solid $color-border;
+  border-radius: $radius-small;
+  color: $color-text;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color $transition-fast, border-color $transition-fast;
+
+  &:hover:not(:disabled) {
+    background: $color-background;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.avatar-editor__button--primary {
+  background: $color-primary;
+  border-color: $color-primary;
+  color: $color-white;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-dark;
+  }
+}

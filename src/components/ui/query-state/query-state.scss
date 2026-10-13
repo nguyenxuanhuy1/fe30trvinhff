@@ -1,0 +1,13 @@
+@use "@/styles/variables" as *;
+
+.query-state {
+  min-height: 180px;
+  padding: $space-6;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-medium;
+
+  &__content {
+    min-height: 180px;
+  }
+}

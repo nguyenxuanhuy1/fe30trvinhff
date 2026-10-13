@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap');
+
+$font-game: var(--font-game, "Baloo 2"), "Baloo 2", cursive, system-ui, sans-serif;
+
+.lessons-back-btn {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  left: calc(16px + env(safe-area-inset-left, 0px));
+  z-index: 100;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 18px;
+  border: 2px solid #5a0b16;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ff4d5e 0%, #d0152c 100%);
+  box-shadow:
+    inset 0 -2.5px 0 #a30f22,
+    inset 0 0 0 1px rgba(255, 190, 195, 0.45),
+    0 2.5px 6px rgba(0, 0, 0, 0.25);
+  color: #fff;
+  font-family: $font-game;
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  -webkit-text-stroke: 1.3px #6e0f1c;
+  paint-order: stroke fill;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    height: 42%;
+    border-radius: 8px 8px 12px 12px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.08));
+    pointer-events: none;
+  }
+
+  &__icon {
+    width: 18px;
+    height: 18px;
+    stroke: #fff;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+    transition: transform 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  &__text {
+    position: relative;
+    top: 1px;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 -2px 0 #a30f22,
+      inset 0 0 0 1px rgba(255, 190, 195, 0.45),
+      0 3px 8px rgba(0, 0, 0, 0.3);
+    filter: brightness(1.06);
+    color: #fff;
+
+    .lessons-back-btn__icon {
+      transform: translateX(-2px);
+    }
+  }
+
+  &:active {
+    transform: translateY(1.5px);
+    box-shadow:
+      inset 0 -1px 0 #a30f22,
+      0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  @media (max-width: 640px) {
+    height: 32px;
+    padding: 0 9px;
+    font-size: 10.5px;
+    -webkit-text-stroke: 0.9px #6e0f1c;
+    border-radius: 8px;
+    gap: 4px;
+
+    &__icon {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// RESPONSIVE CHO DESKTOP (>= 1024px VÀ >= 1440px)
+// -------------------------------------------------------------
+@media (min-width: 1024px) {
+  .lessons-back-btn {
+    top: calc(20px + env(safe-area-inset-top, 0px));
+    left: calc(28px + env(safe-area-inset-left, 0px));
+    height: 54px;
+    padding: 0 24px;
+    gap: 10px;
+    border-width: 2.5px;
+    border-radius: 14px;
+    font-size: 17px;
+    -webkit-text-stroke: 1.6px #6e0f1c;
+    box-shadow:
+      inset 0 -3px 0 #a30f22,
+      inset 0 0 0 1.2px rgba(255, 190, 195, 0.5),
+      0 4px 10px rgba(0, 0, 0, 0.3);
+
+    &__icon {
+      width: 22px;
+      height: 22px;
+    }
+  }
+}
+
+@media (min-width: 1440px) {
+  .lessons-back-btn {
+    top: calc(26px + env(safe-area-inset-top, 0px));
+    left: calc(36px + env(safe-area-inset-left, 0px));
+    height: 60px;
+    padding: 0 30px;
+    gap: 12px;
+    border-width: 3px;
+    border-radius: 16px;
+    font-size: 19px;
+    -webkit-text-stroke: 1.8px #6e0f1c;
+    box-shadow:
+      inset 0 -3.5px 0 #a30f22,
+      inset 0 0 0 1.5px rgba(255, 190, 195, 0.55),
+      0 5px 12px rgba(0, 0, 0, 0.35);
+
+    &__icon {
+      width: 26px;
+      height: 26px;
+    }
+  }
+}
+
+// =============================================================
+// MOBILE LANDSCAPE (ĐIỆN THOẠI XOAY NGANG)
+// =============================================================
+@media (max-height: 520px) and (orientation: landscape), (max-height: 480px) {
+  .lessons-back-btn {
+    top: calc(8px + env(safe-area-inset-top, 0px)) !important;
+    left: calc(12px + env(safe-area-inset-left, 0px)) !important;
+    height: 34px !important;
+    padding: 0 12px !important;
+    font-size: 11px !important;
+    border-width: 1.5px !important;
+    border-radius: 8px !important;
+    gap: 4px !important;
+    -webkit-text-stroke: 0.9px #6e0f1c !important;
+    box-shadow:
+      inset 0 -1.5px 0 #a30f22,
+      inset 0 0 0 1px rgba(255, 190, 195, 0.45),
+      0 1.5px 4px rgba(0, 0, 0, 0.2) !important;
+
+    &__icon {
+      width: 14px !important;
+      height: 14px !important;
+    }
+  }
+}

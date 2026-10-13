@@ -1,0 +1,294 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+$auth-ink: #0a1012;
+$auth-red: #b63b26;
+$auth-gold: #e3b65c;
+$auth-panel: rgba(8, 14, 16, 0.96);
+
+.auth-header {
+  &__loading {
+    width: 132px;
+    height: 42px;
+  }
+
+  &__login-button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 42px;
+    padding: 0 14px;
+    border: 0;
+    background: transparent;
+    color: rgba($color-white, 0.88);
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition:
+      background-color $transition-fast,
+      color $transition-fast;
+
+    &:hover,
+    &:focus-visible {
+      background: rgba($color-white, 0.1);
+      color: $color-white;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+
+  &__profile {
+    position: relative;
+  }
+
+  &__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 14px;
+    border: 0;
+    background: transparent;
+    color: rgba($color-white, 0.88);
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition:
+      background-color $transition-fast,
+      color $transition-fast;
+
+    &:hover,
+    &:focus-visible {
+      background: rgba($color-white, 0.1);
+      color: $color-white;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+
+  &__trigger[aria-expanded="true"] &__chevron {
+    transform: translateY(2px) rotate(225deg);
+  }
+
+  &__avatar {
+    display: block;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    overflow: hidden;
+    border: 1px solid rgba($auth-gold, 0.4);
+    border-radius: 50%;
+  }
+
+  &__avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__username {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__chevron {
+    width: 7px;
+    height: 7px;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform $transition-fast;
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    display: grid;
+    min-width: 190px;
+    padding: 6px;
+    border: 1px solid rgba($auth-gold, 0.32);
+    background: $auth-panel;
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-6px);
+    transition:
+      opacity $transition-fast,
+      transform $transition-fast,
+      visibility $transition-fast;
+
+    // Nối khoảng cách 8px giữa nút và menu để chuột không bị rớt khi di chuyển xuống
+    &::before {
+      content: "";
+      position: absolute;
+      top: -8px;
+      right: 0;
+      left: 0;
+      height: 8px;
+    }
+  }
+
+  &__dropdown--open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  &__dropdown-header {
+    display: grid;
+    gap: 2px;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba($auth-gold, 0.2);
+    margin-bottom: 4px;
+  }
+
+  &__dropdown-username {
+    color: $color-white;
+    font-size: 0.8125rem;
+    font-weight: 700;
+  }
+
+  &__dropdown-role {
+    color: $auth-gold;
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__dropdown-link {
+    display: block;
+    width: 100%;
+    padding: 11px 12px;
+    border: 0;
+    background: transparent;
+    color: rgba($color-white, 0.78);
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-align: left;
+    text-transform: uppercase;
+    transition:
+      background-color $transition-fast,
+      color $transition-fast;
+
+    &:hover,
+    &:focus-visible {
+      background: rgba($auth-gold, 0.12);
+      color: $auth-gold;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+
+  &__dropdown-link--logout {
+    color: rgba($color-white, 0.6);
+
+    &:hover,
+    &:focus-visible {
+      color: $auth-gold;
+    }
+  }
+
+  // Nút đăng nhập nằm cùng chỗ với mục cấp 1 nên phải vừa đúng kích thước
+  &__login-button--menu {
+    justify-content: flex-start;
+    width: 100%;
+    min-height: 46px;
+    padding: 0 12px;
+    border-bottom: 1px solid rgba($color-white, 0.1);
+  }
+
+  // Trong menu di động: coi như một mục cấp 1 có menu con, đồng nhất với các
+  // mục khác — nút tràn hết bề ngang, có mũi tên, menu con thụt 20px
+  &__profile--menu {
+    width: 100%;
+
+    .auth-header__trigger {
+      justify-content: flex-start;
+      width: 100%;
+      min-height: 46px;
+      padding: 0 12px;
+      border-bottom: 1px solid rgba($color-white, 0.1);
+    }
+
+    .auth-header__username {
+      max-width: none;
+    }
+
+    // Mũi tên đẩy sang cuối hàng như mục cấp 1 khác
+    .auth-header__chevron {
+      margin-left: auto;
+    }
+
+    .auth-header__dropdown {
+      position: static;
+      width: calc(100% - 20px);
+      min-width: 0;
+      margin-left: 20px;
+      padding: 0;
+      border: 0;
+      box-shadow: inset 2px 0 0 rgba($auth-gold, 0.28);
+
+      // Khoảng nối 8px chỉ dành cho desktop
+      &::before {
+        display: none;
+      }
+    }
+
+    .auth-header__dropdown-header {
+      padding: 10px 12px;
+      border-bottom-color: rgba($color-white, 0.08);
+      margin-bottom: 0;
+    }
+
+    .auth-header__dropdown-link {
+      min-height: 44px;
+      padding: 0 12px;
+      border-bottom: 1px solid rgba($color-white, 0.06);
+      font-size: 0.875rem;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+  }
+}
+
+// visibility: hidden vẫn chiếm chỗ trong flow, nên khi nằm trong menu di động
+// phải display: none thật để không để lại khoảng trống khi chưa xổ
+.auth-header__dropdown--in-menu {
+  display: none;
+}
+
+.auth-header__dropdown--in-menu.auth-header__dropdown--open {
+  display: grid;
+  animation: auth-header-dropdown-in $transition-fast ease-out;
+}
+
+@keyframes auth-header-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

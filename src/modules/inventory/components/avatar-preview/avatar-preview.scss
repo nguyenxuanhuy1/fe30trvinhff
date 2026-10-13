@@ -1,0 +1,92 @@
+.avatar-preview {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.avatar-preview__title {
+  color: #111827;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+}
+
+.avatar-preview__stage {
+  background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 100%);
+  border-radius: 10px;
+  height: 18rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.avatar-preview__body {
+  background: linear-gradient(180deg, #cbd5f5 0%, #e2e8f0 100%);
+  border-radius: 45% 45% 18% 18%;
+  bottom: 0;
+  height: 62%;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+  width: 45%;
+}
+
+.avatar-preview__zone {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  position: absolute;
+}
+
+/* Kích thước từng slot so với thân người: mũ nhỏ ở đỉnh, áo rộng ở ngực,
+   quần rộng nhất ở hông. height auto để giữ đúng tỉ lệ ảnh do mỗi loại một
+   khung vẽ khác nhau. */
+.avatar-preview__item {
+  height: auto;
+  object-fit: contain;
+}
+
+.avatar-preview__item--hat {
+  width: 4.4rem;
+}
+
+.avatar-preview__item--shirt {
+  width: 8rem;
+}
+
+.avatar-preview__item--trousers {
+  width: 6.5rem;
+}
+
+.avatar-preview__zone-label {
+  color: #6b7280;
+  font-size: 0.65rem;
+}
+
+.avatar-preview__hint {
+  color: #6b7280;
+  font-size: 0.78rem;
+  margin: 0.6rem 0 0;
+}
+
+.avatar-preview__empty {
+  margin-block: 1.5rem;
+}
+
+.avatar-preview__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+}
+
+.avatar-preview__list-item {
+  align-items: center;
+  color: #374151;
+  display: flex;
+  font-size: 0.85rem;
+  justify-content: space-between;
+}
