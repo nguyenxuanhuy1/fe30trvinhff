@@ -1,4 +1,4 @@
-export { apiClient } from "./axios";
+export { api, api as apiClient } from "@/lib/api/client";
 export { env } from "./env";
 export { createQueryClient } from "./query-client";
 export { siteConfig } from "./site";

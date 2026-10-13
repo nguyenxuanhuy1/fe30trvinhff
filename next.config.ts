@@ -7,10 +7,24 @@ const nextConfig: NextConfig = {
     },
   },
   sassOptions: {
-    loadPaths: ["./src"],
+    loadPaths: ["./src", "./src/styles"],
   },
   images: {
     formats: ["image/avif", "image/webp"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+      {
+        protocol: "http",
+        hostname: "127.0.0.1",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+      },
+    ],
   },
   async headers() {
     return [

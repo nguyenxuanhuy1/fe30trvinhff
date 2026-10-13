@@ -11,7 +11,7 @@ import getCroppedImg from "@/utils/cropImage";
 import { avatarEditor } from "./avatar-editor.const";
 import "./avatar-editor.scss";
 
-const FALLBACK = "/images/chuotuser.png";
+const FALLBACK = "/images/chuotuser.webp";
 
 interface AvatarEditorProps {
   username: string;

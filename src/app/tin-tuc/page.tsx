@@ -6,7 +6,7 @@ import { PageWrapper } from "../_components/page-wrapper";
 
 function generateMetadata(): Metadata {
   return buildMetadata(newsPage.routes.index, {
-    title: `${newsPage.title} | Project30TR`,
+    title: newsPage.title,
     description: newsPage.descriptions.all,
   });
 }

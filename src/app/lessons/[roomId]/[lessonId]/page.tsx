@@ -1,11 +1,14 @@
+import { cache } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buildMetadata } from "@/lib/seo";
-import { getLesson } from "@/modules/lessons";
+import { getLesson as getLessonOriginal } from "@/modules/lessons";
 import { lessonPage } from "../../lessons.const";
 import { LessonHost } from "./lesson-host";
 import "./lesson-player.scss";
+
+const getLesson = cache(getLessonOriginal);
 
 interface LessonPlayerPageProps {
   params: Promise<{ roomId: string; lessonId: string }>;

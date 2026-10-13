@@ -5,14 +5,14 @@ import "@/styles/globals.scss";
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
-  retry: () => void;
+  reset: () => void;
 }
 
-function GlobalError({ error, retry }: GlobalErrorProps) {
+function GlobalError({ error, reset }: GlobalErrorProps) {
   return (
     <html lang="vi">
       <body>
-        <ErrorState error={error} onRetry={retry} />
+        <ErrorState error={error} onRetry={reset} />
       </body>
     </html>
   );

@@ -33,7 +33,7 @@ const newsArticles: NewsArticle[] = [
     authorRole: "Nhà Địa Lý Khảo Cứu",
     publishedAt: "2026-10-08T03:15:00.000Z",
     readTime: "4 phút đọc",
-    coverImage: "/images/pappermap.png",
+    coverImage: "/images/pappermap.webp",
     hot: true,
     tags: ["Thám hiểm", "Địa chất", "Bản đồ"],
     views: 980,

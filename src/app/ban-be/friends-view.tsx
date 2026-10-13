@@ -30,7 +30,7 @@ import { LogoutOutlined } from "@ant-design/icons";
 import { friendsPage } from "./friends.const";
 import "./friends.scss";
 
-const FALLBACK_AVATAR = "/images/chuotuser.png";
+const FALLBACK_AVATAR = "/images/chuotuser.webp";
 
 function FriendsPage() {
   const router = useRouter();

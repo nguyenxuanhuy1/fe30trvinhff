@@ -3,16 +3,49 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import dynamic from "next/dynamic";
+import { Spin } from "antd";
 import type { User } from "@/modules/auth/types";
-import { AdminOverviewPanel } from "./panels/admin-overview-panel";
-import { AdminLessonsPanel } from "./panels/admin-lessons-panel";
-import { AdminRoomsPanel } from "./panels/admin-rooms-panel";
-import { AdminUsersPanel } from "./panels/admin-users-panel";
-import { AdminArticlesPanel } from "./panels/admin-articles-panel";
-import { AdminCoinsPanel } from "./panels/admin-coins-panel";
-import { AdminSocialPanel } from "./panels/admin-social-panel";
-import { AdminShopPanel } from "./panels/admin-shop-panel";
 import { adminPage, adminTabs } from "./admin.const";
+
+const PanelLoader = () => (
+  <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 280 }}>
+    <Spin size="large" />
+  </div>
+);
+
+const AdminOverviewPanel = dynamic(
+  () => import("./panels/admin-overview-panel").then((m) => m.AdminOverviewPanel),
+  { loading: PanelLoader }
+);
+const AdminLessonsPanel = dynamic(
+  () => import("./panels/admin-lessons-panel").then((m) => m.AdminLessonsPanel),
+  { loading: PanelLoader }
+);
+const AdminRoomsPanel = dynamic(
+  () => import("./panels/admin-rooms-panel").then((m) => m.AdminRoomsPanel),
+  { loading: PanelLoader }
+);
+const AdminUsersPanel = dynamic(
+  () => import("./panels/admin-users-panel").then((m) => m.AdminUsersPanel),
+  { loading: PanelLoader }
+);
+const AdminArticlesPanel = dynamic(
+  () => import("./panels/admin-articles-panel").then((m) => m.AdminArticlesPanel),
+  { loading: PanelLoader }
+);
+const AdminCoinsPanel = dynamic(
+  () => import("./panels/admin-coins-panel").then((m) => m.AdminCoinsPanel),
+  { loading: PanelLoader }
+);
+const AdminSocialPanel = dynamic(
+  () => import("./panels/admin-social-panel").then((m) => m.AdminSocialPanel),
+  { loading: PanelLoader }
+);
+const AdminShopPanel = dynamic(
+  () => import("./panels/admin-shop-panel").then((m) => m.AdminShopPanel),
+  { loading: PanelLoader }
+);
 
 
 import type { AdminTab } from "./admin.const";

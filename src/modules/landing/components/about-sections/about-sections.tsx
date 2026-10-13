@@ -1,4 +1,4 @@
-import paperMap from "../../../../../public/images/pappermap.png";
+import paperMap from "../../../../../public/images/pappermap.webp";
 import missionImage from "../../../../../public/images/bgm23.jpg";
 import hoatiet from "../../../../../public/images/hoatiet.png";
 import { BRAND_NAME } from "../../constants";

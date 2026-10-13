@@ -35,7 +35,7 @@ const siteConfig = {
   seoText: {
     home: {
       title: env.appName,
-      description: "TODO: mô tả trang chủ, 120-160 ký tự",
+      description: "Cổng trò chơi giáo dục STEAM kết hợp công nghệ theo dõi cử chỉ tay 3D, phòng thí nghiệm ảo và hệ thống nhiệm vụ đổi thưởng hấp dẫn.",
     },
   } satisfies SeoText,
 } as const;

@@ -85,11 +85,11 @@ function LoginPage() {
 
   return (
     <div className="login-page">
-      {/* 1. Lớp hình nền bgcard.png */}
+      {/* 1. Lớp hình nền bgcard.webp */}
       <div className="login-page__bg-media" aria-hidden="true">
         <Image
           className="login-page__bg-img"
-          src="/images/bgcard.png"
+          src="/images/bgcard.webp"
           alt=""
           fill
           priority

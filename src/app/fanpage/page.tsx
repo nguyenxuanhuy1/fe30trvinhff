@@ -37,7 +37,9 @@ function isSocialContent(value: unknown): value is SocialPageContent {
   return Boolean(content.profile) && Array.isArray(content.stats) && Array.isArray(content.channels);
 }
 
-async function getSocialPageContent(): Promise<SocialPageContent> {
+import { cache } from "react";
+
+const getSocialPageContent = cache(async function getSocialPageContent(): Promise<SocialPageContent> {
   try {
     const content = await getPublicSocialPage();
     if (isSocialContent(content)) {
@@ -47,7 +49,7 @@ async function getSocialPageContent(): Promise<SocialPageContent> {
     // Backend/API chưa sẵn sàng thì dùng dữ liệu tĩnh dự phòng.
   }
   return fallbackSocialContent;
-}
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await getSocialPageContent();

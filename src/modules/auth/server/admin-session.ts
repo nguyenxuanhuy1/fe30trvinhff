@@ -16,7 +16,9 @@ type AdminSession =
  * hợp lệ và tài khoản có đúng role ADMIN không. Không tin cookie vì cookie
  * không phải httpOnly, người dùng tự sửa được, nên role phải lấy từ DB.
  */
-async function getAdminSession(): Promise<AdminSession> {
+import { cache } from "react";
+
+const getAdminSession = cache(async function getAdminSession(): Promise<AdminSession> {
   const token = (await cookies()).get(TOKEN_COOKIE)?.value;
   if (!token) {
     return { status: "unauthenticated" };
@@ -34,7 +36,7 @@ async function getAdminSession(): Promise<AdminSession> {
   }
 
   return { status: "granted", user };
-}
+});
 
 export { getAdminSession };
 export type { AdminSession };

@@ -57,6 +57,22 @@ export default async function getCroppedImg(
     Math.round(0 - safeArea / 2 + image.height * 0.5 - pixelCrop.y)
   );
 
-  // As a base64 string
-  return canvas.toDataURL("image/webp");
+  // As a base64 string, resize to reasonable dimension for avatar (max 400px)
+  const MAX_DIM = 400;
+  if (pixelCrop.width > MAX_DIM || pixelCrop.height > MAX_DIM) {
+    const scale = Math.min(MAX_DIM / pixelCrop.width, MAX_DIM / pixelCrop.height);
+    const targetW = Math.round(pixelCrop.width * scale);
+    const targetH = Math.round(pixelCrop.height * scale);
+
+    const resizedCanvas = document.createElement("canvas");
+    resizedCanvas.width = targetW;
+    resizedCanvas.height = targetH;
+    const resizedCtx = resizedCanvas.getContext("2d");
+    if (resizedCtx) {
+      resizedCtx.drawImage(canvas, 0, 0, targetW, targetH);
+      return resizedCanvas.toDataURL("image/webp", 0.85);
+    }
+  }
+
+  return canvas.toDataURL("image/webp", 0.85);
 }

@@ -69,7 +69,6 @@ function AuthProvider({ children }: { children: ReactNode }) {
         try {
           const data = await getMe();
           setUser(data);
-          setCookie(USER_COOKIE, JSON.stringify(data), 604800);
           setIsLoading(false);
           return;
         } catch {
@@ -89,7 +88,6 @@ function AuthProvider({ children }: { children: ReactNode }) {
             }
             if (refreshed.user) {
               setUser(refreshed.user);
-              setCookie(USER_COOKIE, JSON.stringify(refreshed.user), 604800);
             }
             setIsLoading(false);
             return;
@@ -115,7 +113,6 @@ function AuthProvider({ children }: { children: ReactNode }) {
     if (data.refreshToken) {
       setCookie(REFRESH_TOKEN_COOKIE, data.refreshToken, 604800);
     }
-    setCookie(USER_COOKIE, JSON.stringify(data.user), 604800);
     setToken(data.token);
     setUser(data.user);
   }, []);
@@ -127,12 +124,11 @@ function AuthProvider({ children }: { children: ReactNode }) {
     if (data.refreshToken) {
       setCookie(REFRESH_TOKEN_COOKIE, data.refreshToken, 604800);
     }
-    setCookie(USER_COOKIE, JSON.stringify(data.user), 604800);
     setToken(data.token);
     setUser(data.user);
   }, []);
 
-  // Cập nhật thông tin tài khoản và đồng bộ cookie để header đổi theo
+  // Cập nhật thông tin tài khoản
   const updateUser = useCallback(
     async (payload: UpdateProfilePayload) => {
       if (!user) {
@@ -140,7 +136,6 @@ function AuthProvider({ children }: { children: ReactNode }) {
       }
       const data = await updateProfile(user.id, payload);
       setUser(data);
-      setCookie(USER_COOKIE, JSON.stringify(data), 604800);
     },
     [user],
   );
@@ -149,7 +144,6 @@ function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const data = await getMe();
       setUser(data);
-      setCookie(USER_COOKIE, JSON.stringify(data), 604800);
     } catch {
       // Ignore
     }
@@ -159,9 +153,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
     setUser((prev) => {
       if (!prev) return null;
       if (prev.coins === coins) return prev;
-      const updated = { ...prev, coins };
-      setCookie(USER_COOKIE, JSON.stringify(updated), 604800);
-      return updated;
+      return { ...prev, coins };
     });
   }, []);
 

@@ -2,7 +2,7 @@ import localFont from "next/font/local";
 import { Baloo_2, Lora } from "next/font/google";
 
 const zahra = localFont({
-  src: "../../public/font/Font chữ cổ trang Zahra/Zahra.ttf",
+  src: "../../public/font/zahra/Zahra.ttf",
   weight: "400",
   style: "normal",
   display: "swap",

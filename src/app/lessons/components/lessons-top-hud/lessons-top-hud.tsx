@@ -10,7 +10,7 @@ import { DailyRewardModal } from "@/modules/rewards";
 import "./lessons-top-hud.scss";
 
 
-const FALLBACK_AVATAR = "/images/chuotuser.png";
+const FALLBACK_AVATAR = "/images/chuotuser.webp";
 
 export function LessonsTopHud() {
   const router = useRouter();
