@@ -86,6 +86,8 @@ $font-game: var(--font-game, "Baloo 2"), "Baloo 2", cursive, system-ui, sans-ser
   }
 
   @media (max-width: 640px) {
+    top: calc(10px + env(safe-area-inset-top, 0px));
+    left: calc(12px + env(safe-area-inset-left, 0px));
     height: 32px;
     padding: 0 9px;
     font-size: 10.5px;
@@ -101,12 +103,12 @@ $font-game: var(--font-game, "Baloo 2"), "Baloo 2", cursive, system-ui, sans-ser
 }
 
 // -------------------------------------------------------------
-// VỊ TRÍ NÚT QUAY LẠI KHI MÀN HÌNH DỌC (PORTRAIT) -> Ở BÊN PHẢI
+// VỊ TRÍ NÚT QUAY LẠI KHI MÀN HÌNH DỌC (PORTRAIT) -> Ở BÊN TRÁI
 // -------------------------------------------------------------
 @media (orientation: portrait) {
   .lessons-back-btn {
-    left: auto !important;
-    right: calc(14px + env(safe-area-inset-right, 0px)) !important;
+    left: calc(12px + env(safe-area-inset-left, 0px)) !important;
+    right: auto !important;
   }
 }
 

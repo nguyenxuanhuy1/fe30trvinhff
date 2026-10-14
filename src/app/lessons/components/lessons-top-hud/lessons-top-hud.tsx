@@ -78,6 +78,12 @@ export function LessonsTopHud() {
 
   const avatarSrc = user?.avatarUrl || user?.inventoryAvatarUrl || FALLBACK_AVATAR;
   const username = user?.username || "Khách";
+  // Ngưỡng giới hạn ký tự trên mobile: nếu dài hơn 10 chữ thì hiển thị 10 chữ kèm ...
+  const MAX_MOBILE_CHARS = 10;
+  const mobileUsername =
+    username.length > MAX_MOBILE_CHARS
+      ? `${username.slice(0, MAX_MOBILE_CHARS)}...`
+      : username;
 
   return (
     <>
@@ -102,7 +108,10 @@ export function LessonsTopHud() {
                 unoptimized
               />
             </span>
-            <span className="lessons-top-hud__username">{username}</span>
+            <span className="lessons-top-hud__username" title={username}>
+              <span className="lessons-top-hud__username-desktop">{username}</span>
+              <span className="lessons-top-hud__username-mobile">{mobileUsername}</span>
+            </span>
             <svg
               className={`lessons-top-hud__chevron${isDropdownOpen ? " lessons-top-hud__chevron--open" : ""}`}
               viewBox="0 0 24 24"
@@ -120,10 +129,28 @@ export function LessonsTopHud() {
           {isDropdownOpen && (
             <div className="lessons-top-hud__dropdown" role="menu">
               <div className="lessons-top-hud__dropdown-header">
-                <span className="lessons-top-hud__dropdown-name">{username}</span>
-                {user?.role && (
-                  <span className="lessons-top-hud__dropdown-role">{user.role}</span>
-                )}
+                <div className="lessons-top-hud__dropdown-user-info">
+                  <div className="lessons-top-hud__dropdown-avatar-frame">
+                    <Image
+                      src={avatarSrc}
+                      alt={username}
+                      width={38}
+                      height={38}
+                      className="lessons-top-hud__avatar-img"
+                      unoptimized
+                    />
+                  </div>
+                  <div className="lessons-top-hud__dropdown-user-details">
+                    <span className="lessons-top-hud__dropdown-name" title={username}>
+                      {username}
+                    </span>
+                    {user?.role && (
+                      <span className="lessons-top-hud__dropdown-role">
+                        {user.role === "ADMIN" ? "Quản trị viên" : "Học viên"}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {user ? (
