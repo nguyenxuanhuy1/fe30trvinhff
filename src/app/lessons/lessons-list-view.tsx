@@ -2,15 +2,14 @@
 
 import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, Button, Skeleton } from "antd";
 import Link from "next/link";
 import { getRooms } from "@/modules/lessons";
 import { ImageCard } from "@/modules/lessons/components/image-card/ImageCard";
 import { useInventory, useItemPreload } from "@/modules/inventory";
+import { EmptyState, ErrorState, GameButton, GameCardSkeleton } from "@/components/ui";
 import { LessonsBackButton } from "./components/lessons-back-button/lessons-back-button";
 import { LessonsTopHud } from "./components/lessons-top-hud/lessons-top-hud";
 import { LessonsBottomDock } from "./components/lessons-bottom-dock/lessons-bottom-dock";
-import { ExitFullscreenButton } from "@/components/ExitFullscreenButton";
 import "./lessons-list-view.scss";
 
 /**
@@ -25,7 +24,6 @@ function LessonsListView() {
   const roomsQuery = useQuery({
     queryKey: ["levels-rooms"],
     queryFn: getRooms,
-    staleTime: 30_000,
   });
 
   const rooms = roomsQuery.data ?? [];
@@ -59,38 +57,28 @@ function LessonsListView() {
 
   return (
     <div className="levels-page">
-      <LessonsBackButton href="/?landing=true" />
+      <LessonsBackButton href="/" />
       <LessonsTopHud />
       <LessonsBottomDock />
-      <ExitFullscreenButton />
 
-      {roomsQuery.isLoading ? (
-        <div style={{ maxWidth: 800, margin: "0 auto" }}>
-          <Skeleton active paragraph={{ rows: 6 }} />
-        </div>
+      {roomsQuery.isLoading && rooms.length === 0 ? (
+        <ul className="levels-page__grid">
+          <GameCardSkeleton count={4} variant="image-card" />
+        </ul>
       ) : roomsQuery.isError ? (
-        <Alert
-          type="error"
-          showIcon
+        <ErrorState
+          error={roomsQuery.error}
           message="Không thể tải danh sách cấp độ học."
-          action={
-            <Button size="small" onClick={() => void roomsQuery.refetch()}>
-              Thử lại
-            </Button>
-          }
+          onRetry={() => void roomsQuery.refetch()}
         />
       ) : rooms.length === 0 ? (
-        <div className="levels-page__empty">
-          <p>Chưa có cấp độ nào được tạo.</p>
-          <p style={{ fontSize: "0.875rem", color: "#64748b" }}>
-            Quản trị viên có thể vào trang Quản trị (Admin) để thêm các mục Cấp 1, Cấp 2, Cấp 3...
-          </p>
-          <Link href="/admin">
-            <Button type="primary" style={{ marginTop: 12 }}>
-              Đi tới trang Quản trị
-            </Button>
-          </Link>
-        </div>
+        <EmptyState
+          icon="📚"
+          title="Chưa có cấp độ nào"
+          description="Hiện tại hệ thống chưa có cấp độ học nào được tạo. Quản trị viên có thể vào trang Quản trị để thêm các cấp độ mới."
+          actionText="Đi tới trang Quản trị"
+          actionHref="/admin"
+        />
       ) : (
         <ul
           ref={gridRef}

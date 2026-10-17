@@ -5,6 +5,7 @@ import Link from "next/link";
 import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/modules/auth";
 import {
   createGroup,
@@ -26,6 +27,7 @@ import { StreakFlame } from "./streak-flame/streak-flame";
 import { GameButton } from "@/components/ui/game-button";
 import { GameModal } from "@/components/ui/game-modal";
 import { toast } from "@/components/ui/game-toast";
+import { EmptyState, ErrorState, FriendsOverviewSkeleton } from "@/components/ui";
 import { LogoutOutlined } from "@ant-design/icons";
 import { friendsPage } from "./friends.const";
 import "./friends.scss";
@@ -34,13 +36,21 @@ const FALLBACK_AVATAR = "/images/chuotuser.webp";
 
 function FriendsPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { user, isLoading: isAuthLoading } = useAuth();
 
-  const [group, setGroup] = useState<Group | null>(null);
-  const [received, setReceived] = useState<GroupInvitation[]>([]);
-  const [sent, setSent] = useState<SentInvitation[]>([]);
+  const overviewQuery = useQuery({
+    queryKey: ["friends-overview", user?.id],
+    queryFn: getFriendsOverview,
+    enabled: !!user,
+  });
 
-  const [isLoading, setIsLoading] = useState(true);
+  const overview = overviewQuery.data;
+  const group = overview?.group ?? null;
+  const received = overview?.received ?? [];
+  const sent = overview?.sent ?? [];
+  const isLoading = overviewQuery.isLoading;
+
   const [pendingId, setPendingId] = useState<string | null>(null);
 
   // Modals state
@@ -56,23 +66,7 @@ function FriendsPage() {
     if (isAuthLoading) return;
     if (!user) {
       router.replace("/login?next=/ban-be");
-      return;
     }
-
-    async function loadOverview() {
-      try {
-        const overview = await getFriendsOverview();
-        setGroup(overview.group);
-        setReceived(overview.received);
-        setSent(overview.sent);
-      } catch {
-        toast.error("Không tải được dữ liệu nhóm, vui lòng thử lại sau.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    void loadOverview();
   }, [isAuthLoading, user, router]);
 
   async function handleCreateGroup(e: React.FormEvent) {
@@ -87,14 +81,11 @@ function FriendsPage() {
     setCreateError(null);
     try {
       const created = await createGroup(name);
-      setGroup(created);
       setIsCreateModalOpen(false);
       setNewGroupName("");
       toast.success(`Đã tạo thành công nhóm "${created.name}"!`);
-      const overview = await getFriendsOverview();
-      setGroup(overview.group);
-      setReceived(overview.received);
-      setSent(overview.sent);
+      void queryClient.invalidateQueries({ queryKey: ["friends-overview"] });
+      void queryClient.invalidateQueries({ queryKey: ["my-group"] });
     } catch (error) {
       setCreateError(getErrorMessage(error, "Tạo nhóm thất bại, vui lòng thử lại"));
     } finally {
@@ -109,10 +100,8 @@ function FriendsPage() {
       const res = await leaveGroup();
       toast.info(res.message || "Bạn đã rời khỏi nhóm.");
       setIsLeaveModalOpen(false);
-      const overview = await getFriendsOverview();
-      setGroup(overview.group);
-      setReceived(overview.received);
-      setSent(overview.sent);
+      void queryClient.invalidateQueries({ queryKey: ["friends-overview"] });
+      void queryClient.invalidateQueries({ queryKey: ["my-group"] });
     } catch (error) {
       toast.error(getErrorMessage(error, "Không thể rời nhóm, vui lòng thử lại"));
     } finally {
@@ -128,20 +117,9 @@ function FriendsPage() {
     if (!group) return false;
     setPendingId(candidate.id);
     try {
-      const invitation = await inviteToGroup(group.id, candidate.id);
-      setSent((prev) => [
-        {
-          ...invitation,
-          invitee: {
-            id: candidate.id,
-            username: candidate.username,
-            avatarUrl: candidate.avatarUrl,
-          },
-        },
-        ...prev.filter((inv) => inv.inviteeId !== candidate.id),
-      ]);
+      await inviteToGroup(group.id, candidate.id);
       toast.success(`Đã gửi lời mời tham gia nhóm tới "${candidate.username}"`);
-      void getSentInvitations().then((updatedSent) => setSent(updatedSent));
+      void queryClient.invalidateQueries({ queryKey: ["friends-overview"] });
       return true;
     } catch (error) {
       toast.error(getErrorMessage(error, "Không thể gửi lời mời"));
@@ -160,10 +138,9 @@ function FriendsPage() {
       } else {
         toast.info("Đã từ chối lời mời tham gia nhóm.");
       }
-      const overview = await getFriendsOverview();
-      setGroup(overview.group);
-      setReceived(overview.received);
-      setSent(overview.sent);
+      void queryClient.invalidateQueries({ queryKey: ["friends-overview"] });
+      void queryClient.invalidateQueries({ queryKey: ["received-invitations-dock"] });
+      void queryClient.invalidateQueries({ queryKey: ["my-group"] });
     } catch (error) {
       toast.error(getErrorMessage(error, "Không xử lý được lời mời"));
     } finally {
@@ -176,42 +153,20 @@ function FriendsPage() {
   // Sắp xếp thành viên sao cho Trưởng nhóm (OWNER) luôn ở hàng đầu tiên
   const sortedMembers = group
     ? [...group.members].sort((a, b) => {
-        if (a.role === "OWNER") return -1;
-        if (b.role === "OWNER") return 1;
-        return 0;
-      })
+      if (a.role === "OWNER") return -1;
+      if (b.role === "OWNER") return 1;
+      return 0;
+    })
     : [];
 
-  if (isAuthLoading || (isLoading && user)) {
-    return (
-      <div className="friends-page-root">
-        <header className="friends-header">
-          <div className="friends-header__left">
-            <Link href="/" className="friends-header__back-btn">
-              <svg
-                viewBox="0 0 24 24"
-                width="20"
-                height="20"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-              <span>Quay lại</span>
-            </Link>
-          </div>
-        </header>
-        <main className="friends-loading-wrap">
-          <p className="friends-loading-text">{friendsPage.loading}</p>
-        </main>
-      </div>
-    );
+  const hasOverviewData = overview !== undefined;
+  const isInitialLoading = !hasOverviewData && (isAuthLoading || (isLoading && Boolean(user)));
+
+  if (overviewQuery.isError && user) {
+    return <ErrorState error={overviewQuery.error} onRetry={() => overviewQuery.refetch()} />;
   }
 
-  if (!user) return null;
+  if (!user && !isAuthLoading) return null;
 
   return (
     <div className="friends-page-root">
@@ -266,7 +221,11 @@ function FriendsPage() {
                 </div>
               </div>
 
-              {received.length === 0 ? (
+              {isInitialLoading ? (
+                <div className="friends-floating-bar__empty">
+                  Đang tải lời mời...
+                </div>
+              ) : received.length === 0 ? (
                 <div className="friends-floating-bar__empty">
                   {group !== null
                     ? "Không có lời mời tham gia nhóm mới"
@@ -322,15 +281,14 @@ function FriendsPage() {
 
             {/* Phần 2: Footer box lời mời: "Chuỗi của nhóm là : Chuỗi + lửa" căn lề phía bên phải */}
             <div
-              className={`friends-floating-bar__flame-section ${
-                (group ? Boolean(group.isFrozen) : true) ? "friends-floating-bar__flame-section--frozen" : ""
-              }`}
+              className={`friends-floating-bar__flame-section ${(group ? Boolean(group.isFrozen) : true) ? "friends-floating-bar__flame-section--frozen" : ""
+                }`}
               title={
                 !group
                   ? "Chưa gia nhập nhóm"
                   : group.isFrozen
-                  ? "Chuỗi nhóm đã chuyển thành băng và bị mất vì có thành viên chưa đăng nhập hôm nay"
-                  : `Chuỗi của nhóm: ${group.streak ?? 0} ngày liên tiếp`
+                    ? "Chuỗi nhóm đã chuyển thành băng và bị mất vì có thành viên chưa đăng nhập hôm nay"
+                    : `Chuỗi của nhóm: ${group.streak ?? 0} ngày liên tiếp`
               }
             >
               <span className="friends-floating-bar__flame-label">Chuỗi của nhóm:</span>
@@ -346,7 +304,11 @@ function FriendsPage() {
           </aside>
 
           <section className="friends-col-right">
-            {group !== null ? (
+            {isInitialLoading ? (
+              <div style={{ padding: "12px 0" }}>
+                <FriendsOverviewSkeleton />
+              </div>
+            ) : group !== null ? (
               <div className="friends-group-details">
                 {/* Header nhóm */}
                 <div className="friends-group-details__head">
@@ -379,9 +341,8 @@ function FriendsPage() {
                       return (
                         <div
                           key={member.id}
-                          className={`friends-member-card ${
-                            isLeader ? "friends-member-card--leader" : ""
-                          }`}
+                          className={`friends-member-card ${isLeader ? "friends-member-card--leader" : ""
+                            }`}
                         >
                           <div className="friends-member-card__user">
                             <div className="friends-member-card__avatar-wrap">
@@ -403,7 +364,7 @@ function FriendsPage() {
                                 <span className="friends-member-card__name">
                                   {member.user.username}
                                 </span>
-                                {member.user.id === user.id && (
+                                {member.user.id === user?.id && (
                                   <span className="friends-member-card__you-badge">Bạn</span>
                                 )}
                               </div>
@@ -466,25 +427,16 @@ function FriendsPage() {
               </div>
             ) : (
               /* Chưa có nhóm: Hiển thị trạng thái hướng dẫn tham gia / tạo nhóm */
-              <div className="friends-empty-group">
-                <div className="friends-empty-group__icon">🛡️</div>
-                <h2 className="friends-empty-group__title">Bạn chưa gia nhập nhóm nào</h2>
-                <p className="friends-empty-group__desc">
-                  Hãy nhấn vào nút <strong>&quot;Tạo nhóm mới&quot;</strong> ở cột bên trái để trở thành
-                  Trưởng nhóm và thắp lên ngọn lửa chuỗi đầu tiên, hoặc đợi lời mời từ bạn bè!
-                </p>
-                <div className="friends-empty-group__action">
-                  <button
-                    className="friends-btn-light"
-                    onClick={() => {
-                      setCreateError(null);
-                      setIsCreateModalOpen(true);
-                    }}
-                  >
-                    👑 Tạo nhóm ngay
-                  </button>
-                </div>
-              </div>
+              <EmptyState
+                icon="🛡️"
+                title="Bạn chưa gia nhập nhóm nào"
+                description='Hãy nhấn vào nút "Tạo nhóm ngay" để trở thành Trưởng nhóm và thắp lên ngọn lửa chuỗi đầu tiên, hoặc đợi lời mời từ bạn bè!'
+                actionText="👑 Tạo nhóm ngay"
+                onAction={() => {
+                  setCreateError(null);
+                  setIsCreateModalOpen(true);
+                }}
+              />
             )}
           </section>
         </div>

@@ -10,7 +10,7 @@ interface LessonsBackButtonProps {
   onBack?: () => void;
 }
 
-export function LessonsBackButton({ href = "/?landing=true", onBack }: LessonsBackButtonProps) {
+export function LessonsBackButton({ href = "/", onBack }: LessonsBackButtonProps) {
   const router = useRouter();
 
   const handleClick = (e: React.MouseEvent) => {

@@ -6,7 +6,7 @@ import type { FriendCandidate } from "@/modules/friends/types";
 import { friendsPage } from "../friends.const";
 import "./friend-search.scss";
 
-const FALLBACK = "/images/chuotuser.png";
+const FALLBACK = "/images/chuotuser.webp";
 
 interface FriendSearchProps {
   candidates: FriendCandidate[];

@@ -7,8 +7,16 @@ function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        // Khu vực quản trị không để công cụ tìm kiếm vào
-        disallow: ["/admin"],
+        // Chặn công cụ tìm kiếm cào các trang nội bộ/tài khoản/admin
+        disallow: [
+          "/admin",
+          "/inventory",
+          "/gio-hang",
+          "/profile",
+          "/ban-be",
+          "/login",
+          "/api/",
+        ],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,

@@ -2,7 +2,6 @@ export { NewsList } from "./components/news-list";
 export type { NewsListProps } from "./components/news-list";
 export { EventList } from "./components/event-list";
 export type { EventListProps } from "./components/event-list";
-export { newsArticles, communityThreads, communityEvents } from "./data/content";
 export type {
   NewsArticle,
   NewsCategory,

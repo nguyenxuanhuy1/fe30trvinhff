@@ -3,8 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import backgroundImage from "../../../../../public/images/background.webp";
+import { useAuth } from "@/modules/auth";
 import {
   leftMenuItems,
   rightMenuItems,
@@ -204,10 +205,64 @@ function MenuGroup({
 function HeroHeader({ variant = "hero", showBackButton }: HeroHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isCompact = variant === "compact";
   const shouldShowBack = showBackButton !== undefined ? showBackButton : isCompact;
+
+  const navRef = useRef<HTMLElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const toggleButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Đóng dropdown khi click ra ngoài hoặc bấm phím Escape
+  useEffect(() => {
+    if (!isMobileMenuOpen && !openMenu) return;
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+
+      // Khi mobile menu đang mở: đóng lại nếu click ra ngoài menu và không click vào nút toggle
+      if (isMobileMenuOpen) {
+        const isClickInsideMobileMenu = mobileMenuRef.current?.contains(target);
+        const isClickOnToggle = toggleButtonRef.current?.contains(target);
+
+        if (!isClickInsideMobileMenu && !isClickOnToggle) {
+          setIsMobileMenuOpen(false);
+          setOpenMenu(null);
+          return;
+        }
+      }
+
+      // Khi desktop menu dropdown đang mở: đóng lại nếu click ra ngoài thanh điều hướng
+      if (openMenu && navRef.current && !navRef.current.contains(target)) {
+        setOpenMenu(null);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsMobileMenuOpen(false);
+        setOpenMenu(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside, { passive: true });
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isMobileMenuOpen, openMenu]);
+
+  // Tự động đóng dropdown khi chuyển tuyến đường
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+    setOpenMenu(null);
+  }, [pathname]);
 
   const handleBack = () => {
     const isInternalReferrer = document.referrer.startsWith(
@@ -219,7 +274,7 @@ function HeroHeader({ variant = "hero", showBackButton }: HeroHeaderProps) {
       return;
     }
 
-    router.push("/lessons");
+    router.push("/");
   };
 
   const closeMenu = () => setOpenMenu(null);
@@ -264,7 +319,7 @@ function HeroHeader({ variant = "hero", showBackButton }: HeroHeaderProps) {
         </div>
       )}
 
-      <nav className="hero-header__nav" aria-label="Điều hướng chính">
+      <nav ref={navRef} className="hero-header__nav" aria-label="Điều hướng chính">
         <div className="hero-header__nav-inner">
           {shouldShowBack && (
             <button
@@ -284,10 +339,10 @@ function HeroHeader({ variant = "hero", showBackButton }: HeroHeaderProps) {
             items={leftMenuItems}
           />
 
-          <Link className="hero-header__logo" href="/?landing=true" aria-label="Trang chủ">
+          <Link className="hero-header__logo" href="/" aria-label="Trang chủ">
             <Image
               src="/images/logo.png"
-              alt="Game Center"
+              alt="Whisker - Cổng Trò Chơi Giáo Dục STEAM"
               width={220}
               height={81}
               sizes="220px"
@@ -307,6 +362,7 @@ function HeroHeader({ variant = "hero", showBackButton }: HeroHeaderProps) {
           </div>
 
           <button
+            ref={toggleButtonRef}
             className="hero-header__menu-toggle"
             type="button"
             aria-label={isMobileMenuOpen ? "Đóng menu" : "Mở menu"}
@@ -321,6 +377,7 @@ function HeroHeader({ variant = "hero", showBackButton }: HeroHeaderProps) {
         </div>
 
         <div
+          ref={mobileMenuRef}
           className={`hero-header__mobile-menu${
             isMobileMenuOpen ? " hero-header__mobile-menu--open" : ""
           }`}
@@ -359,13 +416,17 @@ function HeroHeader({ variant = "hero", showBackButton }: HeroHeaderProps) {
             className="hero-header__play-button"
             type="button"
             onClick={() => {
-              router.push("/lessons");
+              if (isAuthenticated || user) {
+                router.push("/lessons");
+              } else {
+                router.push("/login?next=/lessons");
+              }
             }}
           >
             <span>Chơi ngay</span>
           </button>
           <h1 className="hero-header__visually-hidden" id="hero-header-title">
-            Thế giới kiếm hiệp
+            Whisker - Cổng Trò Chơi Giáo Dục STEAM &amp; Thí Nghiệm 3D Tương Tác
           </h1>
         </section>
       )}

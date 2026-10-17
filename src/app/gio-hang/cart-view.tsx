@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/modules/auth";
 import {
   getShopItems,
@@ -15,6 +15,7 @@ import {
 } from "@/modules/shop";
 import { toast } from "@/components/ui/game-toast";
 import { CoinIcon } from "@/components/ui/coin-icon";
+import { EmptyState, ErrorState, GameCardSkeleton } from "@/components/ui";
 import "./cart.scss";
 
 export function CartView() {
@@ -22,9 +23,20 @@ export function CartView() {
   const queryClient = useQueryClient();
   const { user, updateCoins } = useAuth();
 
-  const [items, setItems] = useState<ShopItem[]>([]);
-  const [orders, setOrders] = useState<ShopOrder[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const itemsQuery = useQuery<ShopItem[]>({
+    queryKey: ["shop-items"],
+    queryFn: () => getShopItems(),
+  });
+
+  const ordersQuery = useQuery({
+    queryKey: ["my-orders", user?.id],
+    queryFn: getMyOrders,
+    enabled: !!user,
+  });
+
+  const items = itemsQuery.data ?? [];
+  const orders = ordersQuery.data ?? [];
+  const isLoading = itemsQuery.isLoading || (!!user && ordersQuery.isLoading);
   const [showOrdersModal, setShowOrdersModal] = useState(false);
 
   // Mua hàng modal
@@ -35,26 +47,6 @@ export function CartView() {
   const [contactError, setContactError] = useState("");
 
   const coins = user?.coins ?? 0;
-
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setIsLoading(true);
-        const [itemsData, ordersData] = await Promise.all([
-          getShopItems(),
-          user ? getMyOrders().catch(() => []) : Promise.resolve([]),
-        ]);
-        setItems(itemsData);
-        setOrders(ordersData);
-      } catch {
-        toast.error("Không thể tải danh sách sản phẩm. Vui lòng thử lại!");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    void loadData();
-  }, [user]);
 
   useEffect(() => {
     if (selectedItem || showOrdersModal) {
@@ -118,15 +110,9 @@ export function CartView() {
       // Cập nhật số xu người dùng ngay lập tức
       updateCoins(res.remainingCoins);
 
-      // Thêm đơn hàng vào danh sách đơn của tôi
-      setOrders((prev) => [res.order, ...prev]);
-
-      // Cập nhật trạng thái đã sở hữu cho sản phẩm này trong danh sách
-      setItems((prev) =>
-        prev.map((it) => (it.id === selectedItem.id ? { ...it, isOwned: true } : it))
-      );
-
-      // Làm mới dữ liệu Tủ đồ để cập nhật tức thì
+      // Cập nhật query cache ngay lập tức
+      void queryClient.invalidateQueries({ queryKey: ["shop-items"] });
+      void queryClient.invalidateQueries({ queryKey: ["my-orders"] });
       void queryClient.invalidateQueries({ queryKey: ["inventory"] });
 
       toast.success(res.message);
@@ -185,16 +171,24 @@ export function CartView() {
 
       {/* 2. Nội dung chính: Danh sách sản phẩm (không dùng tab) */}
       <main className="cart-content-container">
-        {isLoading ? (
-          <div className="cart-empty-state">
-            <span className="cart-empty-state__icon">⏳</span>
-            <p className="cart-empty-state__text">Đang tải danh sách vật phẩm...</p>
+        {isLoading && items.length === 0 ? (
+          <div className="cart-grid">
+            <GameCardSkeleton count={8} variant="shop" />
           </div>
+        ) : itemsQuery.isError ? (
+          <ErrorState
+            error={itemsQuery.error}
+            onRetry={() => {
+              itemsQuery.refetch();
+              if (user) ordersQuery.refetch();
+            }}
+          />
         ) : items.length === 0 ? (
-          <div className="cart-empty-state">
-            <span className="cart-empty-state__icon">🎁</span>
-            <p className="cart-empty-state__text">Cửa hàng hiện chưa có vật phẩm nào được bày bán.</p>
-          </div>
+          <EmptyState
+            icon="🎁"
+            title="Cửa hàng đang cập nhật"
+            description="Cửa hàng hiện chưa có vật phẩm nào được bày bán. Hãy quay lại sau nhé!"
+          />
         ) : (
           <div className="cart-grid">
             {items.map((item) => {
@@ -204,7 +198,7 @@ export function CartView() {
               return (
                 <div
                   key={item.id}
-                  className={`cart-shop-card ui-game-card ${item.isSpecial ? "cart-shop-card--special ui-game-card--special" : ""} ${isOwned ? "cart-shop-card--owned" : ""}`}
+                  className={`cart-shop-card ${item.isSpecial ? "cart-shop-card--special" : ""} ${isOwned ? "cart-shop-card--owned" : ""}`}
                   onClick={() => {
                     if (isOwned) {
                       toast.info("Bạn đã sở hữu vật phẩm này rồi, không thể mua lại nữa.");
@@ -445,10 +439,13 @@ export function CartView() {
 
             <div className="cart-orders-table cart-orders-table--modal">
               {orders.length === 0 ? (
-                <div className="cart-empty-state">
-                  <span className="cart-empty-state__icon">📜</span>
-                  <p className="cart-empty-state__text">Bạn chưa thực hiện giao dịch mua vật phẩm nào.</p>
-                </div>
+                <EmptyState
+                  icon="📦"
+                  title="Chưa có đơn hàng"
+                  description="Bạn chưa thực hiện giao dịch mua vật phẩm nào."
+                  actionText="Khám phá cửa hàng"
+                  onAction={() => setShowOrdersModal(false)}
+                />
               ) : (
                 orders.map((ord) => {
                   const statusMap: Record<string, { label: string; className: string }> = {

@@ -1,4 +1,4 @@
-type NewsCategory = "TIN TỨC" | "CỘNG ĐỒNG" | "SỰ KIỆN" | "KHÁM PHÁ";
+type NewsCategory = "TIN TỨC" | "CỘNG ĐỒNG" | "SỰ KIỆN" | "KHÁM PHÁ" | "HƯỚNG DẪN";
 
 interface NewsArticle {
   id?: string;

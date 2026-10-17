@@ -1,98 +1,67 @@
-@use "sass:color";
+// =============================================================
+// THỐNG NHẤT MODAL TOÀN HỆ THỐNG (GAME MODAL)
+// Thiết kế: Tối giản, thanh lịch, dễ nhìn, dễ đọc, khớp UI website
+// =============================================================
 
-// --- Reusable 3D Game Modal Styling ---
 .game-modal-root {
   --ant-modal-content-padding: 0px !important;
 
   .ant-modal {
     padding: 0;
+    max-width: calc(100vw - 32px);
     outline: none !important;
   }
 
-  // Ant Design 6 container and legacy content class
+  // --- Khung Modal (Container & Content) ---
   .ant-modal-container,
   .ant-modal-content {
-    background: linear-gradient(180deg, #f7efe0 0%, #ebe0ca 100%);
-    border: 3.5px solid #5c270d !important;
-    border-radius: 18px !important;
+    background: #fdfbf7 !important;
+    border: 2px solid #5a301a !important;
+    border-radius: 16px !important;
     padding: 0 !important;
     overflow: hidden;
     outline: none !important;
     position: relative;
-
-    // 3D Physical Extrusion & Layered Bevel Shadows
     box-shadow:
-      // 3D extruded drop base (solid depth)
-      0 8px 0 #381505,
-      0 12px 0 #240b01,
-      // Ambient atmospheric floor shadows
-      0 20px 40px rgba(0, 0, 0, 0.6),
-      0 35px 70px rgba(0, 0, 0, 0.35),
-      // Inset brass/gold decorative inner rim
-      inset 0 0 0 2px #d4a34b,
-      inset 0 0 0 3px #5c270d,
-      // Top specular rim highlight
-      inset 0 3px 5px rgba(255, 255, 255, 0.6),
-      // Bottom inner recessed shadow
-      inset 0 -4px 8px rgba(92, 39, 13, 0.2) !important;
+      0 16px 40px rgba(32, 16, 8, 0.28),
+      0 4px 12px rgba(0, 0, 0, 0.1) !important;
   }
 
-  // --- 3D Header ---
+  // --- Thanh Tiêu Đề (Header) ---
   .ant-modal-header {
     position: relative;
-    background: linear-gradient(180deg, #e2532f 0%, #b6321a 45%, #8a2410 100%);
-    border-bottom: 3px solid #521206;
-    padding: 18px 24px 16px;
-    margin: 0;
-    box-shadow:
-      inset 0 -2px 6px rgba(0, 0, 0, 0.4),
-      0 4px 10px rgba(0, 0, 0, 0.25);
-
-    // 3D Glass / Specular top highlight reflection
-    &::before {
-      content: "";
-      position: absolute;
-      top: 3px;
-      left: 6px;
-      right: 6px;
-      height: 48%;
-      background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.45) 0%,
-        rgba(255, 255, 255, 0.08) 100%
-      );
-      border-radius: 12px 12px 30px 30px / 12px 12px 36px 36px;
-      pointer-events: none;
-    }
+    background: linear-gradient(180deg, #6c371d 0%, #562912 100%) !important;
+    border-bottom: 2px solid #3d1b09 !important;
+    padding: 14px 20px !important;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
   }
 
-  // --- 3D Title Typography ---
+  // --- Tiêu Đề Bài / Chức Năng (Dễ Nhìn, Dễ Đọc) ---
   .ant-modal-title {
-    color: #fff3dc;
-    font-family: var(--font-zahra), "Times New Roman", Georgia, serif;
-    font-size: 1.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    text-align: center;
-    letter-spacing: 2px;
-    line-height: 1.2;
-    text-shadow:
-      0 2px 0 #420d04,
-      0 4px 8px rgba(0, 0, 0, 0.65);
-    position: relative;
-    z-index: 1;
+    color: #fff9ee !important;
+    font-family: var(--font-game, "Baloo 2"), system-ui, -apple-system, sans-serif !important;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.3px !important;
+    line-height: 1.3 !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    text-align: left !important;
+    text-transform: none !important;
+    margin: 0 !important;
   }
 
-  // --- 3D Close Button (Wax Seal / Medallion Style) ---
+  // --- Nút Đóng (Close Button) Gọn Gàng, Tinh Tế ---
   .ant-modal-close {
-    top: 14px;
-    right: 18px;
-    width: 34px;
-    height: 34px;
-    padding: 0;
-    background: transparent;
-    border: none;
-    outline: none;
+    top: 12px !important;
+    right: 14px !important;
+    width: 30px !important;
+    height: 30px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
     cursor: pointer;
     z-index: 10;
     display: flex;
@@ -100,7 +69,7 @@
     justify-content: center;
 
     &:hover {
-      background: transparent;
+      background: transparent !important;
     }
   }
 
@@ -108,119 +77,298 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: linear-gradient(180deg, #962814 0%, #631709 100%);
-    border: 2px solid #e0aa48;
-    color: #fff1d6;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #ffffff;
     font-size: 13px;
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
-    box-shadow:
-      0 3px 0 #330a03,
-      0 5px 8px rgba(0, 0, 0, 0.45),
-      inset 0 1px 2px rgba(255, 255, 255, 0.65),
-      inset 0 -2px 4px rgba(0, 0, 0, 0.5);
-    transition: all 140ms ease;
+    transition: all 0.16s ease;
     user-select: none;
 
     &:hover {
-      transform: translateY(-1px) scale(1.08);
-      filter: brightness(1.15);
-      border-color: #ffd880;
-      box-shadow:
-        0 4px 0 #330a03,
-        0 7px 12px rgba(0, 0, 0, 0.55),
-        inset 0 1px 2px rgba(255, 255, 255, 0.8),
-        inset 0 -2px 4px rgba(0, 0, 0, 0.5);
+      background: rgba(255, 255, 255, 0.32);
+      transform: scale(1.08);
+      color: #ffffff;
     }
 
     &:active {
-      transform: translateY(2px) scale(0.96);
-      box-shadow:
-        0 1px 0 #330a03,
-        0 2px 4px rgba(0, 0, 0, 0.5),
-        inset 0 2px 4px rgba(0, 0, 0, 0.6);
+      transform: scale(0.94);
     }
   }
 
-  // --- 3D Parchment Body ---
+  // --- Phần Nội Dung (Body) ---
   .ant-modal-body {
     padding: 0 !important;
-    color: #3a2a1a;
+    color: #2c1e14;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 14.5px;
+    line-height: 1.6;
     position: relative;
-    box-shadow: inset 0 5px 10px rgba(74, 30, 8, 0.08);
+    background: #fdfbf7;
   }
 
-  // --- 3D Footer Panel ---
+  // --- Thanh Thao Tác Chân Trang (Footer) ---
   .ant-modal-footer {
-    background: linear-gradient(180deg, #ebdcc3 0%, #decda7 100%);
-    border-top: 2.5px solid #b8751f;
-    padding: 16px 24px 20px;
-    margin: 0;
+    background: #f6eee2 !important;
+    border-top: 1.5px solid rgba(90, 48, 26, 0.15) !important;
+    padding: 12px 20px !important;
+    margin: 0 !important;
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 16px;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.65),
-      0 -3px 8px rgba(0, 0, 0, 0.05);
+    gap: 12px;
+
+    // Reset Ant Design standard buttons if used
+    .ant-btn {
+      height: 38px !important;
+      min-height: 38px !important;
+      padding: 0 20px !important;
+      border-radius: 8px !important;
+      font-size: 13.5px !important;
+      font-weight: 700 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      transition: all 0.15s ease !important;
+    }
+
+    .ant-btn-default {
+      background: #ffffff !important;
+      border: 1.5px solid #8b5a2b !important;
+      color: #5c341e !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+
+      &:hover {
+        background: #f4ece2 !important;
+        border-color: #6d411b !important;
+        color: #3b2010 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+      }
+
+      &:active {
+        transform: translateY(1px);
+      }
+    }
+
+    .ant-btn-primary {
+      background: linear-gradient(180deg, #8c3522 0%, #6e2516 100%) !important;
+      border: 1.5px solid #5a1e12 !important;
+      color: #ffffff !important;
+      box-shadow: 0 2px 6px rgba(90, 30, 15, 0.25) !important;
+
+      &:hover {
+        filter: brightness(1.08) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(90, 30, 15, 0.35) !important;
+      }
+
+      &:active {
+        transform: translateY(1px);
+      }
+    }
   }
 
-  // --- Reusable 3D Slider (e.g. for zoom/adjustment controls) ---
+  // --- Tự động đồng bộ các nút bên trong Modal ---
+  .game-button {
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 0 22px !important;
+    border-radius: 8px !important;
+    border: 1.5px solid #5a1e12 !important;
+    background: linear-gradient(180deg, #8c3522 0%, #6e2516 100%) !important;
+    box-shadow: 0 2px 6px rgba(90, 30, 15, 0.25) !important;
+    color: #ffffff !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    text-shadow: none !important;
+    text-transform: none !important;
+    letter-spacing: 0.3px !important;
+
+    &::before {
+      display: none !important;
+    }
+
+    &:hover:not(:disabled) {
+      filter: brightness(1.08) !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 4px 10px rgba(90, 30, 15, 0.35) !important;
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(1px) !important;
+      box-shadow: 0 1px 3px rgba(90, 30, 15, 0.3) !important;
+    }
+
+    &:disabled {
+      opacity: 0.6 !important;
+      cursor: not-allowed !important;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+  }
+
+  // --- Nút Xác nhận / Lưu (Primary Action Button) ---
+  .game-modal__btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    height: 38px;
+    padding: 0 22px;
+    border: 1.5px solid #5a1e12;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #8c3522 0%, #6e2516 100%);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(90, 30, 15, 0.25);
+    transition: all 0.15s ease;
+    outline: none;
+
+    &:hover:not(:disabled) {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(90, 30, 15, 0.35);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(1px);
+      box-shadow: 0 1px 3px rgba(90, 30, 15, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  // --- Nút Hủy (Secondary Cancel Button) ---
+  .game-modal__btn-cancel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    height: 38px;
+    padding: 0 18px;
+    border: 1.5px solid #8b5a2b;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #5c341e;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: all 0.15s ease;
+    outline: none;
+
+    &:hover:not(:disabled) {
+      background: #f4ece2;
+      border-color: #6d411b;
+      color: #3b2010;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  // --- Thanh Thu Phóng (Slider) Tinh Gọn ---
   .ant-slider {
     margin: 0;
 
     .ant-slider-rail {
-      background: linear-gradient(180deg, #b89d7b 0%, #cbb79c 100%);
-      height: 8px;
-      border-radius: 6px;
-      box-shadow:
-        inset 0 2px 3px rgba(0, 0, 0, 0.35),
-        0 1px 0 rgba(255, 255, 255, 0.5);
+      background: #e2d7c5;
+      height: 6px;
+      border-radius: 4px;
     }
 
     .ant-slider-track {
-      background: linear-gradient(180deg, #e2532f 0%, #a8321c 100%);
-      height: 8px;
-      border-radius: 6px;
-      box-shadow:
-        inset 0 1px 2px rgba(255, 255, 255, 0.5),
-        0 1px 2px rgba(0, 0, 0, 0.25);
+      background: #8c3522;
+      height: 6px;
+      border-radius: 4px;
     }
 
     .ant-slider-handle {
       &::after {
-        width: 20px;
-        height: 20px;
-        background: radial-gradient(circle at 35% 35%, #fff2d9 0%, #d4a34b 60%, #8a5814 100%);
-        border: 2px solid #5a2608;
-        box-shadow:
-          0 3px 0 #3a1506,
-          0 4px 6px rgba(0, 0, 0, 0.4),
-          inset 0 1px 2px rgba(255, 255, 255, 0.8);
-        margin-top: -6px;
-        transition: transform 120ms ease, box-shadow 120ms ease;
+        width: 16px;
+        height: 16px;
+        background: #8c3522;
+        border: 2px solid #ffffff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+        margin-top: -5px;
+        transition: transform 0.15s ease, background 0.15s ease;
       }
 
       &:hover::after,
       &:focus::after,
       &:active::after {
-        transform: scale(1.12);
-        box-shadow:
-          0 3px 0 #3a1506,
-          0 6px 10px rgba(0, 0, 0, 0.45),
-          0 0 10px rgba(226, 83, 47, 0.6),
-          inset 0 1px 3px rgba(255, 255, 255, 0.9);
+        transform: scale(1.2);
+        background: #a53b28;
       }
     }
 
     &:hover {
       .ant-slider-track {
-        background: linear-gradient(180deg, #ea6341 0%, #b83720 100%);
+        background: #a53b28;
       }
     }
+  }
+}
+
+// =============================================================
+// MODAL CHỈNH ẢNH (AVATAR / IMAGE CROPPER) DÙNG CHUNG
+// =============================================================
+.game-modal-crop {
+  display: flex;
+  flex-direction: column;
+  background: #fdfbf7;
+
+  &__container {
+    position: relative;
+    width: 100%;
+    height: 360px;
+    background: #181412;
+    overflow: hidden;
+    border-bottom: 1.5px solid rgba(90, 48, 26, 0.15);
+
+    @media (max-width: 640px) {
+      height: 270px;
+    }
+  }
+
+  &__controls {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #fdfbf7;
+
+    @media (max-width: 640px) {
+      padding: 12px 16px;
+      gap: 12px;
+    }
+  }
+
+  &__label {
+    white-space: nowrap;
+    color: #5c341e;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 13.5px;
+    font-weight: 700;
   }
 }

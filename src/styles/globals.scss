@@ -17,6 +17,7 @@
 html {
   min-height: 100%;
   min-height: -webkit-fill-available;
+  background-color: #e8dccb;
 }
 
 body {
@@ -24,7 +25,11 @@ body {
   min-height: -webkit-fill-available;
   margin: 0;
   overflow-x: hidden;
-  background: $color-background;
+  background-color: #e8dccb;
+  background-image:
+    repeating-linear-gradient(90deg, transparent 0 46px, rgba(120, 90, 60, .10) 46px 48px, transparent 48px 120px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .18) 0 3px, transparent 3px 71px);
+  background-attachment: fixed;
   color: $color-text;
   font-family: $font-family;
   text-rendering: optimizeLegibility;

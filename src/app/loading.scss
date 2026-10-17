@@ -1,0 +1,13 @@
+.route-transition-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #e8dccb;
+  background-image:
+    repeating-linear-gradient(90deg, transparent 0 46px, rgba(120, 90, 60, 0.1) 46px 48px, transparent 48px 120px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.18) 0 3px, transparent 3px 71px);
+  background-attachment: fixed;
+  z-index: 0;
+  pointer-events: none;
+}

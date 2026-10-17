@@ -1,10 +1,8 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { buildMetadata } from "@/lib/seo";
 import { getAdminSession } from "@/modules/auth/server/admin-session";
 import { AdminView } from "./admin-view";
-import { adminPage, adminTabs } from "./admin.const";
+import { adminTabs } from "./admin.const";
 import type { AdminTab } from "./admin.const";
 import "./admin.scss";
 
@@ -13,21 +11,6 @@ interface AdminPageProps {
 }
 
 export const dynamic = "force-dynamic";
-
-async function generateMetadata(): Promise<Metadata> {
-  const session = await getAdminSession();
-  if (session.status !== "granted") {
-    return {
-      title: "404 - Không tìm thấy trang",
-      robots: { index: false, follow: false },
-    };
-  }
-
-  return buildMetadata("/admin", {
-    title: adminPage.title,
-    description: adminPage.description,
-  });
-}
 
 function isAdminTab(value: string | undefined): value is AdminTab {
   return (
@@ -61,5 +44,4 @@ async function AdminPage({ searchParams }: AdminPageProps) {
 }
 
 export default AdminPage;
-export { generateMetadata };
 export type { AdminPageProps };

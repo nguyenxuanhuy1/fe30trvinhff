@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import {
   Button,
@@ -28,6 +28,8 @@ import {
   SearchOutlined,
   ShoppingOutlined,
   InboxOutlined,
+  UploadOutlined,
+  LinkOutlined,
 } from "@ant-design/icons";
 import { CoinIcon } from "@/components/ui/coin-icon";
 import {
@@ -47,18 +49,6 @@ import {
 
 const { Text } = Typography;
 
-// Các ảnh mẫu có sẵn trong hệ thống để Admin chọn nhanh
-const SUGGESTED_IMAGES = [
-  { label: "Mặt nạ Lễ hội", url: "/items/mask_matla.png" },
-  { label: "Kính Tri thức", url: "/items/glasses_kinh.png" },
-  { label: "Mũ Vành tròn", url: "/items/hat_circle.webp" },
-  { label: "Mũ Lưỡi trai", url: "/items/hat_cap.webp" },
-  { label: "Quà STEAM Lab", url: "/images/news-steam-lab.jpg" },
-  { label: "Bộ Dã ngoại", url: "/images/news-expedition.jpg" },
-  { label: "Lễ hội Khoa học", url: "/images/news-festival.jpg" },
-  { label: "Avatar Chuột", url: "/images/chuotuser.png" },
-];
-
 export function AdminShopPanel() {
   const [subTab, setSubTab] = useState<"items" | "orders">("items");
 
@@ -77,6 +67,36 @@ export function AdminShopPanel() {
   const [editingItem, setEditingItem] = useState<ShopItem | null>(null);
   const [isSubmittingItem, setIsSubmittingItem] = useState(false);
   const [form] = Form.useForm();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Xử lý upload ảnh bên ngoài cho sản phẩm đặc biệt
+  const handleUploadCustomImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      message.error("Vui lòng chọn tệp định dạng hình ảnh (PNG, JPG, WEBP, SVG...).");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      message.error("Kích thước ảnh vượt quá 10MB. Vui lòng chọn ảnh nhẹ hơn.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64String = event.target?.result as string;
+      form.setFieldValue("imageUrl", base64String);
+      setSelectedAssetUrl(base64String);
+      message.success("Đã tải ảnh lên thành công!");
+    };
+    reader.onerror = () => {
+      message.error("Không thể đọc file ảnh.");
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
 
   // Modal chỉ xem chi tiết sản phẩm
   const [viewingItem, setViewingItem] = useState<ShopItem | null>(null);
@@ -164,12 +184,17 @@ export function AdminShopPanel() {
   };
 
   // Mở modal tạo mới
-  const handleOpenCreateModal = () => {
+  const handleOpenCreateModal = async () => {
     setEditingItem(null);
     form.resetFields();
-    void loadAssets();
 
-    const firstAsset = availableAssets[0];
+    let assets = availableAssets;
+    try {
+      assets = await getAvailableShopAssets();
+      setAvailableAssets(assets);
+    } catch {}
+
+    const firstAsset = assets[0];
     const initialUrl = firstAsset?.url || "/items/mask_matla.png";
     const initialName = firstAsset?.name || "";
 
@@ -185,10 +210,13 @@ export function AdminShopPanel() {
   };
 
   // Mở modal chỉnh sửa
-  const handleOpenEditModal = (item: ShopItem) => {
+  const handleOpenEditModal = async (item: ShopItem) => {
     setEditingItem(item);
     form.resetFields();
-    void loadAssets();
+    try {
+      const assets = await getAvailableShopAssets();
+      setAvailableAssets(assets);
+    } catch {}
     setSelectedAssetUrl(item.imageUrl);
     form.setFieldsValue({
       name: item.name,
@@ -638,112 +666,308 @@ export function AdminShopPanel() {
         destroyOnClose
       >
         <Form form={form} layout="vertical" style={{ marginTop: 12 }}>
-          {/* 1. BỘ CHỌN ẢNH CÓ SẴN TRONG THƯ MỤC /ITEMS */}
-          <div style={{ marginBottom: 18 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#1e293b" }}>
-                Chọn ảnh trang bị có sẵn (từ thư mục <code style={{ color: "#2563eb", background: "#eff6ff", padding: "2px 6px", borderRadius: 4 }}>public/items</code>):
-              </span>
-              <Button size="small" type="link" icon={<ReloadOutlined />} onClick={loadAssets} loading={isLoadingAssets}>
-                Quét lại ảnh
-              </Button>
-            </div>
+          {/* 1. CHỌN LOẠI SẢN PHẨM: ĐẶC BIỆT HOẶC THƯỜNG */}
+          <Form.Item
+            name="isSpecial"
+            label="Loại sản phẩm"
+            valuePropName="checked"
+            style={{ marginBottom: 14 }}
+          >
+            <Switch
+              checkedChildren="ĐẶC BIỆT"
+              unCheckedChildren="Thường"
+              onChange={(checked) => {
+                if (!checked) {
+                  const current = form.getFieldValue("imageUrl");
+                  if (!current || !current.startsWith("/items/")) {
+                    const fallbackUrl = availableAssets[0]?.url || "/items/mask_matla.png";
+                    form.setFieldValue("imageUrl", fallbackUrl);
+                    setSelectedAssetUrl(fallbackUrl);
+                  }
+                }
+              }}
+            />
+          </Form.Item>
 
-            {availableAssets.length === 0 ? (
-              <div style={{ padding: "16px", background: "#f8fafc", borderRadius: 8, border: "1px dashed #cbd5e1", textAlign: "center", color: "#64748b" }}>
-                Đang quét hoặc chưa có file ảnh nào trong thư mục <code>public/items</code>.
-              </div>
-            ) : (
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
-                  gap: 10,
-                  maxHeight: 230,
-                  overflowY: "auto",
-                  padding: 8,
-                  border: "1px solid #e2e8f0",
-                  borderRadius: 8,
-                  background: "#f8fafc",
-                }}
-              >
-                {availableAssets.map((asset) => {
-                  const isSelected = selectedAssetUrl === asset.url;
-                  return (
+          {/* 2. KHU VỰC CHỌN / NHẬP ẢNH TÙY THEO LOẠI SẢN PHẨM */}
+          <Form.Item noStyle shouldUpdate={(prev, curr) => prev.isSpecial !== curr.isSpecial || prev.imageUrl !== curr.imageUrl}>
+            {({ getFieldValue }) => {
+              const isSpecial = getFieldValue("isSpecial");
+              const currentUrl = getFieldValue("imageUrl") || selectedAssetUrl;
+
+              if (isSpecial) {
+                // CHẾ ĐỘ SẢN PHẨM ĐẶC BIỆT: ĐƯỢC THÊM ẢNH NGOÀI HOẶC TẢI TỪ MÁY
+                return (
+                  <div style={{ marginBottom: 18 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "#1e293b" }}>
+                        Ảnh sản phẩm đặc biệt (nhập link ngoài hoặc tải từ máy):
+                      </span>
+                      {currentUrl && (
+                        <Button
+                          size="small"
+                          danger
+                          type="link"
+                          icon={<DeleteOutlined />}
+                          onClick={() => {
+                            form.setFieldValue("imageUrl", "");
+                            setSelectedAssetUrl("");
+                          }}
+                        >
+                          Gỡ ảnh
+                        </Button>
+                      )}
+                    </div>
+
                     <div
-                      key={asset.url}
-                      onClick={() => handleSelectAsset(asset)}
                       style={{
-                        position: "relative",
                         display: "flex",
                         flexDirection: "column",
-                        alignItems: "center",
-                        padding: "8px 6px",
+                        gap: 12,
+                        padding: 12,
+                        border: "1px solid #e2e8f0",
                         borderRadius: 8,
-                        background: "#fff",
-                        border: isSelected ? "2px solid #22c55e" : "1px solid #e2e8f0",
-                        boxShadow: isSelected ? "0 2px 8px rgba(34, 197, 94, 0.25)" : "none",
-                        cursor: "pointer",
-                        transition: "all 0.15s ease",
-                        textAlign: "center",
+                        background: "#f8fafc",
                       }}
                     >
-                      {isSelected && (
-                        <CheckCircleFilled
-                          style={{
-                            position: "absolute",
-                            top: 4,
-                            right: 4,
-                            color: "#22c55e",
-                            fontSize: 16,
-                            background: "#fff",
-                            borderRadius: "50%",
-                          }}
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <Form.Item
+                          name="imageUrl"
+                          style={{ flex: 1, margin: 0 }}
+                          rules={[{ required: true, message: "Vui lòng nhập đường dẫn ảnh hoặc tải ảnh lên" }]}
+                        >
+                          <Input
+                            placeholder="Nhập link ảnh ngoài (https://... hoặc /images/...)"
+                            prefix={<LinkOutlined style={{ color: "#94a3b8" }} />}
+                            allowClear
+                            onChange={(e) => setSelectedAssetUrl(e.target.value)}
+                          />
+                        </Form.Item>
+                        <Button
+                          icon={<UploadOutlined />}
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          Tải ảnh từ máy
+                        </Button>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          accept="image/*"
+                          style={{ display: "none" }}
+                          onChange={handleUploadCustomImage}
                         />
+                      </div>
+
+                      {/* Khung Preview xem trước ảnh */}
+                      {currentUrl && (
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 12,
+                            padding: 8,
+                            background: "#fff",
+                            borderRadius: 6,
+                            border: "1px solid #e2e8f0",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: 52,
+                              height: 52,
+                              position: "relative",
+                              borderRadius: 6,
+                              overflow: "hidden",
+                              border: "1px solid #cbd5e1",
+                              flexShrink: 0,
+                              background: "#f1f5f9",
+                            }}
+                          >
+                            <Image
+                              src={currentUrl}
+                              alt="Ảnh xem trước"
+                              fill
+                              sizes="52px"
+                              style={{ objectFit: "contain" }}
+                              unoptimized
+                            />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 12.5, fontWeight: 600, color: "#334155" }}>
+                              Xem trước ảnh sản phẩm đặc biệt
+                            </div>
+                            <div
+                              style={{
+                                fontSize: 11,
+                                color: "#64748b",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {currentUrl.startsWith("data:") ? "Ảnh tải lên từ máy tính (Base64)" : currentUrl}
+                            </div>
+                          </div>
+                        </div>
                       )}
-                      <div style={{ width: 52, height: 52, position: "relative", marginBottom: 6 }}>
+                    </div>
+                  </div>
+                );
+              }
+
+              // CHẾ ĐỘ SẢN PHẨM THƯỜNG: CHỈ LẤY ẢNH TRONG PUBLIC/ITEMS
+              return (
+                <div style={{ marginBottom: 18 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "#1e293b" }}>
+                      Ảnh sản phẩm (chỉ lấy từ thư mục <code style={{ color: "#2563eb", background: "#eff6ff", padding: "2px 6px", borderRadius: 4 }}>public/items</code>):
+                    </span>
+                    <Button size="small" type="link" icon={<ReloadOutlined />} onClick={loadAssets} loading={isLoadingAssets}>
+                      Quét lại ảnh
+                    </Button>
+                  </div>
+
+                  {availableAssets.length === 0 ? (
+                    <div style={{ padding: "16px", background: "#f8fafc", borderRadius: 8, border: "1px dashed #cbd5e1", textAlign: "center", color: "#64748b" }}>
+                      Đang quét hoặc chưa có file ảnh nào trong thư mục <code>public/items</code>.
+                    </div>
+                  ) : (
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
+                        gap: 10,
+                        maxHeight: 230,
+                        overflowY: "auto",
+                        padding: 8,
+                        border: "1px solid #e2e8f0",
+                        borderRadius: 8,
+                        background: "#f8fafc",
+                      }}
+                    >
+                      {availableAssets.map((asset) => {
+                        const isSelected = selectedAssetUrl === asset.url;
+                        return (
+                          <div
+                            key={asset.url}
+                            onClick={() => handleSelectAsset(asset)}
+                            style={{
+                              position: "relative",
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              padding: "8px 6px",
+                              borderRadius: 8,
+                              background: "#fff",
+                              border: isSelected ? "2px solid #22c55e" : "1px solid #e2e8f0",
+                              boxShadow: isSelected ? "0 2px 8px rgba(34, 197, 94, 0.25)" : "none",
+                              cursor: "pointer",
+                              transition: "all 0.15s ease",
+                              textAlign: "center",
+                            }}
+                          >
+                            {isSelected && (
+                              <CheckCircleFilled
+                                style={{
+                                  position: "absolute",
+                                  top: 4,
+                                  right: 4,
+                                  color: "#22c55e",
+                                  fontSize: 16,
+                                  background: "#fff",
+                                  borderRadius: "50%",
+                                }}
+                              />
+                            )}
+                            <div style={{ width: 52, height: 52, position: "relative", marginBottom: 6 }}>
+                              <Image
+                                src={asset.url}
+                                alt={asset.name}
+                                fill
+                                sizes="52px"
+                                style={{ objectFit: "contain" }}
+                                unoptimized
+                              />
+                            </div>
+                            <div
+                              style={{
+                                fontSize: 12,
+                                fontWeight: 600,
+                                color: isSelected ? "#15803d" : "#334155",
+                                lineHeight: 1.2,
+                                maxWidth: "100%",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                              title={asset.name}
+                            >
+                              {asset.name}
+                            </div>
+                            <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2, fontFamily: "monospace" }}>
+                              {asset.filename}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Xem trước ảnh đã chọn */}
+                  {selectedAssetUrl && (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 12,
+                        marginTop: 10,
+                        padding: "8px 12px",
+                        background: "#fff",
+                        borderRadius: 6,
+                        border: "1px solid #e2e8f0",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 44,
+                          height: 44,
+                          position: "relative",
+                          borderRadius: 6,
+                          overflow: "hidden",
+                          border: "1px solid #cbd5e1",
+                          flexShrink: 0,
+                          background: "#f1f5f9",
+                        }}
+                      >
                         <Image
-                          src={asset.url}
-                          alt={asset.name}
+                          src={selectedAssetUrl}
+                          alt="Ảnh xem trước"
                           fill
-                          sizes="52px"
+                          sizes="44px"
                           style={{ objectFit: "contain" }}
                           unoptimized
                         />
                       </div>
-                      <div
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 600,
-                          color: isSelected ? "#15803d" : "#334155",
-                          lineHeight: 1.2,
-                          maxWidth: "100%",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                        title={asset.name}
-                      >
-                        {asset.name}
-                      </div>
-                      <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2, fontFamily: "monospace" }}>
-                        {asset.filename}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 12.5, fontWeight: 600, color: "#334155" }}>
+                          Ảnh đã chọn: <code style={{ color: "#2563eb" }}>{selectedAssetUrl}</code>
+                        </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                  )}
 
-            {/* Input imageUrl ẩn - tự động bind khi chọn ảnh */}
-            <Form.Item
-              name="imageUrl"
-              rules={[{ required: true, message: "Vui lòng chọn một ảnh trang bị ở trên" }]}
-              hidden
-            >
-              <Input />
-            </Form.Item>
-          </div>
+                  {/* Input imageUrl ẩn - tự động bind khi chọn ảnh */}
+                  <Form.Item
+                    name="imageUrl"
+                    rules={[{ required: true, message: "Vui lòng chọn một ảnh vật phẩm trong public/items" }]}
+                    hidden
+                  >
+                    <Input />
+                  </Form.Item>
+                </div>
+              );
+            }}
+          </Form.Item>
 
           <Form.Item
             name="name"
@@ -770,14 +994,6 @@ export function AdminShopPanel() {
               <InputNumber min={0} style={{ width: "100%" }} placeholder="Vô hạn" />
             </Form.Item>
           </div>
-
-          <Form.Item
-            name="isSpecial"
-            label="Đặc biệt"
-            valuePropName="checked"
-          >
-            <Switch checkedChildren="Đặc biệt" unCheckedChildren="Thường" />
-          </Form.Item>
 
           <Form.Item name="description" label="Mô tả sản phẩm">
             <Input.TextArea rows={3} placeholder="Mô tả tính năng, quà tặng hoặc hướng dẫn nhận..." />

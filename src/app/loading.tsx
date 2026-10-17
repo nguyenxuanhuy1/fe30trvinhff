@@ -1,7 +1,5 @@
-import { LoadingState } from "@/components/ui";
+import { LoadingState } from "@/components/ui/loading-state";
 
-function Loading() {
-  return <LoadingState />;
+export default function Loading() {
+  return <LoadingState title="Đang tải..." />;
 }
-
-export default Loading;

@@ -107,7 +107,20 @@ function CameraPreview({ equippedItems, apiRef }: CameraPreviewProps) {
         if (!video) return;
 
         video.srcObject = stream;
-        await video.play();
+        const playPromise = async () => {
+          try {
+            await video.play();
+          } catch {
+            video.oncanplay = () => {
+              if (!disposed) video.play().catch(() => undefined);
+            };
+          }
+        };
+        if (video.readyState >= 1) {
+          void playPromise();
+        } else {
+          video.onloadedmetadata = () => void playPromise();
+        }
 
         // Nạp ở runtime bằng biến, không dùng import tĩnh: "/vendor/..." là
         // đường dẫn static trong public/ mà bundler không phân giải được, nếu
@@ -221,7 +234,7 @@ function CameraPreview({ equippedItems, apiRef }: CameraPreviewProps) {
       </header>
 
       <div className="camera-preview__stage">
-        <video className="camera-preview__video" ref={videoRef} playsInline muted />
+        <video className="camera-preview__video" ref={videoRef} autoPlay playsInline muted />
         <canvas className="camera-preview__canvas" ref={canvasRef} />
 
         {state !== "ready" && (

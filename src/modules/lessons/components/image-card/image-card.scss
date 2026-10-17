@@ -16,19 +16,28 @@
     box-shadow:
       inset 0 1.5px 0 rgba(255, 255, 255, 0.65),
       inset 0 -3px 0 #623f2b,
-      inset 0 -6px 0 #c29a80,
-      0 4px 10px rgba(0, 0, 0, 0.25);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+      inset 0 -6px 0 #c29a80;
+    transition: transform 0.15s ease;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
 
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      box-shadow: inherit;
+      z-index: 2;
+    }
+
     &:hover {
       transform: translateY(-2px);
+      z-index: 10;
       box-shadow:
         inset 0 1.5px 0 rgba(255, 255, 255, 0.65),
         inset 0 -3px 0 #623f2b,
-        inset 0 -6px 0 #c29a80,
-        0 6px 14px rgba(0, 0, 0, 0.32);
+        inset 0 -6px 0 #c29a80;
     }
 
     &:active {
@@ -36,8 +45,7 @@
       box-shadow:
         inset 0 1.5px 0 rgba(255, 255, 255, 0.65),
         inset 0 -2.5px 0 #623f2b,
-        inset 0 -5px 0 #c29a80,
-        0 2px 5px rgba(0, 0, 0, 0.2);
+        inset 0 -5px 0 #c29a80;
     }
 
     @media (min-width: 1024px) {
@@ -46,8 +54,7 @@
       box-shadow:
         inset 0 2px 0 rgba(255, 255, 255, 0.7),
         inset 0 -4px 0 #623f2b,
-        inset 0 -7px 0 #c29a80,
-        0 6px 14px rgba(0, 0, 0, 0.28);
+        inset 0 -7px 0 #c29a80;
     }
 
     @media (min-width: 1440px) {
@@ -56,8 +63,7 @@
       box-shadow:
         inset 0 2.5px 0 rgba(255, 255, 255, 0.75),
         inset 0 -5px 0 #623f2b,
-        inset 0 -9px 0 #c29a80,
-        0 8px 18px rgba(0, 0, 0, 0.32);
+        inset 0 -9px 0 #c29a80;
     }
 
     @media (min-width: 769px) and (max-width: 1023px) {
@@ -66,35 +72,32 @@
       box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.65),
         inset 0 -2px 0 #623f2b,
-        inset 0 -4.5px 0 #c29a80,
-        0 3px 7px rgba(0, 0, 0, 0.22);
+        inset 0 -4.5px 0 #c29a80;
     }
 
     @media (max-width: 768px) {
-      border-radius: 9.5px;
-      border-width: 1.4px;
+      border-radius: 12px;
+      border-width: 2px !important;
       box-shadow:
-        inset 0 0.9px 0 rgba(255, 255, 255, 0.65),
-        inset 0 -1.4px 0 #623f2b,
-        inset 0 -2.6px 0 #c29a80,
-        0 1.8px 4px rgba(0, 0, 0, 0.2);
+        inset 0 1.5px 0 rgba(255, 255, 255, 0.7),
+        inset 0 -3px 0 #623f2b,
+        inset 0 -5.5px 0 #c29a80;
 
       &:hover {
-        transform: translateY(-1px);
+        transform: translateY(-2px);
+        z-index: 10;
         box-shadow:
-          inset 0 0.9px 0 rgba(255, 255, 255, 0.65),
-          inset 0 -1.4px 0 #623f2b,
-          inset 0 -2.6px 0 #c29a80,
-          0 2.5px 6px rgba(0, 0, 0, 0.24);
+          inset 0 1.5px 0 rgba(255, 255, 255, 0.7),
+          inset 0 -3px 0 #623f2b,
+          inset 0 -5.5px 0 #c29a80;
       }
 
       &:active {
-        transform: translateY(1px);
+        transform: translateY(1.5px);
         box-shadow:
-          inset 0 0.9px 0 rgba(255, 255, 255, 0.65),
-          inset 0 -1px 0 #623f2b,
-          inset 0 -2px 0 #c29a80,
-          0 1px 2px rgba(0, 0, 0, 0.18);
+          inset 0 1.5px 0 rgba(255, 255, 255, 0.7),
+          inset 0 -2px 0 #623f2b,
+          inset 0 -4px 0 #c29a80;
       }
     }
   }

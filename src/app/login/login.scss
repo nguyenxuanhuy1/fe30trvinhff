@@ -1,18 +1,33 @@
 @use "@/styles/mixins" as *;
 @use "@/styles/variables" as *;
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap');
 
 // -------------------------------------------------------------
-// PALETTE TOKENS PHONG CÁCH STEAM (ĐỒNG BỘ MỤC STEAM LÀ GÌ TRANG CHỦ)
+// PALETTE TOKENS PHONG CÁCH TRÒ CHƠI / LESSON
 // -------------------------------------------------------------
-$steam-ink: #1b2527;
-$steam-panel: #faf8f1;
-$steam-panel-strong: #d8d3c7;
-$steam-red: #a53b28;
-$steam-red-bright: #c2462e;
-$steam-gold: #8b5a1b;
-$steam-gold-deep: #8a5a10;
-$steam-muted: rgba(27, 37, 39, 0.7);
-$steam-border: rgba(139, 90, 27, 0.28);
+$font-game: var(--font-game, "Baloo 2"), "Baloo 2", cursive, system-ui, sans-serif;
+$brown-dark: #3b2214;
+$brown-light: #caa082;
+$brown-border: #5a3824;
+$ink: #241710;
+
+$red-btn-start: #ff4d5e;
+$red-btn-end: #d0152c;
+$red-border: #5a0b16;
+$red-stroke: #6e0f1c;
+$red-shadow: #a30f22;
+
+html:has(.login-page),
+body:has(.login-page) {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 46px, rgba(120, 90, 60, .10) 46px 48px, transparent 48px 120px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .18) 0 3px, transparent 3px 71px),
+    #e8dccb !important;
+  background-attachment: fixed !important;
+}
 
 .login-page {
   position: relative;
@@ -25,102 +40,43 @@ $steam-border: rgba(139, 90, 27, 0.28);
   padding: 40px 16px;
   box-sizing: border-box;
   overflow-x: hidden;
-  color: $steam-ink;
-
-  // 1. NỀN ẢNH BGCARD.PNG - BỎ LỚP PHỦ MỜ/TỐI
-  &__bg-media {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  &__bg-img {
-    object-fit: cover;
-    object-position: center;
-  }
-
-  // 2. NÚT VỀ TRANG CHỦ
-  &__top-nav {
-    position: fixed;
-    top: 20px;
-    left: 24px;
-    z-index: 20;
-
-    @media (max-width: 640px) {
-      top: 14px;
-      left: 14px;
-    }
-  }
-
-  &__back-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 18px;
-    background: rgba(250, 248, 241, 0.94);
-    border: 1.5px solid rgba($steam-gold, 0.4);
-    border-radius: 999px;
-    color: #5c3b18;
-    font-size: 13.5px;
-    font-weight: 800;
-    text-decoration: none;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 4px 14px rgba(27, 37, 39, 0.15);
-    transition: all 0.15s ease;
-
-    &:hover {
-      background: #ffffff;
-      border-color: $steam-gold;
-      color: $steam-red;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(27, 37, 39, 0.2);
-    }
-
-    &:active {
-      transform: translateY(1px);
-    }
-
-    @media (max-width: 640px) {
-      padding: 6px 12px;
-      font-size: 12px;
-      gap: 5px;
-    }
-  }
-
-  &__back-icon {
-    stroke: currentColor;
-    transition: transform 0.15s ease;
-  }
-
-  &__back-btn:hover &__back-icon {
-    transform: translateX(-2px);
-  }
+  color: $ink;
+  background:
+    radial-gradient(ellipse at 50% 45%, rgba(255, 255, 255, 0.45) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 100%, rgba(68, 42, 27, 0.12) 0%, transparent 70%),
+    repeating-linear-gradient(90deg, transparent 0 46px, rgba(120, 90, 60, .10) 46px 48px, transparent 48px 120px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .18) 0 3px, transparent 3px 71px),
+    #e8dccb;
+  background-attachment: fixed;
 }
 
 // -------------------------------------------------------------
-// 3. THẺ ĐĂNG NHẬP / ĐĂNG KÝ (PHONG CÁCH STEAM TRANG CHỦ)
+// Ô BOX THẺ ĐĂNG NHẬP (PHONG CÁCH KHUNG GỖ LESSON 3D)
 // -------------------------------------------------------------
 .login__card {
   position: relative;
   z-index: 10;
-  width: min(100%, 460px);
-  padding: 36px 36px 32px;
-  background:
-    linear-gradient(145deg, rgba($steam-panel-strong, 0.95), rgba($steam-panel, 0.98)),
-    url("/images/pappermap.png") center/cover no-repeat;
-  border: 1.5px solid rgba($steam-gold, 0.38);
-  border-radius: 22px;
+  width: min(100%, 450px);
+  padding: 34px 32px 28px;
+  background: linear-gradient(180deg, #ecd8c3 0%, #e6cfbe 50%, #d8b29c 100%);
+  border: 2.5px solid $brown-dark;
+  border-radius: 20px;
   box-shadow:
-    0 24px 60px rgba(27, 37, 39, 0.24),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
+    inset 0 2px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -4px 0 #623f2b,
+    inset 0 -8px 0 #caa082,
+    0 16px 40px rgba(40, 20, 10, 0.35);
   box-sizing: border-box;
 
   @media (max-width: 480px) {
-    padding: 28px 20px 24px;
-    border-radius: 18px;
+    padding: 24px 18px 20px;
+    border-radius: 16px;
+    border-width: 2px;
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.75),
+      inset 0 -3px 0 #623f2b,
+      inset 0 -6px 0 #caa082,
+      0 10px 24px rgba(40, 20, 10, 0.28);
   }
 }
 
@@ -141,16 +97,19 @@ $steam-border: rgba(139, 90, 27, 0.28);
   }
 }
 
+// -------------------------------------------------------------
 // THANH TAB CHUYỂN ĐỔI (ĐĂNG NHẬP / ĐĂNG KÝ)
+// -------------------------------------------------------------
 .login__tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
   padding: 5px;
-  background: rgba(27, 37, 39, 0.08);
-  border: 1px solid rgba($steam-gold, 0.25);
+  background: rgba(59, 34, 20, 0.12);
+  border: 1.8px solid #5a3824;
   border-radius: 14px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
 
   @media (max-width: 480px) {
     margin-bottom: 16px;
@@ -161,40 +120,60 @@ $steam-border: rgba(139, 90, 27, 0.28);
 }
 
 .login__tab {
+  position: relative;
   padding: 10px 14px;
   background: transparent;
-  border: 1px solid transparent;
+  border: 1.5px solid transparent;
   border-radius: 10px;
-  color: rgba($steam-ink, 0.7);
-  font-family: inherit;
-  font-size: 13px;
+  color: #6a4733;
+  font-family: $font-game;
+  font-size: 14px;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.4px;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.15s ease;
   user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
   @media (max-width: 480px) {
     padding: 7px 10px;
-    font-size: 11.5px;
+    font-size: 12px;
     border-radius: 8px;
   }
 
   &:hover:not(.login__tab-active) {
-    color: $steam-ink;
-    background: rgba(255, 255, 255, 0.55);
+    color: #3b2214;
+    background: rgba(255, 255, 255, 0.45);
   }
 }
 
 .login__tab-active {
-  background: linear-gradient(180deg, $steam-red-bright 0%, $steam-red 100%);
-  color: #fff;
-  border-color: rgba(138, 90, 16, 0.4);
+  background: linear-gradient(180deg, $red-btn-start 0%, $red-btn-end 100%);
+  border: 1.5px solid $red-border;
+  border-radius: 10px;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    0 2px 6px rgba(165, 59, 40, 0.35);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    inset 0 -2px 0 $red-shadow,
+    inset 0 0 0 1px rgba(255, 190, 195, 0.45),
+    0 2px 6px rgba(0, 0, 0, 0.22);
+  color: #fff;
+  -webkit-text-stroke: 1px $red-stroke;
+  paint-order: stroke fill;
+  text-shadow: 0 1.5px 0 rgba(0, 0, 0, 0.35);
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 1px;
+    left: 2px;
+    right: 2px;
+    height: 40%;
+    border-radius: 7px 7px 10px 10px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.08));
+    pointer-events: none;
+  }
 }
 
 .login__form {
@@ -216,51 +195,56 @@ $steam-border: rgba(139, 90, 27, 0.28);
 }
 
 .login__label {
-  color: #6d4216;
-  font-size: 0.8125rem;
+  color: #3b2214;
+  font-family: $font-game;
+  font-size: 13.5px;
   font-weight: 800;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.3px;
   text-transform: uppercase;
 
   @media (max-width: 480px) {
-    font-size: 0.75rem;
+    font-size: 12px;
   }
 }
 
 .login__input {
   width: 100%;
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1.5px solid rgba($steam-gold, 0.3);
-  border-radius: 11px;
-  color: $steam-ink;
-  font-family: inherit;
-  font-size: 14.5px;
-  font-weight: 600;
+  padding: 11px 14px;
+  background: #fffdf9;
+  border: 2px solid #5a3824;
+  border-radius: 12px;
+  color: $ink;
+  font-family: $font-game;
+  font-size: 15px;
+  font-weight: 700;
   box-sizing: border-box;
-  box-shadow: inset 0 2px 4px rgba(27, 37, 39, 0.04);
+  box-shadow:
+    inset 0 2px 4px rgba(59, 34, 20, 0.08),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.8);
   transition: all 0.15s ease;
 
   @media (max-width: 480px) {
     padding: 8px 12px;
-    font-size: 13px;
+    font-size: 13.5px;
     border-radius: 9px;
   }
 
   &::placeholder {
-    color: rgba($steam-ink, 0.42);
-    font-weight: 500;
+    color: #9e8371;
+    font-weight: 600;
 
     @media (max-width: 480px) {
-      font-size: 12px;
+      font-size: 12.5px;
     }
   }
 
   &:focus {
     background: #ffffff;
-    border-color: $steam-gold;
+    border-color: #d0152c;
     outline: none;
-    box-shadow: 0 0 0 3px rgba($steam-gold, 0.18);
+    box-shadow:
+      0 0 0 3px rgba(208, 21, 44, 0.2),
+      inset 0 1px 2px rgba(0, 0, 0, 0.05);
   }
 }
 
@@ -282,32 +266,45 @@ $steam-border: rgba(139, 90, 27, 0.28);
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  border-radius: 11px;
-  background: rgba(255, 255, 255, 0.75);
-  border: 1.5px solid rgba($steam-gold, 0.25);
-  color: $steam-ink;
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 700;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fffaf3 0%, #f6ecdc 100%);
+  border: 1.8px solid #5a3824;
+  color: $ink;
+  font-family: $font-game;
+  font-size: 14.5px;
+  font-weight: 800;
   cursor: pointer;
   user-select: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -2px 0 #caa082,
+    0 2px 4px rgba(0, 0, 0, 0.06);
   transition: all 0.15s ease;
 
   @media (max-width: 480px) {
     padding: 7px 10px;
-    font-size: 12.5px;
+    font-size: 13px;
     border-radius: 9px;
     gap: 7px;
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.95);
-    border-color: rgba($steam-gold, 0.5);
+    background: #ffffff;
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      inset 0 -2px 0 #caa082,
+      0 4px 8px rgba(59, 34, 20, 0.12);
   }
 
   &--active {
-    border-color: $steam-gold;
-    box-shadow: 0 2px 8px rgba(139, 90, 27, 0.18);
+    background: linear-gradient(180deg, #fffceb 0%, #ffea8a 100%);
+    border-color: #d97706;
+    box-shadow:
+      inset 0 -2px 0 #b45309,
+      inset 0 1px 0 rgba(255, 255, 255, 0.8),
+      0 0 10px rgba(245, 158, 11, 0.4);
+    color: #78350f;
     transform: translateY(-1px);
   }
 }
@@ -317,16 +314,16 @@ $steam-border: rgba(139, 90, 27, 0.28);
   -webkit-appearance: none;
   width: 18px;
   height: 18px;
-  border: 2px solid rgba($steam-gold, 0.55);
+  border: 2px solid #5a3824;
   border-radius: 50%;
   outline: none;
-  background: rgba(255, 255, 255, 0.9);
+  background: #ffffff;
   cursor: pointer;
   display: grid;
   place-content: center;
   margin: 0;
   flex-shrink: 0;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: all 0.15s ease;
 
   &::before {
     content: "";
@@ -335,11 +332,11 @@ $steam-border: rgba(139, 90, 27, 0.28);
     border-radius: 50%;
     transform: scale(0);
     transition: transform 0.15s ease;
-    background: $steam-gold;
+    background: #d97706;
   }
 
   &:checked {
-    border-color: $steam-gold;
+    border-color: #d97706;
 
     &::before {
       transform: scale(1);
@@ -369,81 +366,114 @@ $steam-border: rgba(139, 90, 27, 0.28);
   letter-spacing: 0.02em;
 }
 
+// -------------------------------------------------------------
+// THÔNG BÁO LỖI (ALERT PHONG CÁCH GAME)
+// -------------------------------------------------------------
 .login__error {
   margin: 0;
-  padding: 10px 14px;
+  padding: 9px 14px;
   border-radius: 10px;
-  background: #fef2f2;
-  border: 1.5px solid #fca5a5;
-  color: #b91c1c;
-  font-size: 0.85rem;
+  background: linear-gradient(180deg, #fde8e8 0%, #ffd5d5 100%);
+  border: 1.5px solid #a30f22;
+  box-shadow: inset 0 -1.5px 0 #a30f22;
+  color: #a30f22;
+  font-family: $font-game;
+  font-size: 13px;
   font-weight: 700;
   text-align: center;
   line-height: 1.4;
 }
 
 // -------------------------------------------------------------
-// NÚT SUBMIT: PHONG CÁCH STEAM CRIMSON
+// NÚT SUBMIT: PHONG CÁCH NÚT ARCADE 3D TRANG LESSON
 // -------------------------------------------------------------
 .login__submit {
+  position: relative;
   width: 100%;
-  min-height: 50px;
-  padding: 13px 24px;
-  margin-top: 6px;
-  border: 2px solid #731e0f;
+  min-height: 52px;
+  padding: 12px 24px;
+  margin-top: 8px;
+  border: 2px solid $red-border;
   border-radius: 12px;
-  background: linear-gradient(180deg, $steam-red-bright 0%, $steam-red 100%);
+  background: linear-gradient(180deg, $red-btn-start 0%, $red-btn-end 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    0 4px 14px rgba(165, 59, 40, 0.35);
+    inset 0 -3px 0 $red-shadow,
+    inset 0 0 0 1px rgba(255, 190, 195, 0.45),
+    0 4px 12px rgba(0, 0, 0, 0.28);
   color: #ffffff;
-  font-family: inherit;
-  font-size: 15px;
+  font-family: $font-game;
+  font-size: 16px;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
   cursor: pointer;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+  -webkit-text-stroke: 1.3px $red-stroke;
+  paint-order: stroke fill;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    height: 42%;
+    border-radius: 8px 8px 12px 12px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.08));
+    pointer-events: none;
+  }
 
   @media (max-width: 480px) {
-    min-height: 38px;
+    min-height: 42px;
     padding: 8px 16px;
-    font-size: 13px;
+    font-size: 13.5px;
+    -webkit-text-stroke: 1px $red-stroke;
     border-radius: 9px;
   }
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    background: linear-gradient(180deg, #cf4f36 0%, #b2412c 100%);
+    filter: brightness(1.06);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.6),
-      0 6px 18px rgba(165, 59, 40, 0.45);
+      inset 0 -3px 0 $red-shadow,
+      inset 0 0 0 1px rgba(255, 190, 195, 0.5),
+      0 6px 16px rgba(0, 0, 0, 0.35);
   }
 
   &:active:not(:disabled) {
     transform: translateY(2px);
     box-shadow:
-      inset 0 1px 2px rgba(0, 0, 0, 0.2),
-      0 2px 6px rgba(165, 59, 40, 0.3);
+      inset 0 -1.5px 0 $red-shadow,
+      0 2px 5px rgba(0, 0, 0, 0.2);
   }
 
   &:disabled {
     cursor: not-allowed;
     opacity: 0.65;
-    filter: grayscale(0.5);
+    filter: grayscale(0.6) brightness(0.9);
     box-shadow: none;
     transform: none;
   }
 }
 
+// -------------------------------------------------------------
+// CHUYỂN ĐỔI CHẾ ĐỘ ĐĂNG NHẬP / ĐĂNG KÝ
+// -------------------------------------------------------------
 .login__switch {
-  margin: 20px 0 0;
-  color: rgba($steam-ink, 0.72);
-  font-size: 0.875rem;
-  font-weight: 600;
+  margin: 18px 0 0;
+  color: #4a2c1b;
+  font-family: $font-game;
+  font-size: 14px;
+  font-weight: 700;
   text-align: center;
+
+  @media (max-width: 480px) {
+    font-size: 12.5px;
+    margin-top: 14px;
+  }
 }
 
 .login__switch-button {
@@ -451,16 +481,21 @@ $steam-border: rgba(139, 90, 27, 0.28);
   padding: 0;
   background: none;
   border: none;
-  color: $steam-gold;
-  font-family: inherit;
-  font-size: 0.875rem;
+  color: #d0152c;
+  font-family: $font-game;
+  font-size: 14px;
   font-weight: 800;
   cursor: pointer;
   text-decoration: underline;
+  text-underline-offset: 3px;
   transition: color 0.15s ease;
 
+  @media (max-width: 480px) {
+    font-size: 12.5px;
+  }
+
   &:hover {
-    color: $steam-red;
+    color: #ff4d5e;
   }
 }
 
@@ -469,62 +504,74 @@ $steam-border: rgba(139, 90, 27, 0.28);
 // =============================================================
 @media (max-height: 520px) and (orientation: landscape), (max-height: 480px) {
   .login-page {
-    padding: 10px 14px;
-    align-items: flex-start;
-  }
-
-  .login-page__top-nav {
-    top: 10px;
-    left: 10px;
-
-    .login-page__back-btn {
-      height: 30px;
-      padding: 0 10px;
-      font-size: 12px;
-    }
+    padding: 8px 14px;
+    align-items: center;
   }
 
   .login__card {
-    padding: 16px 20px 14px;
+    padding: 12px 18px 12px;
     border-radius: 14px;
-    margin: 8px auto;
-    width: min(100%, 420px);
+    margin: 0 auto;
+    width: min(100%, 390px);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.75),
+      inset 0 -2.5px 0 #623f2b,
+      inset 0 -5px 0 #caa082,
+      0 8px 20px rgba(40, 20, 10, 0.28);
   }
 
   .login__logo {
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 
     img {
-      width: 130px;
+      width: 105px;
     }
   }
 
   .login__tabs {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    padding: 3px;
   }
 
   .login__tab {
-    padding: 6px 10px;
-    font-size: 13px;
+    padding: 5px 8px;
+    font-size: 11.5px;
   }
 
   .login__form {
-    gap: 8px;
+    gap: 6px;
+  }
+
+  .login__field {
+    gap: 3px;
+  }
+
+  .login__label {
+    font-size: 11px;
   }
 
   .login__input {
-    height: 38px;
-    font-size: 13px;
+    height: 32px;
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: 8px;
   }
 
-  .login__submit-btn {
-    height: 38px;
-    font-size: 14px;
-    margin-top: 6px;
+  .login__gender-radio {
+    padding: 5px 8px;
+    font-size: 11.5px;
+  }
+
+  .login__submit {
+    min-height: 34px;
+    font-size: 12.5px;
+    padding: 5px 12px;
+    margin-top: 4px;
+    border-radius: 8px;
   }
 
   .login__switch {
-    margin-top: 10px;
-    font-size: 12px;
+    margin-top: 6px;
+    font-size: 11.5px;
   }
 }

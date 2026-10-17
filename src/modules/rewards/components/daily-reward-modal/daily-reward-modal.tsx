@@ -121,11 +121,6 @@ export function DailyRewardModal({
 
         {/* TIÊU ĐỀ BẢNG PHONG CÁCH VINTAGE GOLD */}
         <div className="daily-reward-modal__header">
-          <div className="daily-reward-modal__icon-wrap">
-            <span className="daily-reward-modal__chest">
-              <CoinIcon size={32} />
-            </span>
-          </div>
           <h2 className="daily-reward-modal__title">ĐĂNG NHẬP NHẬN XU HÀNG NGÀY</h2>
         </div>
 
@@ -222,13 +217,6 @@ export function DailyRewardModal({
 
             {/* PHẦN CHÂN MODAL & NÚT NHẬN */}
             <div className="daily-reward-modal__footer">
-              <div className="daily-reward-modal__user-coins">
-                <span>Số xu hiện tại:</span>
-                <strong className="daily-reward-modal__coin-val">
-                  <CoinIcon size={16} /> {status.userCoins} Xu
-                </strong>
-              </div>
-
               <div className="daily-reward-modal__action-wrap">
                 {status.hasClaimedToday ? (
                   <button

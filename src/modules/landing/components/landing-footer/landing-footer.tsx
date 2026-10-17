@@ -19,7 +19,7 @@ function LandingFooter() {
       <footer className="landing-footer">
         <div className="landing-footer__inner">
           <p className="landing-footer__credit">
-            Dự án <strong>Whisker</strong> được tài trợ bởi dự án <strong>GenAct</strong> - Sáng kiến do <strong>UN Women Việt Nam</strong> phối hợp với <strong>TUVA Communication</strong> tổ chức, tìm kiếm và hỗ trợ các nhóm thanh niên phát triển các giải pháp số nhằm giải quyết những thách thức về bình đẳng giới, đặc biệt hướng tới phụ nữ và các nhóm yếu thế trong kỷ nguyên chuyển đổi số.
+            Dự án <strong>STEAMaze</strong> được tài trợ bởi dự án <strong>GenAct</strong> - Sáng kiến do <strong>UN Women Việt Nam</strong> phối hợp với <strong>TUVA Communication</strong> tổ chức, tìm kiếm và hỗ trợ các nhóm thanh niên phát triển các giải pháp số nhằm giải quyết những thách thức về bình đẳng giới, đặc biệt hướng tới phụ nữ và các nhóm yếu thế trong kỷ nguyên chuyển đổi số.
           </p>
         </div>
       </footer>

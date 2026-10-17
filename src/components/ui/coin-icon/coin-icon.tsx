@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useId } from "react";
 import "./coin-icon.scss";
 
 export interface CoinIconProps {
@@ -11,34 +11,82 @@ export interface CoinIconProps {
 }
 
 /**
- * Icon xu vàng chuẩn DollarCircleFilled cho toàn bộ hệ thống.
- * Sử dụng SVG trực tiếp để tương thích hoàn toàn với Next.js App Router (RSC & SSR)
- * mà không bị lỗi createContext từ @ant-design/icons.
+ * Icon xu vàng game 3D đồng bộ toàn hệ thống.
+ * Sử dụng SVG gradient vàng kim với viền nét gỗ sắc nét, không bị ngược chữ $.
  */
-export function CoinIcon({ className, style, size, color }: CoinIconProps) {
-  const mergedStyle: React.CSSProperties = {
-    color: color || "#f59e0b",
-    fontSize: size || "inherit",
-    ...style,
-  };
+export function CoinIcon({ className, style, size = 18 }: CoinIconProps) {
+  const rawId = useId();
+  const gradId = "coin_grad_" + rawId.replace(/[^a-zA-Z0-9_-]/g, "_");
+  const numSize = typeof size === "number" ? `${size}px` : size;
 
   return (
     <span
       className={`coin-icon-gold ${className ?? ""}`.trim()}
-      style={mergedStyle}
+      style={{
+        width: numSize,
+        height: numSize,
+        ...style,
+      }}
       role="img"
       aria-label="Xu"
     >
       <svg
-        viewBox="64 64 896 896"
-        focusable="false"
-        data-icon="dollar-circle"
-        width="1em"
-        height="1em"
-        fill="currentColor"
+        viewBox="0 0 48 48"
+        width="100%"
+        height="100%"
+        style={{ display: "block" }}
         aria-hidden="true"
       >
-        <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm22.3 665.2l.2 31.7c0 4.4-3.6 8.1-8 8.1h-28.4c-4.4 0-8-3.6-8-8v-31.4C401.3 723 359.5 672.4 355 617.4c-.4-4.7 3.3-8.7 8-8.7h46.2c3.9 0 7.3 2.8 7.9 6.6 5.1 31.7 29.8 55.4 74.1 61.3V533.9l-24.7-6.3c-52.3-12.5-102.1-45.1-102.1-112.7 0-72.9 55.4-112.1 126.2-119v-33c0-4.4 3.6-8 8-8h28.1c4.4 0 8 3.6 8 8v32.7c68.5 6.9 119.9 46.9 125.9 109.2.5 4.7-3.2 8.8-8 8.8h-44.9c-4 0-7.4-3-7.9-6.9-4-29.2-27.4-53-65.5-58.2v134.3l25.4 5.9c64.8 16 108.9 47 108.9 116.4 0 75.3-56 117.3-134.3 124.1zM426.6 410.3c0 25.4 15.7 45.1 49.5 57.3 4.7 1.9 9.4 3.4 15 5v-124c-36.9 4.7-64.5 25.4-64.5 61.7zm116.5 135.2c-2.8-.6-5.6-1.3-8.8-2.2V677c42.6-3.8 72-27.2 72-66.4 0-30.7-15.9-50.7-63.2-65.1z" />
+        <defs>
+          <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#fff8d9" />
+            <stop offset="42%" stopColor="#ffdf85" />
+            <stop offset="72%" stopColor="#e8a83d" />
+            <stop offset="100%" stopColor="#a75b1f" />
+          </linearGradient>
+        </defs>
+
+        {/* 1. Vành ngoài đồng xu */}
+        <circle
+          cx="24"
+          cy="24"
+          r="20"
+          fill={`url(#${gradId})`}
+          stroke="#42220f"
+          strokeWidth="2.4"
+        />
+
+        {/* 2. Vành tròn chìm bên trong */}
+        <circle
+          cx="24"
+          cy="24"
+          r="15"
+          fill="none"
+          stroke="#543320"
+          strokeWidth="1.5"
+          opacity="0.8"
+        />
+
+        {/* 3. Nét trục đứng chữ $ */}
+        <line
+          x1="24"
+          y1="12"
+          x2="24"
+          y2="36"
+          stroke="#42220f"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+
+        {/* 4. Nét chữ S đúng chiều chuẩn không bị ngược */}
+        <path
+          d="M29 19.5c-.9-2-2.4-2.8-5-2.8-3 0-5 1.6-5 4 0 2.8 2.2 3.8 5 4.5 2.8.7 5 1.8 5 4.8 0 2.8-2.2 4.5-5 4.5-2.5 0-4.2-1-5.2-3"
+          fill="none"
+          stroke="#42220f"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
     </span>
   );

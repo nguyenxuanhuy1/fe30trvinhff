@@ -31,12 +31,31 @@ export function LessonHost({ roomId, lessonId, lesson }: LessonHostProps) {
 
   return (
     <main className="lesson-player">
-      <header className="lesson-player__bar">
-        <Link className="lesson-player__back" href={`/lessons/${roomId}`}>
-          {lessonPage.backLabel}
-        </Link>
-        <h1 className="lesson-player__title">{lesson.name}</h1>
-        <span className="lesson-player__room">{lesson.room.name}</span>
+      <header className="lesson-player__header">
+        <div className="lesson-player__left">
+          <Link className="lesson-player__back-btn" href={`/lessons/${roomId}`} aria-label="Quay lại">
+            <svg
+              className="lesson-player__back-icon"
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            <span>Quay lại</span>
+          </Link>
+        </div>
+
+        <h1 className="lesson-player__title" title={lesson.name}>
+          {lesson.name}
+        </h1>
+
+        <div className="lesson-player__right" />
       </header>
 
       <div className="lesson-player__stage">
@@ -46,6 +65,7 @@ export function LessonHost({ roomId, lessonId, lesson }: LessonHostProps) {
           html={lesson.html}
           frameId="lesson-player-frame"
           emptyText={lessonPage.emptyHtml}
+          roomId={roomId}
         />
       </div>
     </main>

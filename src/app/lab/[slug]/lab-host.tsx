@@ -78,15 +78,18 @@ function LabHost({ slug }: { slug: string }) {
   const lessonQuery = useQuery({
     queryKey: ["lab-lessons"],
     queryFn: listLessons,
-    staleTime: 60_000,
-    enabled: phase === "lobby",
   });
 
-  const suggestedSlots = useMemo(() => {
+  const currentLesson = useMemo(() => {
     const lessons = lessonQuery.data ?? [];
-    const lesson = lessons.find((entry) => entry.slug === slug || entry.id === slug);
-    return (lesson?.requiredSlots ?? []) as ItemSlot[];
+    return lessons.find((entry) => entry.slug === slug || entry.id === slug);
   }, [lessonQuery.data, slug]);
+
+  const currentLessonName = currentLesson?.name || "Bài học thí nghiệm";
+
+  const suggestedSlots = useMemo(() => {
+    return (currentLesson?.requiredSlots ?? []) as ItemSlot[];
+  }, [currentLesson]);
 
   const missing = useMemo(() => {
     const worn = new Set(equippedItems.map((item) => item.slot));
@@ -255,11 +258,43 @@ function LabHost({ slug }: { slug: string }) {
     return (
       <div className="lab-host">
         {contextHolder}
+        <header className="lesson-player__header">
+          <div className="lesson-player__left">
+            <button
+              type="button"
+              className="lesson-player__back-btn"
+              onClick={() => router.push("/lessons")}
+              aria-label="Quay lại"
+            >
+              <svg
+                className="lesson-player__back-icon"
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              <span>Quay lại</span>
+            </button>
+          </div>
+
+          <h1 className="lesson-player__title" title={currentLessonName}>
+            {currentLessonName}
+          </h1>
+
+          <div className="lesson-player__right" />
+        </header>
+
         <iframe
           className="lab-host__frame"
           ref={frameRef}
           src={session.lessonPath}
-          title="Nội dung bài thí nghiệm"
+          title={currentLessonName}
           allow="camera; microphone; fullscreen"
           onLoad={handleFrameLoad}
         />

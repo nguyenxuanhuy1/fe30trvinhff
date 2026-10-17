@@ -2,6 +2,7 @@ export { buildMetadata } from "./metadata";
 export {
   buildBreadcrumbList,
   buildOrganization,
+  buildWebApplication,
   buildWebSite,
 } from "./json-ld";
 export type { BreadcrumbEntry } from "./json-ld";

@@ -39,7 +39,6 @@ function AboutSections() {
                 luôn có thử thách tiếp theo đang chờ.
               </p>
               <div className="landing-about__steam-status">
-                <span className="landing-about__status-dot" />
                 <span>KHÁM PHÁ · THỰC HÀNH · NHẬN QUÀ</span>
               </div>
             </article>

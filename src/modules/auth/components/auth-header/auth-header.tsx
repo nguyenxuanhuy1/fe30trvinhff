@@ -9,7 +9,7 @@ import { DailyRewardModal } from "@/modules/rewards";
 import { authHeader } from "./auth-header.const";
 import "./auth-header.scss";
 
-const AVATAR_FALLBACK = "/images/chuotuser.png";
+const AVATAR_FALLBACK = "/images/chuotuser.webp";
 // Chờ một chút trước khi đóng để chuột kịp đi từ nút xuống menu
 const CLOSE_DELAY = 150;
 

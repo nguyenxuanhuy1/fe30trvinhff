@@ -29,8 +29,6 @@ function useInventory() {
     queryKey: ["inventory", userId],
     queryFn: getInventory,
     enabled: Boolean(userId),
-    staleTime: 0,
-    refetchOnMount: "always",
   });
 
   const serverEquipped = query.data?.equipped;

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Modal, Progress, Tag } from "antd";
+import { Tag } from "antd";
 import { useEffect, useState } from "react";
 import { useEquip } from "../../hooks/use-equip";
 import { anchorLabels, inventoryPage, inventoryView, slotLabels } from "../../inventory.const";

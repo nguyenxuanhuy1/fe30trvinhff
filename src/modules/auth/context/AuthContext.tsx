@@ -17,7 +17,18 @@ import {
   refreshAuth,
 } from "@/modules/auth/services/auth.service";
 import type { LoginPayload, RegisterPayload, UpdateProfilePayload, User } from "@/modules/auth/types";
-import { TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, USER_COOKIE } from "@/lib/api/client";
+import {
+  TOKEN_COOKIE,
+  REFRESH_TOKEN_COOKIE,
+  USER_COOKIE,
+  LOCAL_STORAGE_TOKEN,
+  LOCAL_STORAGE_REFRESH,
+  LOCAL_STORAGE_USER,
+  getCookie,
+  setCookie,
+  deleteCookie,
+  clearAuthCookies as clearAllAuthCookies,
+} from "@/lib/api/client";
 
 interface AuthContextValue {
   user: User | null;
@@ -34,32 +45,37 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-function setCookie(name: string, value: string, maxAgeSeconds: number = 604800) {
-  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAgeSeconds}; samesite=lax`;
+function getInitialUser(): User | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_USER) || getCookie(USER_COOKIE);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
 }
 
-function getCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
-  return match ? decodeURIComponent(match[1]) : null;
-}
-
-function deleteCookie(name: string) {
-  document.cookie = `${name}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
-}
-
-function clearAllAuthCookies() {
-  deleteCookie(TOKEN_COOKIE);
-  deleteCookie(REFRESH_TOKEN_COOKIE);
-  deleteCookie(USER_COOKIE);
+function getInitialToken(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return getCookie(TOKEN_COOKIE) || localStorage.getItem(LOCAL_STORAGE_TOKEN) || null;
+  } catch {
+    return null;
+  }
 }
 
 function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(getInitialUser);
+  const [token, setToken] = useState<string | null>(getInitialToken);
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    // Nếu đã có token và user trong localStorage/cookie, cho phép truy cập ngay
+    const initialToken = getInitialToken();
+    const initialUser = getInitialUser();
+    return !(initialToken && initialUser);
+  });
 
   useEffect(() => {
-    // Bọc async để setState chỉ chạy trong callback, tránh setState đồng bộ trong effect
     async function hydrateFromCookie() {
       const storedToken = getCookie(TOKEN_COOKIE);
       const storedRefreshToken = getCookie(REFRESH_TOKEN_COOKIE);
@@ -69,9 +85,18 @@ function AuthProvider({ children }: { children: ReactNode }) {
         try {
           const data = await getMe();
           setUser(data);
+          try {
+            setCookie(USER_COOKIE, JSON.stringify(data), 10800);
+          } catch {}
           setIsLoading(false);
           return;
-        } catch {
+        } catch (err: unknown) {
+          const status = (err as { response?: { status?: number } })?.response?.status;
+          // Nếu không phải lỗi xác thực (ví dụ lỗi mạng tạm thời), giữ nguyên phiên làm việc đã lưu
+          if (status !== 401 && status !== 403) {
+            setIsLoading(false);
+            return;
+          }
           // Token 3 tiếng có thể đã hết hạn, thử refresh bằng refresh token 7 ngày
         }
       }
@@ -88,6 +113,9 @@ function AuthProvider({ children }: { children: ReactNode }) {
             }
             if (refreshed.user) {
               setUser(refreshed.user);
+              try {
+                setCookie(USER_COOKIE, JSON.stringify(refreshed.user), 10800);
+              } catch {}
             }
             setIsLoading(false);
             return;
@@ -113,8 +141,14 @@ function AuthProvider({ children }: { children: ReactNode }) {
     if (data.refreshToken) {
       setCookie(REFRESH_TOKEN_COOKIE, data.refreshToken, 604800);
     }
+    if (data.user) {
+      try {
+        setCookie(USER_COOKIE, JSON.stringify(data.user), 10800);
+      } catch {}
+    }
     setToken(data.token);
     setUser(data.user);
+    setIsLoading(false);
   }, []);
 
   const register = useCallback(async (payload: RegisterPayload) => {
@@ -124,8 +158,14 @@ function AuthProvider({ children }: { children: ReactNode }) {
     if (data.refreshToken) {
       setCookie(REFRESH_TOKEN_COOKIE, data.refreshToken, 604800);
     }
+    if (data.user) {
+      try {
+        setCookie(USER_COOKIE, JSON.stringify(data.user), 10800);
+      } catch {}
+    }
     setToken(data.token);
     setUser(data.user);
+    setIsLoading(false);
   }, []);
 
   // Cập nhật thông tin tài khoản

@@ -196,7 +196,6 @@ export function AdminUsersPanel({ currentUserId }: AdminUsersPanelProps) {
       render: (gender: string | null) => {
         if (gender === "MALE") return <Tag>Nam</Tag>;
         if (gender === "FEMALE") return <Tag>Nữ</Tag>;
-        if (gender === "OTHER") return <Tag>Khác</Tag>;
         return <Tag>Chưa rõ</Tag>;
       },
     },
@@ -390,7 +389,6 @@ export function AdminUsersPanel({ currentUserId }: AdminUsersPanelProps) {
                 options={[
                   { value: "MALE", label: "Nam" },
                   { value: "FEMALE", label: "Nữ" },
-                  { value: "OTHER", label: "Khác" },
                 ]}
               />
             </Form.Item>

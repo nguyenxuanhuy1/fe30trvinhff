@@ -210,9 +210,9 @@ export function HeadAccessory({
   const ext = (baseCfg as any).ext || "webp";
   let loadId = accessoryId;
   if (loadId === 'chuotuser' || loadId === 'chuotuser-hole') {
-    loadId = 'chuotuser'; // The file is actually just chuotuser.png
+    loadId = 'chuotuser'; // The file is actually just chuotuser.webp
   }
-  const originalSrc = (loadId === 'chuotuser') ? '/images/chuotuser.png' : (loadId.includes(".") ? loadId : `/items/${loadId}.${ext}`);
+  const originalSrc = (loadId === 'chuotuser') ? '/images/chuotuser.webp' : (loadId.includes(".") ? loadId : `/items/${loadId}.${ext}`);
 
   useEffect(() => {
     let active = true;

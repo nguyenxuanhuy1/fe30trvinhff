@@ -1,15 +1,6 @@
-import type { Metadata } from "next";
-import { buildMetadata } from "@/lib/seo";
 import { HeroHeader, LandingFooter } from "@/modules/landing";
-import { NewsPage, newsPage } from "@/modules/news";
+import { NewsPage } from "@/modules/news";
 import { PageWrapper } from "../_components/page-wrapper";
-
-function generateMetadata(): Metadata {
-  return buildMetadata(newsPage.routes.index, {
-    title: newsPage.title,
-    description: newsPage.descriptions.all,
-  });
-}
 
 function NewsIndexPage() {
   return (
@@ -24,4 +15,3 @@ function NewsIndexPage() {
 }
 
 export default NewsIndexPage;
-export { generateMetadata };

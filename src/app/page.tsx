@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/config";
-import { buildMetadata } from "@/lib/seo";
+import { buildMetadata, buildWebApplication, buildWebSite } from "@/lib/seo";
 import { AboutSections, HeroHeader, LandingFooter } from "@/modules/landing";
-import { ExitFullscreenButton } from "@/components/ExitFullscreenButton";
 import { PageWrapper } from "./_components/page-wrapper";
 
 function generateMetadata(): Metadata {
@@ -12,12 +11,19 @@ function generateMetadata(): Metadata {
 function HomePage() {
   return (
     <PageWrapper>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildWebSite()) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildWebApplication()) }}
+      />
       <main>
         <HeroHeader />
         <AboutSections />
       </main>
       <LandingFooter />
-      <ExitFullscreenButton />
     </PageWrapper>
   );
 }

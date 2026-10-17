@@ -33,11 +33,20 @@ function LoginPage() {
 
   const isLogin = mode === "login";
 
+  function navigateAfterAuth() {
+    const nextPath = getNextPath();
+    if (typeof window !== "undefined") {
+      window.location.assign(nextPath);
+    } else {
+      router.push(nextPath);
+    }
+  }
+
   useEffect(() => {
     if (!isLoading && user) {
-      router.replace(getNextPath());
+      navigateAfterAuth();
     }
-  }, [isLoading, user, router]);
+  }, [isLoading, user]);
 
   function switchMode(nextMode: AuthMode) {
     setMode(nextMode);
@@ -53,7 +62,7 @@ function LoginPage() {
       try {
         const payload: LoginPayload = { username, password };
         await login(payload);
-        router.push(getNextPath());
+        navigateAfterAuth();
       } catch {
         setError(loginPageContent.errors.invalidCredentials);
       } finally {
@@ -71,7 +80,7 @@ function LoginPage() {
     try {
       const payload: RegisterPayload = { username, password, gender };
       await register(payload);
-      router.push(getNextPath());
+      navigateAfterAuth();
     } catch (e) {
       const apiError = e as { response?: { data?: { message?: string } } };
       setError(apiError.response?.data?.message ?? loginPageContent.errors.registrationFailed);
@@ -85,39 +94,7 @@ function LoginPage() {
 
   return (
     <div className="login-page">
-      {/* 1. Lớp hình nền bgcard.webp */}
-      <div className="login-page__bg-media" aria-hidden="true">
-        <Image
-          className="login-page__bg-img"
-          src="/images/bgcard.webp"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-        />
-      </div>
-
-      {/* 2. Nút quay lại góc trên trái */}
-      <div className="login-page__top-nav">
-        <Link href="/lessons" className="login-page__back-btn" title="Quay lại">
-          <svg
-            className="login-page__back-icon"
-            viewBox="0 0 24 24"
-            width="18"
-            height="18"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-          <span>Quay lại</span>
-        </Link>
-      </div>
-
-      {/* 3. Thẻ form đăng nhập / đăng ký phong cách Steam */}
+      {/* Thẻ form đăng nhập / đăng ký phong cách game lesson */}
       <div className="login__card">
         <Link className="login__logo" href="/" aria-label="Về trang chủ">
           <Image src="/images/logo.png" alt="Game Center" width={220} height={81} priority />
@@ -240,7 +217,7 @@ function LoginPage() {
         </form>
 
         <p className="login__switch">
-          {isLogin ? loginPageContent.switchPrompt.register : loginPageContent.switchPrompt.login}
+          {isLogin ? loginPageContent.switchPrompt.login : loginPageContent.switchPrompt.register}
           <button
             className="login__switch-button"
             type="button"

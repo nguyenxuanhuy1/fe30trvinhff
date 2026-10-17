@@ -17,7 +17,6 @@ export function LessonsBottomDock() {
   const invitationsQuery = useQuery({
     queryKey: ["received-invitations-dock"],
     queryFn: getReceivedInvitations,
-    staleTime: 30_000,
     enabled: !!user,
   });
 
@@ -69,19 +68,19 @@ export function LessonsBottomDock() {
             <span className="lessons-dock__title">Tủ Đồ</span>
           </Link>
 
-          {/* 2. GIỎ HÀNG (Bên trái 2) */}
+          {/* 2. CỬA HÀNG (Bên trái 2) */}
           <Link
             href="/gio-hang"
             className="lessons-dock__item lessons-dock__item--nav"
-            data-label="Giỏ Hàng"
-            aria-label="Giỏ hàng & Cửa hàng vật phẩm"
+            data-label="Cửa Hàng"
+            aria-label="Cửa hàng vật phẩm"
           >
             <span className="lessons-dock__icon" aria-hidden="true">
               <svg viewBox="0 0 48 48">
                 <path d="M4 8h6l5.2 22.2a3 3 0 0 0 3 2.3h18.2a3 3 0 0 0 2.9-2.2L43 15H12M18 41a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm18 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
               </svg>
             </span>
-            <span className="lessons-dock__title">Giỏ Hàng</span>
+            <span className="lessons-dock__title">Cửa Hàng</span>
           </Link>
 
           {/* 3. Ở GIỮA: KHUNG LÕM TỔNG SỐ XU */}
@@ -101,7 +100,7 @@ export function LessonsBottomDock() {
           >
             <div className="lessons-dock__coin-slot">
               <span className="lessons-dock__coin-icon" aria-hidden="true">
-                <CoinIcon size={18} />
+                <CoinIcon size="100%" />
               </span>
               <span className="lessons-dock__coin-value">{coins.toLocaleString("vi-VN")}</span>
             </div>

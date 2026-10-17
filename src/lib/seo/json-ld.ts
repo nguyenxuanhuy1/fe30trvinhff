@@ -47,5 +47,28 @@ function buildBreadcrumbList(entries: readonly BreadcrumbEntry[]) {
   };
 }
 
-export { buildBreadcrumbList, buildOrganization, buildWebSite };
+function buildWebApplication() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "@id": `${SITE_URL}/#webapp`,
+    name: SITE_NAME,
+    url: SITE_URL,
+    inLanguage: SITE_LANGUAGE,
+    applicationCategory: "EducationalApplication",
+    operatingSystem: "All",
+    description: siteConfig.seoText.home.description,
+    browserRequirements: "Requires modern browser with WebGL & MediaPipe support",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "VND",
+    },
+    author: {
+      "@id": `${SITE_URL}/#organization`,
+    },
+  };
+}
+
+export { buildBreadcrumbList, buildOrganization, buildWebApplication, buildWebSite };
 export type { BreadcrumbEntry };

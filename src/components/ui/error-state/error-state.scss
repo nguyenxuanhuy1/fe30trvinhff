@@ -1,8 +1,238 @@
 @use "@/styles/variables" as *;
 
-.error-state {
-  min-height: 360px;
-  padding: $space-6;
-  background: $color-surface;
-  border-radius: $radius-medium;
+.general-error-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  font-family: $font-game;
+  user-select: none;
+  background-color: #e8dccb;
+  background-image: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 50px,
+      rgba(0, 0, 0, 0.012) 50px,
+      rgba(0, 0, 0, 0.012) 51px
+    ),
+    radial-gradient(ellipse at 50% 35%, rgba(255, 255, 255, 0.45) 0%, transparent 70%);
+  animation: error-fadein 0.2s ease-out;
+
+  &--inline {
+    position: relative;
+    inset: auto;
+    z-index: auto;
+    background: transparent;
+    background-image: none;
+    min-height: 320px;
+    width: 100%;
+    padding: 24px 16px;
+  }
+}
+
+// -------------------------------------------------------------
+// ERROR CARD: Styled identically to lesson image-card standard
+// -------------------------------------------------------------
+.general-error-card {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px 24px 28px;
+  border-radius: 16px;
+  border: 2.5px solid #1a1512;
+  background: linear-gradient(180deg, #ecd8c3 0%, #e6cfbe 50%, #d8b29c 100%);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -3.5px 0 #623f2b,
+    inset 0 -7px 0 #c29a80,
+    0 8px 24px rgba(0, 0, 0, 0.22);
+  animation: error-card-pop 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.25);
+
+  @media (max-width: 640px) {
+    max-width: 340px;
+    padding: 26px 20px 22px;
+    border-radius: 14px;
+    border-width: 2px;
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.7),
+      inset 0 -3px 0 #623f2b,
+      inset 0 -5.5px 0 #c29a80,
+      0 6px 18px rgba(0, 0, 0, 0.2);
+  }
+
+  &__icon-box {
+    width: 58px;
+    height: 58px;
+    margin-bottom: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(98, 63, 43, 0.08);
+    border: 2px solid #623f2b;
+    box-shadow:
+      inset 0 1px 3px rgba(0, 0, 0, 0.15),
+      0 1px 0 rgba(255, 255, 255, 0.6);
+
+    @media (max-width: 640px) {
+      width: 50px;
+      height: 50px;
+      margin-bottom: 12px;
+    }
+  }
+
+  &__icon {
+    font-size: 26px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+
+    @media (max-width: 640px) {
+      font-size: 22px;
+    }
+  }
+
+  &__title {
+    margin: 0 0 8px;
+    font-family: $font-game;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #2b1408;
+    letter-spacing: 0.3px;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+
+    @media (max-width: 640px) {
+      font-size: 1.15rem;
+      margin-bottom: 6px;
+    }
+  }
+
+  &__message {
+    margin: 0 0 22px;
+    font-family: $font-game;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.45;
+    color: #5c3a21;
+    max-width: 320px;
+
+    @media (max-width: 640px) {
+      font-size: 0.88rem;
+      margin-bottom: 18px;
+      max-width: 280px;
+    }
+  }
+
+  // -------------------------------------------------------------
+  // RETRY BUTTON: Identical to the red 3D "Quay lại" button
+  // -------------------------------------------------------------
+  &__btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 22px;
+    border: 2px solid #5a0b16;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #ff4d5e 0%, #d0152c 100%);
+    box-shadow:
+      inset 0 -2.5px 0 #a30f22,
+      inset 0 0 0 1px rgba(255, 190, 195, 0.45),
+      0 2.5px 6px rgba(0, 0, 0, 0.25);
+    color: #ffffff;
+    font-family: $font-game;
+    font-weight: 800;
+    font-size: 15px;
+    line-height: 1;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    -webkit-text-stroke: 1.2px #6e0f1c;
+    paint-order: stroke fill;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      right: 2px;
+      height: 42%;
+      border-radius: 8px 8px 12px 12px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.08));
+      pointer-events: none;
+    }
+
+    &:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1.5px);
+      box-shadow:
+        inset 0 -2.5px 0 #a30f22,
+        inset 0 0 0 1px rgba(255, 205, 210, 0.55),
+        0 4.5px 10px rgba(0, 0, 0, 0.3);
+
+      .general-error-card__btn-icon {
+        transform: rotate(180deg);
+      }
+    }
+
+    &:active {
+      transform: translateY(1.5px);
+      box-shadow:
+        inset 0 -1px 0 #a30f22,
+        0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 640px) {
+      height: 40px;
+      padding: 0 18px;
+      font-size: 13.5px;
+      border-radius: 10px;
+    }
+  }
+
+  &__btn-icon {
+    width: 17px;
+    height: 17px;
+    stroke: #ffffff;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+
+    @media (max-width: 640px) {
+      width: 15px;
+      height: 15px;
+    }
+  }
+}
+
+@keyframes error-fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes error-card-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }

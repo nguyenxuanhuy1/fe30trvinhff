@@ -180,18 +180,19 @@ export function AdminArticlesPanel() {
             .filter(Boolean)
         : [];
 
-      const finalCover = coverImageUrl.trim() || values.coverImage?.trim() || undefined;
+      const rawCover = coverImageUrl?.trim() || values.coverImage?.trim() || undefined;
+      const finalCover = rawCover && rawCover.length > 0 ? rawCover : undefined;
 
       const payload: CreateArticlePayload = {
-        title: values.title.trim(),
-        slug: values.slug.trim(),
+        title: (values.title || "").trim(),
+        slug: (values.slug || "").trim() || undefined,
         category: values.category as NewsCategory,
-        author: values.author.trim(),
-        authorRole: values.authorRole.trim(),
-        readTime: values.readTime.trim(),
+        author: (values.author || "").trim() || "Ban Biên Tập",
+        authorRole: values.authorRole ? String(values.authorRole).trim() : undefined,
+        readTime: values.readTime ? String(values.readTime).trim() : "5 phút đọc",
         coverImage: finalCover,
-        excerpt: values.excerpt.trim(),
-        content: values.content.trim(),
+        excerpt: (values.excerpt || "").trim(),
+        content: (values.content || "").trim(),
         featured: Boolean(values.featured),
         hot: Boolean(values.hot),
         tier: Number(values.tier) || 3,
@@ -213,11 +214,19 @@ export function AdminArticlesPanel() {
       if (err && typeof err === "object" && "errorFields" in err) {
         return;
       }
-      const msg =
-        err && typeof err === "object" && "response" in err
-          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
-          : "Thao tác thất bại";
-      message.error(msg || "Có lỗi xảy ra khi lưu bài viết.");
+      console.error("Lỗi khi lưu bài viết:", err);
+      let msg = "Thao tác thất bại";
+      if (err && typeof err === "object") {
+        if ("response" in err) {
+          const res = (err as { response?: { data?: { message?: string } } }).response;
+          if (res?.data?.message) {
+            msg = res.data.message;
+          }
+        } else if ("message" in err && typeof (err as { message?: unknown }).message === "string") {
+          msg = (err as { message: string }).message;
+        }
+      }
+      message.error(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -452,7 +461,7 @@ export function AdminArticlesPanel() {
             </Form.Item>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             <Form.Item
               name="category"
               label="Chuyên mục"
@@ -463,17 +472,10 @@ export function AdminArticlesPanel() {
                   { value: "TIN TỨC", label: "Tin tức" },
                   { value: "KHÁM PHÁ", label: "Khám phá" },
                   { value: "SỰ KIỆN", label: "Sự kiện" },
+                  { value: "CỘNG ĐỒNG", label: "Cộng đồng" },
                   { value: "HƯỚNG DẪN", label: "Hướng dẫn" },
                 ]}
               />
-            </Form.Item>
-
-            <Form.Item
-              name="author"
-              label="Tác giả"
-              rules={[{ required: true, message: "Vui lòng nhập tác giả" }]}
-            >
-              <Input placeholder="Tác giả..." />
             </Form.Item>
 
             <Form.Item
@@ -482,6 +484,23 @@ export function AdminArticlesPanel() {
               rules={[{ required: true, message: "Vui lòng nhập thời gian đọc" }]}
             >
               <Input placeholder="5 phút đọc" />
+            </Form.Item>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <Form.Item
+              name="author"
+              label="Tác giả"
+              rules={[{ required: true, message: "Vui lòng nhập tác giả" }]}
+            >
+              <Input placeholder="Tác giả (VD: Ban Biên Tập)..." />
+            </Form.Item>
+
+            <Form.Item
+              name="authorRole"
+              label="Vai trò / Chức danh"
+            >
+              <Input placeholder="Chuyên gia Khảo cứu, Phóng viên..." />
             </Form.Item>
           </div>
 

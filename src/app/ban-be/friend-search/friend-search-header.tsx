@@ -6,7 +6,7 @@ import type { FriendCandidate } from "@/modules/friends/types";
 import { searchFriends } from "@/modules/friends/services/friends.service";
 import "./friend-search-header.scss";
 
-const FALLBACK = "/images/chuotuser.png";
+const FALLBACK = "/images/chuotuser.webp";
 
 interface FriendSearchHeaderProps {
   onInvite: (candidate: FriendCandidate) => Promise<boolean> | boolean | void;
@@ -343,18 +343,6 @@ export function FriendSearchHeader({
           >
             <div className="friend-search-drawer__header">
               <div className="friend-search-drawer__title-wrap">
-                <svg
-                  className="friend-search-drawer__header-icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
                 <h3 className="friend-search-drawer__title">Tìm kiếm bạn bè</h3>
               </div>
               <button
@@ -430,11 +418,7 @@ export function FriendSearchHeader({
                   </div>
                 )}
 
-                {!isLoading && !hasSearched && (
-                  <div className="friend-search-drawer__hint">
-                    Nhập tên người dùng để tìm kiếm bạn bè và gửi lời mời gia nhập nhóm thám hiểm!
-                  </div>
-                )}
+
 
                 {!isLoading && candidates.length > 0 && (
                   <div className="friend-search-drawer__results">

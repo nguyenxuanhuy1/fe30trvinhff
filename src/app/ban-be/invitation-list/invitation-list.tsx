@@ -5,7 +5,7 @@ import type { GroupInvitation } from "@/modules/friends/types";
 import { friendsPage } from "../friends.const";
 import "./invitation-list.scss";
 
-const FALLBACK = "/images/chuotuser.png";
+const FALLBACK = "/images/chuotuser.webp";
 
 interface InvitationListProps {
   invitations: GroupInvitation[];

@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import { HeroHeader, LandingFooter } from "@/modules/landing";
 import { SocialIcon } from "@/modules/social/components/social-icons";
@@ -50,41 +49,6 @@ const getSocialPageContent = cache(async function getSocialPageContent(): Promis
   }
   return fallbackSocialContent;
 });
-
-export async function generateMetadata(): Promise<Metadata> {
-  const content = await getSocialPageContent();
-  const title = `${content.profile.name} | Fanpage và kênh chính thức`;
-  const description = content.profile.tagline;
-
-  return {
-    title,
-    description,
-    alternates: { canonical: "/fanpage" },
-    robots: { index: true, follow: true },
-    openGraph: {
-      type: "website",
-      url: "/fanpage",
-      siteName: content.profile.name,
-      locale: "vi_VN",
-      title,
-      description,
-      images: [
-        {
-          url: "/images/logo.png",
-          width: 823,
-          height: 303,
-          alt: content.profile.logoAlt,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: ["/images/logo.png"],
-    },
-  };
-}
 
 function SocialChannelCard({
   channel,

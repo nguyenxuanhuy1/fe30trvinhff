@@ -148,6 +148,7 @@ export function useHeadTracking(
     if (containerRef.current) resizeObserver.observe(containerRef.current);
     if (videoRef.current) {
       videoRef.current.addEventListener("loadedmetadata", updateDims);
+      videoRef.current.addEventListener("playing", updateDims);
     }
 
     async function init() {
@@ -323,6 +324,7 @@ export function useHeadTracking(
 
         if (currentVideo) {
           currentVideo.removeEventListener("loadedmetadata", updateDims);
+          currentVideo.removeEventListener("playing", updateDims);
         }
         resizeObserver.disconnect();
       };

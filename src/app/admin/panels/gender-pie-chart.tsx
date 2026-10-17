@@ -33,8 +33,7 @@ export function GenderPieChart({ stats, isLoading = false }: GenderPieChartProps
 
     const maleCount = stats.male;
     const femaleCount = stats.female;
-    const otherCount = stats.other;
-    const unspecifiedCount = stats.unspecified;
+    const unspecifiedCount = stats.unspecified + (stats.other || 0);
     const total = stats.total;
 
     const ctx = canvasRef.current.getContext("2d");
@@ -43,18 +42,23 @@ export function GenderPieChart({ stats, isLoading = false }: GenderPieChartProps
     // Nếu hệ thống chưa có user nào
     const hasData = total > 0;
     const chartLabels = hasData
-      ? ["Nam", "Nữ", "Khác", "Chưa cập nhật"]
+      ? unspecifiedCount > 0
+        ? ["Nam", "Nữ", "Chưa cập nhật"]
+        : ["Nam", "Nữ"]
       : ["Chưa có dữ liệu"];
     const chartData = hasData
-      ? [maleCount, femaleCount, otherCount, unspecifiedCount]
+      ? unspecifiedCount > 0
+        ? [maleCount, femaleCount, unspecifiedCount]
+        : [maleCount, femaleCount]
       : [1];
     const backgroundColors = hasData
-      ? [
-          "#3b82f6", // Xanh dương (Nam)
-          "#ec4899", // Hồng phấn (Nữ)
-          "#8b5cf6", // Tím (Khác)
-          "#94a3b8", // Xám Slate (Chưa cập nhật)
-        ]
+      ? unspecifiedCount > 0
+        ? [
+            "#3b82f6", // Xanh dương (Nam)
+            "#ec4899", // Hồng phấn (Nữ)
+            "#94a3b8", // Xám Slate (Chưa cập nhật)
+          ]
+        : ["#3b82f6", "#ec4899"]
       : ["#cbd5e1"];
 
     chartInstanceRef.current = new ChartJS(ctx, {
@@ -171,29 +175,20 @@ export function GenderPieChart({ stats, isLoading = false }: GenderPieChartProps
               </div>
             </div>
 
-            {/* Khác */}
-            <div className="admin-gender-metric admin-gender-metric--other">
-              <div className="admin-gender-metric__top">
-                <span className="admin-gender-metric__label">KHÁC</span>
+            {/* Chưa cập nhật (nếu có) */}
+            {(stats?.unspecified ?? 0) + (stats?.other ?? 0) > 0 && (
+              <div className="admin-gender-metric admin-gender-metric--unspecified">
+                <div className="admin-gender-metric__top">
+                  <span className="admin-gender-metric__label">CHƯA RÕ</span>
+                </div>
+                <div className="admin-gender-metric__value">
+                  {(stats?.unspecified ?? 0) + (stats?.other ?? 0)}
+                  <span className="admin-gender-metric__pct">
+                    ({calcPct((stats?.unspecified ?? 0) + (stats?.other ?? 0))})
+                  </span>
+                </div>
               </div>
-              <div className="admin-gender-metric__value">
-                {stats?.other ?? 0}
-                <span className="admin-gender-metric__pct">({calcPct(stats?.other ?? 0)})</span>
-              </div>
-            </div>
-
-            {/* Chưa cập nhật */}
-            <div className="admin-gender-metric admin-gender-metric--unspecified">
-              <div className="admin-gender-metric__top">
-                <span className="admin-gender-metric__label">CHƯA RÕ</span>
-              </div>
-              <div className="admin-gender-metric__value">
-                {stats?.unspecified ?? 0}
-                <span className="admin-gender-metric__pct">
-                  ({calcPct(stats?.unspecified ?? 0)})
-                </span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

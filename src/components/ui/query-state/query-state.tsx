@@ -1,8 +1,9 @@
 "use client";
 
-import { Alert, Button, Skeleton } from "antd";
+import { Skeleton } from "antd";
 import type { ReactNode } from "react";
 import { EmptyState } from "@/components/ui";
+import { ErrorState } from "../error-state";
 import "./query-state.scss";
 
 interface QueryStateProps {
@@ -31,23 +32,7 @@ function QueryState({
   }
 
   if (error) {
-    return (
-      <div className="query-state">
-        <Alert
-          type="error"
-          showIcon
-          message="Không thể tải dữ liệu"
-          description={error.message}
-          action={
-            onRetry ? (
-              <Button size="small" onClick={onRetry}>
-                Thử lại
-              </Button>
-            ) : null
-          }
-        />
-      </div>
-    );
+    return <ErrorState error={error} onRetry={onRetry} fullScreen={false} />;
   }
 
   if (isEmpty) {

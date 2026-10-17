@@ -1,14 +1,11 @@
 {
-  "hat_circle": {
-    "name": "Mũ bảo hộ tròn",
-    "unlockedBy": ""
-  },
-  "hat_cap": {
-    "name": "Mũ nón",
-    "unlockedBy": ""
+  "hat_vuongmien": {
+    "name": "Vương miện",
+    "unlockedBy": "",
+    "ext": "png"
   },
   "mask_matla": {
-    "name": "Mặt nạ đen",
+    "name": "Mặt nạ hacker",
     "unlockedBy": "",
     "ext": "png"
   },

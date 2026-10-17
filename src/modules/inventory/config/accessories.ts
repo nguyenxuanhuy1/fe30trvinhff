@@ -17,6 +17,7 @@ export const ACCESSORIES: Record<string, AccessoryConfig> = {
   mask_01: { type: 'mask', scaleX: 1.05, scaleY: 1.2, offsetX: 0, offsetY: 0 },
   mask_matla: { type: 'mask', scaleX: 1.05, scaleY: 1.2, offsetX: 0, offsetY: 0, ext: 'png' },
   glasses_kinh: { type: 'glasses', scale: 1.6, offsetX: 0, offsetY: 0, ext: 'png' },
-  'chuotuser-hole': { type: 'mascot', ext: 'png' },
-  'chuotuser': { type: 'mascot', ext: 'png' },
+  hat_vuongmien: { type: 'hat', scale: 1.35, offsetX: 0, hairLift: 0.12, ext: 'png' },
+  'chuotuser-hole': { type: 'mascot', ext: 'webp' },
+  'chuotuser': { type: 'mascot', ext: 'webp' },
 };

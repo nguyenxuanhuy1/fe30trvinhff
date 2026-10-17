@@ -34,8 +34,22 @@ const siteConfig = {
   },
   seoText: {
     home: {
-      title: env.appName,
-      description: "Cổng trò chơi giáo dục STEAM kết hợp công nghệ theo dõi cử chỉ tay 3D, phòng thí nghiệm ảo và hệ thống nhiệm vụ đổi thưởng hấp dẫn.",
+      title: `${env.appName} - Cổng Trò Chơi Giáo Dục STEAM & Thí Nghiệm 3D Tương Tác`,
+      description: `Khám phá ${env.appName} - nền tảng giáo dục STEAM tương tác thế hệ mới kết hợp nhận diện cử chỉ tay 3D (Hand Tracking), phòng thí nghiệm ảo và đổi thưởng vật phẩm hấp dẫn.`,
+      keywords: [
+        env.appName,
+        "Whisker",
+        "STEAMaze",
+        "STEAM",
+        "giáo dục STEAM",
+        "thí nghiệm ảo",
+        "hand tracking",
+        "học qua trò chơi",
+        "khoa học công nghệ",
+        "game giáo dục",
+        "thực hành khoa học",
+        "học sinh",
+      ],
     },
   } satisfies SeoText,
 } as const;

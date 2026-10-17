@@ -276,7 +276,7 @@ function AdminView({ user, initialTab }: AdminViewProps) {
             <span className="admin-sidebar__item-text">{adminPage.tabs.social}</span>
           </button>
 
-          {/* 7. Quản lý Giỏ hàng & Vật phẩm */}
+          {/* 7. Quản lý Cửa hàng & Vật phẩm */}
           <button
             type="button"
             className={`admin-sidebar__item ${activeTab === adminTabs.cart ? "admin-sidebar__item--active" : ""}`}

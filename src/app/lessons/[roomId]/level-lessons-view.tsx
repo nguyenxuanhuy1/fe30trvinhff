@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, Button, Skeleton } from "antd";
 import Image from "next/image";
 import Link from "next/link";
 import { getLessons, getRoom } from "@/modules/lessons";
 import { useInventory, useItemPreload } from "@/modules/inventory";
-import { ExitFullscreenButton } from "@/components/ExitFullscreenButton";
+import { EmptyState, ErrorState, GameCardSkeleton } from "@/components/ui";
 import "./level-lessons.scss";
 
 interface LevelLessonsViewProps {
@@ -68,13 +67,11 @@ export function LevelLessonsView({ roomId }: LevelLessonsViewProps) {
   const roomQuery = useQuery({
     queryKey: ["room", roomId],
     queryFn: () => getRoom(roomId),
-    staleTime: 30_000,
   });
 
   const lessonsQuery = useQuery({
     queryKey: ["room-lessons", roomId],
     queryFn: () => getLessons(roomId),
-    staleTime: 30_000,
   });
 
   const room = roomQuery.data;
@@ -110,8 +107,6 @@ export function LevelLessonsView({ roomId }: LevelLessonsViewProps) {
         </Link>
       )}
 
-      <ExitFullscreenButton />
-
       <div className="level-lessons">
         <div className="tab-bar" style={{ marginBottom: "2rem" }}>
           <div
@@ -134,51 +129,39 @@ export function LevelLessonsView({ roomId }: LevelLessonsViewProps) {
           </div>
         </div>
 
-        {isLoading ? (
-          <Skeleton active paragraph={{ rows: 6 }} />
+        {(lessonsQuery.isLoading || roomQuery.isLoading) && lessons.length === 0 ? (
+          <ul className="level-lessons__grid">
+            <GameCardSkeleton count={6} variant="lesson" />
+          </ul>
         ) : roomQuery.isError || lessonsQuery.isError ? (
-          <Alert
-            type="error"
-            showIcon
+          <ErrorState
+            error={roomQuery.error || lessonsQuery.error}
             message="Không thể tải danh sách bài học của cấp độ này."
-            action={
-              <Button
-                size="small"
-                onClick={() => {
-                  void roomQuery.refetch();
-                  void lessonsQuery.refetch();
-                }}
-              >
-                Thử lại
-              </Button>
-            }
+            onRetry={() => {
+              void roomQuery.refetch();
+              void lessonsQuery.refetch();
+            }}
           />
         ) : filteredLessons.length === 0 ? (
-          <div className="level-lessons__empty empty-board">
-            <div className="empty-board__icon-wrap">
-              <span className="empty-board__icon">
-                {activeTab === "favorites"
-                  ? "❤️"
-                  : activeTab === "new"
-                    ? "✨"
-                    : "📜"}
-              </span>
-            </div>
-            <h3 className="empty-board__title">
-              {activeTab === "favorites"
+          <EmptyState
+            icon={activeTab === "favorites" ? "❤️" : activeTab === "new" ? "✨" : "📜"}
+            title={
+              activeTab === "favorites"
                 ? "Chưa có bài yêu thích"
                 : activeTab === "new"
                   ? "Chưa có bài học mới"
-                  : "Chưa có bài học"}
-            </h3>
-            <p className="empty-board__desc">
-              {activeTab === "favorites"
+                  : "Chưa có bài học"
+            }
+            description={
+              activeTab === "favorites"
                 ? "Bấm vào biểu tượng trái tim trên các bài học để lưu lại danh sách yêu thích của bạn."
                 : activeTab === "new"
                   ? "Hiện tại không có bài học nào được đăng tải trong vòng 1 tuần qua."
-                  : "Cấp độ này hiện chưa có bài học nào."}
-            </p>
-          </div>
+                  : "Cấp độ này hiện chưa có bài học nào."
+            }
+            actionText={activeTab !== "all" ? "Xem tất cả bài học" : undefined}
+            onAction={activeTab !== "all" ? () => setActiveTab("all") : undefined}
+          />
         ) : (
           <ul className="level-lessons__grid">
             {filteredLessons.map((lesson, index) => {

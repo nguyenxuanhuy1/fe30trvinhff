@@ -538,6 +538,13 @@ $hero-panel: rgba(8, 14, 16, 0.96);
       border-bottom: 1px solid rgba($color-white, 0.1);
     }
 
+    // Bỏ thanh gạch dưới chân cho mục cuối cùng trong menu mobile (Hỗ trợ)
+    &__mobile-menu .hero-header__menu-right .hero-header__menu-item:last-child > .hero-header__menu-link,
+    &__mobile-menu #mobile-right .hero-header__menu-item:last-child > .hero-header__menu-link,
+    &__mobile-menu-inner > :last-child .hero-header__menu-item:last-child > .hero-header__menu-link {
+      border-bottom: 0;
+    }
+
     // Mũi tên đẩy sang cuối hàng, chỉ xoay xuống khi mục đang mở
     &__mobile-menu .hero-header__menu-link--toggle {
       justify-content: space-between;

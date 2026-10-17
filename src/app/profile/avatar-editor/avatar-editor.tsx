@@ -100,48 +100,34 @@ function AvatarEditor({ username, currentAvatarUrl }: AvatarEditorProps) {
         onChange={handleFileUpload}
       />
 
-      {/* 3D Modal chỉnh sửa ảnh đồng bộ với /inventory */}
+      {/* Modal chỉnh sửa ảnh đồng bộ với hệ thống GameModal */}
       <GameModal
         title="Chỉnh sửa ảnh đại diện"
         open={isCropModalOpen}
         onCancel={() => setIsCropModalOpen(false)}
-        width={500}
+        width={480}
         footer={[
           <button
             key="cancel"
+            type="button"
+            className="game-modal__btn-cancel"
             onClick={() => setIsCropModalOpen(false)}
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "#8a4b08",
-              fontWeight: "bold",
-              cursor: "pointer",
-              textTransform: "uppercase",
-              fontSize: "0.875rem",
-              letterSpacing: "0.05em",
-              padding: "8px 16px",
-              transition: "opacity 0.15s ease",
-            }}
           >
             Hủy
           </button>,
-          <GameButton key="save" onClick={handleSaveCrop}>
-            Lưu
-          </GameButton>,
+          <button
+            key="save"
+            type="button"
+            className="game-modal__btn-primary"
+            onClick={handleSaveCrop}
+          >
+            Lưu ảnh
+          </button>,
         ]}
       >
         {cropImageSrc && (
-          <>
-            <div
-              style={{
-                position: "relative",
-                width: "100%",
-                height: 380,
-                background: "#150d08",
-                overflow: "hidden",
-                boxShadow: "inset 0 0 20px rgba(0, 0, 0, 0.6)",
-              }}
-            >
+          <div className="game-modal-crop">
+            <div className="game-modal-crop__container">
               <Cropper
                 image={cropImageSrc}
                 crop={crop}
@@ -154,26 +140,8 @@ function AvatarEditor({ username, currentAvatarUrl }: AvatarEditorProps) {
                 onZoomChange={setZoom}
               />
             </div>
-            <div
-              style={{
-                padding: "18px 24px",
-                display: "flex",
-                alignItems: "center",
-                gap: "16px",
-              }}
-            >
-              <span
-                style={{
-                  whiteSpace: "nowrap",
-                  color: "#8a4b08",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.875rem",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                Thu phóng:
-              </span>
+            <div className="game-modal-crop__controls">
+              <span className="game-modal-crop__label">Thu phóng:</span>
               <Slider
                 min={1}
                 max={3}
@@ -183,7 +151,7 @@ function AvatarEditor({ username, currentAvatarUrl }: AvatarEditorProps) {
                 style={{ flex: 1 }}
               />
             </div>
-          </>
+          </div>
         )}
       </GameModal>
     </div>

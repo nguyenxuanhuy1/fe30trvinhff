@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import type { User, UserGroupInfo } from "@/modules/auth/types";
 import { getMyOrders, type ShopOrder } from "@/modules/shop";
 import { getMyGroup } from "@/modules/friends";
 import { useAuth } from "@/modules/auth";
 import { getInventory, useCatalog, type Inventory } from "@/modules/inventory";
-import { LoadingState } from "@/components/ui";
+import { EmptyState, ErrorState, LoadingState } from "@/components/ui";
 import { CoinIcon } from "@/components/ui/coin-icon";
 import { AvatarEditor } from "./avatar-editor/avatar-editor";
 import {
@@ -31,15 +32,41 @@ export function ProfileView({ initialUser, user: propUser }: ProfileViewProps) {
   const user = propUser ?? initialUser ?? authUser;
 
   const [activeTab, setActiveTab] = useState<ProfileTab>("inventory");
-  const [group, setGroup] = useState<UserGroupInfo | null>(user?.group ?? null);
 
   const catalogQuery = useCatalog();
-  const [inventory, setInventory] = useState<Inventory | null>(null);
-  const [isLoadingInventory, setIsLoadingInventory] = useState(false);
 
-  // State đơn hàng
-  const [orders, setOrders] = useState<ShopOrder[]>([]);
-  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
+  const inventoryQuery = useQuery({
+    queryKey: ["inventory", user?.id],
+    queryFn: getInventory,
+    enabled: !!user,
+  });
+  const inventory = inventoryQuery.data ?? null;
+  const isLoadingInventory = inventoryQuery.isLoading;
+
+  const ordersQuery = useQuery({
+    queryKey: ["my-orders", user?.id],
+    queryFn: getMyOrders,
+    enabled: !!user,
+  });
+  const orders = ordersQuery.data ?? [];
+  const isLoadingOrders = ordersQuery.isLoading;
+
+  const groupQuery = useQuery({
+    queryKey: ["my-group", user?.id],
+    queryFn: async () => {
+      const myGroup = await getMyGroup();
+      if (!myGroup || !user) return null;
+      return {
+        id: myGroup.id,
+        name: myGroup.name,
+        role: myGroup.ownerId === user.id ? "OWNER" : "MEMBER",
+        isOwner: myGroup.ownerId === user.id,
+      } as UserGroupInfo;
+    },
+    enabled: !!user,
+    initialData: user?.group ?? null,
+  });
+  const group = groupQuery.data ?? null;
 
   // Sản phẩm đặc biệt -> Trạng thái đơn hàng
   const specialOrders = orders.filter((ord) => ord.isSpecial);
@@ -51,63 +78,20 @@ export function ProfileView({ initialUser, user: propUser }: ProfileViewProps) {
 
   const myOwnedEquipments = catalogItems.filter((it) => ownedSet.has(it.id));
 
-  // Load inventory, orders and group
-  useEffect(() => {
-    if (!user) return;
-
-    async function loadInventory() {
-      setIsLoadingInventory(true);
-      try {
-        const inv = await getInventory();
-        setInventory(inv);
-      } catch {
-        // Ignore error
-      } finally {
-        setIsLoadingInventory(false);
-      }
-    }
-
-    async function loadOrders() {
-      setIsLoadingOrders(true);
-      try {
-        const data = await getMyOrders();
-        setOrders(data);
-      } catch {
-        // Ignore error
-      } finally {
-        setIsLoadingOrders(false);
-      }
-    }
-
-    async function loadGroup() {
-      if (!user) return;
-      try {
-        const myGroup = await getMyGroup();
-        if (myGroup) {
-          setGroup({
-            id: myGroup.id,
-            name: myGroup.name,
-            role: myGroup.ownerId === user.id ? "OWNER" : "MEMBER",
-            isOwner: myGroup.ownerId === user.id,
-          });
-        } else {
-          setGroup(null);
-        }
-      } catch {
-        // Ignore error
-      }
-    }
-
-    void loadInventory();
-    void loadOrders();
-    void loadGroup();
-  }, [user?.id]);
-
   if (!user) {
+    return <LoadingState />;
+  }
+
+  if (inventoryQuery.isError || ordersQuery.isError) {
     return (
-      <div className="profile-page-root">
-        <LoadingState />
-      </div>
+      <ErrorState
+        error={inventoryQuery.error || ordersQuery.error}
+        onRetry={() => {
+          inventoryQuery.refetch();
+          ordersQuery.refetch();
+          groupQuery.refetch();
+        }}
+      />
     );
   }
 
@@ -313,18 +297,13 @@ export function ProfileView({ initialUser, user: propUser }: ProfileViewProps) {
                     <p className="profile-empty-state__text">Đang tải lịch sử đơn hàng...</p>
                   </div>
                 ) : specialOrders.length === 0 ? (
-                  <div className="profile-empty-state">
-                    <span className="profile-empty-state__icon">🎁</span>
-                    <p className="profile-empty-state__text">
-                      Bạn chưa có đơn đặt quà đặc biệt nào.
-                    </p>
-                    <p style={{ fontSize: "13px", color: "#785a43", margin: "4px 0 16px" }}>
-                      Các sản phẩm đặc biệt (quà tặng hiện vật yêu cầu thông tin liên lạc để Admin liên hệ trao quà) sẽ được theo dõi tiến độ duyệt tại đây!
-                    </p>
-                    <Link href="/gio-hang" className="profile-game-btn profile-game-btn--secondary">
-                      <span>🛒 Ghé Cửa Hàng</span>
-                    </Link>
-                  </div>
+                  <EmptyState
+                    icon="🎁"
+                    title="Chưa có đơn đặt quà"
+                    description="Các sản phẩm đặc biệt (quà tặng hiện vật yêu cầu thông tin liên lạc để Admin liên hệ trao quà) sẽ được theo dõi tiến độ duyệt tại đây!"
+                    actionText="Ghé Cửa Hàng"
+                    actionHref="/gio-hang"
+                  />
                 ) : (
                   <div className="profile-orders-list">
                     {specialOrders.map((ord) => (

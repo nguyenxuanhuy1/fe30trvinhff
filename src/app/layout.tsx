@@ -24,10 +24,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: siteConfig.name,
+    default: siteConfig.seoText.home.title,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.seoText.home.description,
+  keywords: siteConfig.seoText.home.keywords ? [...siteConfig.seoText.home.keywords] : undefined,
   applicationName: siteConfig.name,
   appleWebApp: {
     capable: true,
@@ -40,7 +41,7 @@ export const metadata: Metadata = {
     url: `${SITE_URL}${siteConfig.routes.home}`,
     siteName: siteConfig.name,
     locale: SITE_LOCALE,
-    title: siteConfig.name,
+    title: siteConfig.seoText.home.title,
     description: siteConfig.seoText.home.description,
     images: [
       {
@@ -53,12 +54,13 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: siteConfig.name,
+    title: siteConfig.seoText.home.title,
     description: siteConfig.seoText.home.description,
     images: [DEFAULT_OG_IMAGE.path],
   },
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    icon: [{ url: "/icon.png", type: "image/png" }],
+    apple: [{ url: "/icon.png" }],
   },
 };
 

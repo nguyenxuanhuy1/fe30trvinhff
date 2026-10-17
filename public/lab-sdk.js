@@ -700,12 +700,21 @@
       return;
     }
     try {
+      const calculatedScore =
+        result && typeof result.percentage === "number"
+          ? result.percentage
+          : result && typeof result.score === "number" && typeof result.maxScore === "number" && result.maxScore > 0
+          ? Math.round((result.score / result.maxScore) * 100)
+          : result && typeof result.score === "number"
+          ? (result.score <= 1 && result.score > 0 ? Math.round(result.score * 100) : Math.round(result.score))
+          : 100;
+
       window.parent.postMessage(
         { type: "COMPLETE", result: result || {} },
         "*",
       );
       window.parent.postMessage(
-        { type: "LESSON_COMPLETE", score: (result && result.score) || 100, result: result || {} },
+        { type: "LESSON_COMPLETE", score: calculatedScore, result: result || {} },
         "*",
       );
     } catch (e) {

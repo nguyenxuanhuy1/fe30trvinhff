@@ -5,20 +5,56 @@ const TOKEN_COOKIE = "token"; // Token truy cập sống 3 tiếng (10800 giây)
 const REFRESH_TOKEN_COOKIE = "refreshToken"; // Refresh token sống 7 ngày (604800 giây)
 const USER_COOKIE = "user";
 
+const LOCAL_STORAGE_TOKEN = "project30tr_auth_token";
+const LOCAL_STORAGE_REFRESH = "project30tr_auth_refresh";
+const LOCAL_STORAGE_USER = "project30tr_auth_user";
+
 function getCookie(name: string): string | null {
   if (typeof document === "undefined") return null;
   const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
-  return match ? decodeURIComponent(match[1]) : null;
+  if (match) return decodeURIComponent(match[1]);
+
+  // Fallback đọc từ localStorage nếu cookie bị chặn hoặc chưa sync
+  if (typeof window !== "undefined") {
+    try {
+      if (name === TOKEN_COOKIE) return localStorage.getItem(LOCAL_STORAGE_TOKEN);
+      if (name === REFRESH_TOKEN_COOKIE) return localStorage.getItem(LOCAL_STORAGE_REFRESH);
+      if (name === USER_COOKIE) return localStorage.getItem(LOCAL_STORAGE_USER);
+    } catch {}
+  }
+
+  return null;
 }
 
 function setCookie(name: string, value: string, maxAgeSeconds: number) {
   if (typeof document === "undefined") return;
-  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAgeSeconds}; samesite=lax`;
+  const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
+  const secureAttr = isSecure ? "; secure" : "";
+  const expiresAttr = `; expires=${new Date(Date.now() + maxAgeSeconds * 1000).toUTCString()}`;
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAgeSeconds}${expiresAttr}; samesite=lax${secureAttr}`;
+
+  if (typeof window !== "undefined") {
+    try {
+      if (name === TOKEN_COOKIE) localStorage.setItem(LOCAL_STORAGE_TOKEN, value);
+      if (name === REFRESH_TOKEN_COOKIE) localStorage.setItem(LOCAL_STORAGE_REFRESH, value);
+      if (name === USER_COOKIE) localStorage.setItem(LOCAL_STORAGE_USER, value);
+    } catch {}
+  }
 }
 
 function deleteCookie(name: string) {
   if (typeof document === "undefined") return;
-  document.cookie = `${name}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+  const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
+  const secureAttr = isSecure ? "; secure" : "";
+  document.cookie = `${name}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; samesite=lax${secureAttr}`;
+
+  if (typeof window !== "undefined") {
+    try {
+      if (name === TOKEN_COOKIE) localStorage.removeItem(LOCAL_STORAGE_TOKEN);
+      if (name === REFRESH_TOKEN_COOKIE) localStorage.removeItem(LOCAL_STORAGE_REFRESH);
+      if (name === USER_COOKIE) localStorage.removeItem(LOCAL_STORAGE_USER);
+    } catch {}
+  }
 }
 
 function clearAuthCookies() {
@@ -28,10 +64,9 @@ function clearAuthCookies() {
 }
 
 const isServer = typeof window === "undefined";
-const internalApiUrl = process.env.INTERNAL_API_URL ?? "http://127.0.0.1:8080";
 const defaultBaseUrl = isServer
-  ? `${internalApiUrl.replace(/\/+$/, "")}/api`
-  : (env.apiUrl || "/api");
+  ? `${(process.env.BACKEND_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://127.0.0.1:8080").replace(/\/+$/, "")}/api`
+  : env.apiUrl;
 
 const api = axios.create({
   baseURL: defaultBaseUrl,
@@ -45,12 +80,15 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   if (typeof window === "undefined") {
     if (!config.baseURL || config.baseURL.startsWith("/")) {
-      const serverBase = process.env.INTERNAL_API_URL ?? "http://127.0.0.1:8080";
+      const serverBase = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://127.0.0.1:8080";
       config.baseURL = `${serverBase.replace(/\/+$/, "")}${config.baseURL || "/api"}`;
     }
   }
 
-  const token = getCookie(TOKEN_COOKIE);
+  const token =
+    getCookie(TOKEN_COOKIE) ||
+    (typeof window !== "undefined" ? localStorage.getItem(LOCAL_STORAGE_TOKEN) : null);
+
   if (token) {
     config.headers = config.headers ?? {};
     if (!config.headers.Authorization) {
@@ -158,6 +196,9 @@ export {
   TOKEN_COOKIE,
   REFRESH_TOKEN_COOKIE,
   USER_COOKIE,
+  LOCAL_STORAGE_TOKEN,
+  LOCAL_STORAGE_REFRESH,
+  LOCAL_STORAGE_USER,
   getCookie,
   setCookie,
   deleteCookie,

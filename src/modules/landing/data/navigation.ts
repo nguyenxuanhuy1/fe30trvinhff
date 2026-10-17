@@ -3,7 +3,7 @@ import type { MenuItem } from "@/modules/landing/types";
 const leftMenuItems: MenuItem[] = [
   {
     label: "TRANG CHỦ",
-    href: "/?landing=true",
+    href: "/",
     isActive: true,
   },
   {

@@ -35,10 +35,10 @@ Có **2 loại bài học**, khác nhau về chỗ chứa và cách báo hoàn t
 
 | Việc | Cách làm |
 |---|---|
-| Báo hoàn thành | `parent.postMessage({ type: "LESSON_COMPLETE", score? }, location.origin)` |
+| Báo hoàn thành | `parent.postMessage({ type: "LESSON_COMPLETE", score }, location.origin)` (score từ 0 - 100, trên 70% mới qua màn) |
 | Chống báo 2 lần | cờ `reported = true` ở đầu hàm `report()` |
 | Không lỗi thì vẫn chạy | bọc `postMessage` trong `try/catch` |
-| Tự báo, không có nút | **không** đặt nút "Hoàn thành" cho người dùng bấm |
+| Tự báo, không có nút | **không** đặt nút hay popup "Hoàn thành" riêng trong HTML, hệ thống web sẽ tự hiện card thông báo |
 
 **Vì sao `location.origin` dùng được:** iframe được mount bằng `srcDoc` với `sandbox="allow-scripts allow-same-origin ..."`, nên bài chạy cùng origin với trang chủ. Trang chủ kiểm tra cả `event.origin` lẫn `event.source` trước khi gọi API, nên không cần mở `"*"` — truyền `"*"` chỉ là lỏng tay thừa.
 
@@ -195,9 +195,10 @@ Bắt buộc:
 - <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 Nếu loại 1:
-- Báo hoàn thành: parent.postMessage({ type: "LESSON_COMPLETE", score: 100 }, location.origin)
+- Báo hoàn thành: parent.postMessage({ type: "LESSON_COMPLETE", score: Math.round((correct / total) * 100) }, location.origin)
+- score tính từ 0 đến 100 (yêu cầu trên 70% mới đạt).
 - Cờ reported chống báo 2 lần, try/catch quanh postMessage
-- KHÔNG có nút "Hoàn thành" cho người dùng bấm
+- KHÔNG tạo popup hay nút "Hoàn thành" riêng trong bài, hệ thống web sẽ tự hiện card thông báo
 - Nếu cần camera: import từ /vendor/tasks-vision/vision_bundle.mjs,
   modelAssetPath: "/models/hand_landmarker.task" (file local, không CDN)
 - Vòng lặp loop() try/catch và vẫn requestAnimationFrame(loop) ở nhánh lỗi
@@ -206,7 +207,7 @@ Nếu loại 2:
 - <script src="/lab-sdk.js"></script>
 - Mọi khởi tạo nằm trong LabSDK.onReady(function (equipped) { ... })
 - Mỗi frame gọi LabSDK.drawAvatar(ctx, { face, hands })
-- Báo hoàn thành: LabSDK.complete({ score }) , cờ finished chống 2 lần
+- Báo hoàn thành: LabSDK.complete({ score: correct, maxScore: total }), cờ finished chống 2 lần
 - result không quá 10KB
 
 Trả về: nội dung file HTML hoàn chỉnh, không giải thích thêm.

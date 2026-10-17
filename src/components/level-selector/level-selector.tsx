@@ -32,7 +32,6 @@ export function LevelSelector({
   const lessonsQuery = useQuery({
     queryKey: ["lab-lessons"],
     queryFn: listLessons,
-    staleTime: 60_000,
   });
 
   // Gộp danh sách bài từ backend với các cấp độ trò chơi

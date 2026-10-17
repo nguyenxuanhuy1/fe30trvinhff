@@ -14,7 +14,7 @@ import Cropper from "react-easy-crop";
 import { HeadAccessory } from "../HeadAccessory";
 import { StaticSvgAccessory } from "../static-svg-accessory";
 import { preloadFaceLandmarker } from "../../hooks/useHeadTracking";
-import { GameButton, GameModal, toast } from "@/components/ui";
+import { GameButton, GameModal, toast, ErrorState } from "@/components/ui";
 import { LoadingState } from "@/components/ui/loading-state";
 import { useCatalog } from "../../hooks/use-catalog";
 import { useEquip } from "../../hooks/use-equip";
@@ -56,6 +56,9 @@ export interface InventoryViewProps {
   onBack?: () => void;
 }
 
+// Giữ camera stream trong RAM suốt phiên làm việc, chỉ xin quyền 1 lần duy nhất
+let cachedCameraStream: MediaStream | null = null;
+
 function InventoryView({
   mode = "default",
   onEnterGame,
@@ -87,8 +90,18 @@ function InventoryView({
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const watchdogRef = useRef<NodeJS.Timeout | null>(null);
+  const retryCountRef = useRef(0);
 
   const handleEnterGame = useCallback(() => {
+    if (watchdogRef.current) {
+      clearTimeout(watchdogRef.current);
+      watchdogRef.current = null;
+    }
+    if (cachedCameraStream) {
+      cachedCameraStream.getTracks().forEach((track) => track.stop());
+      cachedCameraStream = null;
+    }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
@@ -100,9 +113,20 @@ function InventoryView({
   }, [onEnterGame]);
 
   const handleBack = useCallback(() => {
+    if (watchdogRef.current) {
+      clearTimeout(watchdogRef.current);
+      watchdogRef.current = null;
+    }
+    if (cachedCameraStream) {
+      cachedCameraStream.getTracks().forEach((track) => track.stop());
+      cachedCameraStream = null;
+    }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
     }
     if (onBack) {
       onBack();
@@ -161,66 +185,166 @@ function InventoryView({
   }, [hydrateEquipped, isReady, items, owned]);
 
 
+  const hasCachedData = items.length > 0 && (!user || Boolean(inventoryQuery.inventory));
+  const isFetchingInitialData =
+    !hasCachedData &&
+    (isLoading || catalogQuery.isLoading || (Boolean(user) && inventoryQuery.isLoading));
+
   const [isMounted, setIsMounted] = useState(false);
+  const [isCameraReady, setIsCameraReady] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("inventory_camera_mode");
     if (stored === "off") {
       setIsCameraOn(false);
+      setIsCameraReady(true);
     }
     setIsMounted(true);
+
+    // Timeout an toàn tối đa 2s để không bao giờ giữ loading quá lâu nếu webcam phản hồi chậm
+    const timer = setTimeout(() => {
+      setIsCameraReady(true);
+    }, 2000);
+    return () => clearTimeout(timer);
   }, []);
 
-  // Camera thật, lật gương. Tắt track khi unmount để đèn camera không đứng sáng.
+  // Quản lý Camera an toàn: khởi động song song ngay khi mount, nạp sẵn AI và stream
   useEffect(() => {
     if (!isMounted) return;
 
+    if (watchdogRef.current) {
+      clearTimeout(watchdogRef.current);
+      watchdogRef.current = null;
+    }
+
     if (!user || !isCameraOn) {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+      if (cachedCameraStream) {
+        cachedCameraStream.getTracks().forEach((t) => t.stop());
+        cachedCameraStream = null;
+      }
       if (videoRef.current) {
         videoRef.current.srcObject = null;
         videoRef.current.pause();
       }
       setCameraError(null);
       setIsTransitioning(false);
+      setIsCameraReady(true);
       return;
     }
 
-    let stream: MediaStream | null = null;
     let disposed = false;
-    const video = videoRef.current;
     
     setCameraError(null);
     setIsTransitioning(true);
 
     async function startCamera() {
       preloadFaceLandmarker();
+
       try {
         if (!navigator.mediaDevices?.getUserMedia) {
           throw new Error("Trình duyệt chỉ cho phép bật Camera qua HTTPS hoặc localhost.");
         }
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" },
-          audio: false,
-        });
-        streamRef.current = stream;
+
+        // Tái sử dụng stream sẵn có nếu các track vẫn đang hoạt động
+        let stream: MediaStream;
+        const currentStream = streamRef.current;
+        const isLive = Boolean(
+          currentStream &&
+          currentStream.active &&
+          currentStream.getVideoTracks().some((t) => t.readyState === "live")
+        );
+
+        if (isLive && currentStream) {
+          stream = currentStream;
+        } else {
+          if (streamRef.current) {
+            streamRef.current.getTracks().forEach((t) => t.stop());
+            streamRef.current = null;
+          }
+          if (cachedCameraStream) {
+            cachedCameraStream.getTracks().forEach((t) => t.stop());
+            cachedCameraStream = null;
+          }
+
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: "user",
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+            },
+            audio: false,
+          });
+        }
 
         if (disposed) {
-          stream.getTracks().forEach((track) => track.stop());
-          streamRef.current = null;
+          stream.getTracks().forEach((t) => t.stop());
           return;
         }
 
+        cachedCameraStream = stream;
+        streamRef.current = stream;
+        setIsCameraReady(true);
+
+        // Lấy video element mới nhất tại thời điểm stream đã sẵn sàng
+        const video = videoRef.current;
         if (video) {
-          video.srcObject = stream;
-          await video.play().catch(() => undefined);
+          if (video.srcObject !== stream) {
+            video.srcObject = stream;
+          }
+
+          try {
+            await video.play();
+          } catch {
+            video.oncanplay = () => {
+              if (!disposed) video.play().catch(() => undefined);
+            };
+          }
+
+          // Watchdog tự phục hồi: Sau 2.5s (cho phép webcam khởi động lúc F5 tải trang), nếu vẫn chưa có frame thì xử lý
+          if (watchdogRef.current) clearTimeout(watchdogRef.current);
+          watchdogRef.current = setTimeout(() => {
+            if (disposed) return;
+            const currentVideo = videoRef.current;
+            if (
+              isCameraOn &&
+              currentVideo &&
+              (currentVideo.videoWidth === 0 || currentVideo.paused || currentVideo.readyState < 2)
+            ) {
+              if (currentVideo.paused && currentVideo.srcObject) {
+                currentVideo.play().catch(() => undefined);
+              }
+              if (retryCountRef.current < 2) {
+                retryCountRef.current += 1;
+                console.warn(
+                  `[Camera Watchdog] Camera chưa nạp được khung hình (lần ${retryCountRef.current}/2), đang thử kích hoạt lại...`
+                );
+                if (streamRef.current) {
+                  streamRef.current.getTracks().forEach((t) => t.stop());
+                  streamRef.current = null;
+                }
+                cachedCameraStream = null;
+                void startCamera();
+              }
+            } else {
+              retryCountRef.current = 0;
+            }
+          }, 2500);
         }
       } catch {
         if (!disposed) {
           setCameraError("Không mở được camera. Hãy cấp quyền camera hoặc tải ảnh lên.");
           setIsCameraOn(false);
+          setIsCameraReady(true);
         }
       } finally {
-        setIsTransitioning(false);
+        if (!disposed) {
+          setIsTransitioning(false);
+          setIsCameraReady(true);
+        }
       }
     }
 
@@ -228,21 +352,52 @@ function InventoryView({
 
     return () => {
       disposed = true;
-      stream?.getTracks().forEach((track) => track.stop());
-      streamRef.current?.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-      if (video) {
-        video.srcObject = null;
+      if (watchdogRef.current) {
+        clearTimeout(watchdogRef.current);
+        watchdogRef.current = null;
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+      if (cachedCameraStream) {
+        cachedCameraStream.getTracks().forEach((t) => t.stop());
+        cachedCameraStream = null;
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
       }
       setIsTransitioning(false);
     };
   }, [user, isCameraOn, isMounted]);
+
+  // Luôn đảm bảo thẻ video nhận stream ngay khi xuất hiện trong DOM
+  useEffect(() => {
+    if (!isMounted || !isCameraOn) return;
+    const video = videoRef.current;
+    const stream = streamRef.current || cachedCameraStream;
+    if (video && stream && video.srcObject !== stream) {
+      video.srcObject = stream;
+      video.play().catch(() => undefined);
+    }
+  });
 
   const toggleCamera = () => {
     if (isTransitioning) return;
     setIsCameraOn((prev) => {
       const next = !prev;
       localStorage.setItem("inventory_camera_mode", next ? "on" : "off");
+      if (!next) {
+        // Người dùng chủ động bấm Tắt Camera: giải phóng stream
+        if (cachedCameraStream) {
+          cachedCameraStream.getTracks().forEach((t) => t.stop());
+          cachedCameraStream = null;
+        }
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach((t) => t.stop());
+          streamRef.current = null;
+        }
+      }
       return next;
     });
   };
@@ -260,6 +415,10 @@ function InventoryView({
         setZoom(1);
         setIsCameraOn(false);
         localStorage.setItem("inventory_camera_mode", "off");
+        if (cachedCameraStream) {
+          cachedCameraStream.getTracks().forEach((t) => t.stop());
+          cachedCameraStream = null;
+        }
       };
       reader.readAsDataURL(file);
       // Reset input value to allow selecting the same file again
@@ -399,12 +558,22 @@ function InventoryView({
       : ownedItems.slice(0, perColumn);
   const rightItems =
     isNarrow || perColumn === null ? [] : ownedItems.slice(perColumn);
+  const isInitialLoading =
+    isFetchingInitialData || (!isCameraReady && isCameraOn && !cameraError);
 
-  if (isLoading || catalogQuery.isLoading || (Boolean(user) && inventoryQuery.isLoading)) {
+  if (isInitialLoading) {
+    return <LoadingState />;
+  }
+
+  if (catalogQuery.isError || inventoryQuery.isError) {
     return (
-      <div className="inventory-retro">
-        <LoadingState />
-      </div>
+      <ErrorState
+        error={catalogQuery.error || inventoryQuery.error}
+        onRetry={() => {
+          catalogQuery.refetch();
+          inventoryQuery.refetch();
+        }}
+      />
     );
   }
 
@@ -577,7 +746,7 @@ function InventoryView({
                 </defs>
                 
                 {/* Lớp vỏ chuột ở dưới */}
-                <image href="/images/chuotuser.png" x="0" y="0" width="1024" height="1024" />
+                <image href="/images/chuotuser.webp" x="0" y="0" width="1024" height="1024" />
 
                 {/* Mặt người lồng lên trên, bị cắt tròn chính xác vừa lỗ */}
                 {uploadedImage && (
@@ -611,6 +780,7 @@ function InventoryView({
           {/* Video không có phụ đề nên không dùng next/image, cũng không cần track */}
           <video
             className="inventory-retro__camera"
+            autoPlay
             playsInline
             muted
             ref={videoRef}
@@ -647,12 +817,12 @@ function InventoryView({
             })}
 
           {ownedItems.length === 0 && (
-            <div className="inventory-retro__empty">
+            <div className="inventory-retro__empty" role="status">
               <span className="inventory-retro__empty-text">
-                🎒 Tủ đồ của bạn đang trống. Bạn chưa sở hữu trang bị nào!
+                🎒 Tủ đồ của bạn đang trống
               </span>
               <Link href="/gio-hang" className="inventory-retro__empty-btn">
-                🛒 Ghé Cửa Hàng
+                🛒 Cửa Hàng
               </Link>
             </div>
           )}
@@ -664,46 +834,32 @@ function InventoryView({
       </main>
 
       <GameModal
-        title="Chỉnh sửa ảnh"
+        title="Chỉnh sửa ảnh đại diện"
         open={isCropModalOpen}
         onCancel={() => setIsCropModalOpen(false)}
-        width={500}
+        width={480}
         footer={[
           <button 
             key="cancel" 
+            type="button"
+            className="game-modal__btn-cancel"
             onClick={() => setIsCropModalOpen(false)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#8a4b08',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              textTransform: 'uppercase',
-              fontSize: '0.875rem',
-              letterSpacing: '0.05em',
-              padding: '8px 16px',
-              transition: 'opacity 0.15s ease'
-            }}
           >
             Hủy
           </button>,
-          <GameButton key="save" onClick={handleSaveCrop}>
-            Lưu
-          </GameButton>
+          <button
+            key="save"
+            type="button"
+            className="game-modal__btn-primary"
+            onClick={handleSaveCrop}
+          >
+            Lưu ảnh
+          </button>
         ]}
       >
         {cropImageSrc && (
-          <>
-            <div 
-              style={{ 
-                position: "relative", 
-                width: "100%", 
-                height: 380, 
-                background: "#150d08",
-                overflow: "hidden",
-                boxShadow: "inset 0 0 20px rgba(0, 0, 0, 0.6)"
-              }}
-            >
+          <div className="game-modal-crop">
+            <div className="game-modal-crop__container">
               <Cropper
                 image={cropImageSrc}
                 crop={crop}
@@ -716,8 +872,8 @@ function InventoryView({
                 onZoomChange={setZoom}
               />
             </div>
-            <div style={{ padding: "18px 24px", display: "flex", alignItems: "center", gap: "16px" }}>
-              <span style={{ whiteSpace: "nowrap", color: "#8a4b08", fontWeight: 700, textTransform: "uppercase", fontSize: "0.875rem", letterSpacing: "0.05em" }}>Thu phóng:</span>
+            <div className="game-modal-crop__controls">
+              <span className="game-modal-crop__label">Thu phóng:</span>
               <Slider
                 min={1}
                 max={3}
@@ -727,7 +883,7 @@ function InventoryView({
                 style={{ flex: 1 }}
               />
             </div>
-          </>
+          </div>
         )}
       </GameModal>
     </div>

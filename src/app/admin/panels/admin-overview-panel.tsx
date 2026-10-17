@@ -112,12 +112,6 @@ export function AdminOverviewPanel({ onNavigateTab }: AdminOverviewPanelProps) {
                   <span>Nam: <strong>{stats?.gender.male ?? 0}</strong></span>
                   <span className="admin-metric-card__sep">•</span>
                   <span>Nữ: <strong>{stats?.gender.female ?? 0}</strong></span>
-                  {(stats?.gender.other ?? 0) > 0 && (
-                    <>
-                      <span className="admin-metric-card__sep">•</span>
-                      <span>Khác: <strong>{stats?.gender.other}</strong></span>
-                    </>
-                  )}
                 </div>
               </div>
             </div>

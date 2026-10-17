@@ -11,12 +11,36 @@ import type {
   UpdateShopItemPayload,
 } from "../types";
 
+import { getCachedPublicShopAssets, initPublicShopAssets } from "../utils/assets";
+
 /**
  * Lấy danh sách ảnh vật phẩm có sẵn trong public/items
  */
 export async function getAvailableShopAssets(): Promise<AvailableAsset[]> {
-  const res = await api.get<ApiResponse<AvailableAsset[]>>("/shop/admin/available-assets");
-  return res.data.data;
+  // 1. Thử gọi API backend (backend quét trực tiếp thư mục public/items)
+  try {
+    const res = await api.get<ApiResponse<AvailableAsset[]>>("/shop/admin/available-assets");
+    if (res.data?.data && res.data.data.length > 0) {
+      const filtered = res.data.data.filter((item) => item.url?.startsWith("/items/"));
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("project30tr_public_shop_assets", JSON.stringify(filtered));
+        } catch {}
+      }
+      return filtered;
+    }
+  } catch {}
+
+  // 2. Nếu không gọi được API backend, lấy từ file /items/catalog.json
+  try {
+    const initialized = await initPublicShopAssets();
+    if (initialized && initialized.length > 0) {
+      return initialized;
+    }
+  } catch {}
+
+  // 3. Fallback cache localStorage
+  return getCachedPublicShopAssets();
 }
 
 /**

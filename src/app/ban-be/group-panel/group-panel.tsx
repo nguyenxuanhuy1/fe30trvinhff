@@ -5,7 +5,7 @@ import type { Group, SentInvitation } from "@/modules/friends/types";
 import { friendsPage } from "../friends.const";
 import "./group-panel.scss";
 
-const FALLBACK = "/images/chuotuser.png";
+const FALLBACK = "/images/chuotuser.webp";
 
 interface GroupPanelProps {
   group: Group;
