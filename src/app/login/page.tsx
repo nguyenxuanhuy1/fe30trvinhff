@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ManOutlined, WomanOutlined } from "@ant-design/icons";
 import { useAuth } from "@/modules/auth";
+import { BrandLogo } from "@/components/ui";
 import type { LoginPayload, RegisterPayload } from "@/modules/auth/types";
 import { loginPageContent } from "./login.const";
 import "./login.scss";
@@ -96,8 +97,8 @@ function LoginPage() {
     <div className="login-page">
       {/* Thẻ form đăng nhập / đăng ký phong cách game lesson */}
       <div className="login__card">
-        <Link className="login__logo" href="/" aria-label="Về trang chủ">
-          <Image src="/images/logo.png" alt="Game Center" width={220} height={81} priority />
+        <Link className="login__logo" href="/" aria-label="STEAMaze - Về trang chủ">
+          <BrandLogo size="md" />
         </Link>
 
         <div className="login__tabs" role="tablist">

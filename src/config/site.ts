@@ -22,7 +22,7 @@ const siteConfig = {
   language: "vi",
   locale: "vi_VN",
   ogImage: {
-    path: "/images/logo.png",
+    path: "/images/background.webp",
     width: 1200,
     height: 630,
     alt: env.appName,
@@ -38,7 +38,6 @@ const siteConfig = {
       description: `Khám phá ${env.appName} - nền tảng giáo dục STEAM tương tác thế hệ mới kết hợp nhận diện cử chỉ tay 3D (Hand Tracking), phòng thí nghiệm ảo và đổi thưởng vật phẩm hấp dẫn.`,
       keywords: [
         env.appName,
-        "Whisker",
         "STEAMaze",
         "STEAM",
         "giáo dục STEAM",

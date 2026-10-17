@@ -12,3 +12,4 @@ export * from './game-modal';
 export * from './game-toast';
 export * from './coin-icon';
 export * from './game-skeleton';
+export * from './brand-logo';

@@ -318,7 +318,7 @@ export function AdminSocialPanel() {
               id="social-profile-logo"
               value={content.profile.logoSrc}
               onChange={(event) => updateProfile("logoSrc", event.target.value)}
-              placeholder="/images/logo.png hoặc https://..."
+              placeholder="/images/background.webp hoặc https://..."
               maxLength={2000}
             />
           </Col>

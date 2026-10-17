@@ -10,6 +10,7 @@ import {
   leftMenuItems,
   rightMenuItems,
 } from "@/modules/landing/data/navigation";
+import { BrandLogo } from "@/components/ui";
 import type { MenuItem } from "@/modules/landing/types";
 import "./hero-header.scss";
 
@@ -339,14 +340,8 @@ function HeroHeader({ variant = "hero", showBackButton }: HeroHeaderProps) {
             items={leftMenuItems}
           />
 
-          <Link className="hero-header__logo" href="/" aria-label="Trang chủ">
-            <Image
-              src="/images/logo.png"
-              alt="Whisker - Cổng Trò Chơi Giáo Dục STEAM"
-              width={220}
-              height={81}
-              sizes="220px"
-            />
+          <Link className="hero-header__logo" href="/" aria-label="STEAMaze - Trang chủ">
+            <BrandLogo />
           </Link>
 
           <div
@@ -426,7 +421,7 @@ function HeroHeader({ variant = "hero", showBackButton }: HeroHeaderProps) {
             <span>Chơi ngay</span>
           </button>
           <h1 className="hero-header__visually-hidden" id="hero-header-title">
-            Whisker - Cổng Trò Chơi Giáo Dục STEAM &amp; Thí Nghiệm 3D Tương Tác
+            STEAMaze - Cổng Trò Chơi Giáo Dục STEAM &amp; Thí Nghiệm 3D Tương Tác
           </h1>
         </section>
       )}

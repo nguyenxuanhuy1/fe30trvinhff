@@ -461,7 +461,7 @@ export function CartView() {
                       <div className="cart-order-card__left">
                         <div className="cart-order-card__thumb">
                           <Image
-                            src={ord.item?.imageUrl || "/images/logo.png"}
+                            src={ord.item?.imageUrl || "/items/hat_vuongmien.png"}
                             alt={ord.item?.name || "Vật phẩm"}
                             fill
                             sizes="60px"

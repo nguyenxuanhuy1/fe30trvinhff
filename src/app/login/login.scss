@@ -82,19 +82,10 @@ body:has(.login-page) {
 
 .login__logo {
   display: block;
-  margin: 0 auto 20px;
+  margin: 0 auto 10px;
+  transform: translateY(-20px);
   text-align: center;
-
-  img {
-    width: 200px;
-    height: auto;
-    filter: drop-shadow(0 4px 10px rgba(27, 37, 39, 0.25));
-    transition: transform 0.2s ease;
-  }
-
-  &:hover img {
-    transform: scale(1.03);
-  }
+  text-decoration: none;
 }
 
 // -------------------------------------------------------------

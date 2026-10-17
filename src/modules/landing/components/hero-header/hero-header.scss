@@ -285,20 +285,20 @@ $hero-panel: rgba(8, 14, 16, 0.96);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 220px;
+    width: auto;
+    min-width: 180px;
     height: 82px;
     justify-self: center;
     filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
     transition: transform $transition-fast;
+    text-decoration: none;
+
+    .brand-logo {
+      transform: translateY(-5px);
+    }
 
     &:focus-visible {
       @include focus-ring;
-    }
-
-    img {
-      display: block;
-      width: 100%;
-      height: auto;
     }
   }
 
@@ -616,7 +616,7 @@ $hero-panel: rgba(8, 14, 16, 0.96);
     }
 
     &__logo {
-      width: 148px;
+      width: auto;
       height: auto;
     }
 
@@ -654,7 +654,7 @@ $hero-panel: rgba(8, 14, 16, 0.96);
     height: 480px;
 
     &__logo {
-      width: 124px;
+      width: auto;
     }
 
     &__play-button {

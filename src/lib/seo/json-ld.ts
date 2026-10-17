@@ -16,7 +16,7 @@ function buildOrganization() {
     inLanguage: SITE_LANGUAGE,
     logo: {
       "@type": "ImageObject",
-      url: `${SITE_URL}/images/logo.png`,
+      url: `${SITE_URL}/images/background.webp`,
     },
     sameAs: siteConfig.socialLinks.map((link) => link.url),
   };

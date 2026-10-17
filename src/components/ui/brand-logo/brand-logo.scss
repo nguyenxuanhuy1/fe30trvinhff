@@ -1,0 +1,70 @@
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  text-decoration: none;
+  line-height: 1;
+
+  &__wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-game, "Baloo 2", cursive, system-ui, sans-serif);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    color: #fab74b;
+    -webkit-text-stroke: 4.5px #4a2102;
+    paint-order: stroke fill;
+    text-shadow:
+      -2.5px -2.5px 0 #4a2102,
+       2.5px -2.5px 0 #4a2102,
+      -2.5px  2.5px 0 #4a2102,
+       2.5px  2.5px 0 #4a2102,
+       0px    5px   0 #2f1400,
+       0px    9px  18px rgba(0, 0, 0, 0.55);
+    // Kích thước mặc định to bằng trạng thái hover trước đó
+    transform: scale(1.06);
+  }
+
+  &__letter {
+    display: inline-block;
+    transform: translateY(var(--y, 0)) rotate(var(--rot, 0deg));
+    transform-origin: center bottom;
+    margin: 0 -1.5px;
+
+    &--lower {
+      font-size: 1.06em;
+      margin-left: -2px;
+    }
+  }
+
+  // SIZES (Đã tăng to bằng hover trên các kích cỡ)
+  &--sm {
+    .brand-logo__wrapper {
+      font-size: 2.35rem;
+      -webkit-text-stroke: 3.5px #4a2102;
+    }
+  }
+
+  &--md {
+    .brand-logo__wrapper {
+      font-size: 3.6rem;
+      -webkit-text-stroke: 5px #4a2102;
+    }
+  }
+
+  &--lg {
+    .brand-logo__wrapper {
+      font-size: 4.65rem;
+      -webkit-text-stroke: 6px #4a2102;
+    }
+  }
+
+  &--responsive {
+    .brand-logo__wrapper {
+      font-size: clamp(2.55rem, 4.5vw, 4.25rem);
+      -webkit-text-stroke: clamp(4px, 0.38vw, 5.5px) #4a2102;
+    }
+  }
+}
