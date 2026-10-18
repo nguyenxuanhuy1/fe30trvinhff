@@ -14,4 +14,11 @@ export type { Room, RoomBasic, RoomPayload, Lesson, LessonDetail, LessonPayload 
 export { RoomManager } from "./components/room-manager/room-manager";
 export type { RoomManagerProps } from "./components/room-manager/room-manager";
 export { LessonManager } from "./components/lesson-manager/lesson-manager";
-export type { LessonManagerProps } from "./components/lesson-manager/lesson-manager";
+export { useGameLesson } from "./hooks/use-game-lesson";
+export {
+  getCachedGame,
+  setCachedGame,
+  isGameCached,
+  preloadAndCacheGame,
+  clearAllGameCache,
+} from "./utils/game-cache";

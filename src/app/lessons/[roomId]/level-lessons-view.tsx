@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
-import { getLessons, getRoom } from "@/modules/lessons";
+import { getLessons, getRoom, preloadAndCacheGame } from "@/modules/lessons";
 import { useInventory, useItemPreload } from "@/modules/inventory";
 import { EmptyState, ErrorState, GameCardSkeleton } from "@/components/ui";
 import "./level-lessons.scss";
@@ -175,7 +175,13 @@ export function LevelLessonsView({ roomId }: LevelLessonsViewProps) {
 
               return (
                 <li key={lesson.id} className="level-lessons__item">
-                  <Link href={targetUrl} className="news-card ui-game-card">
+                  <Link
+                    href={targetUrl}
+                    className="news-card ui-game-card"
+                    onMouseEnter={() => void preloadAndCacheGame(lesson.id)}
+                    onTouchStart={() => void preloadAndCacheGame(lesson.id)}
+                    onClick={() => void preloadAndCacheGame(lesson.id)}
+                  >
                     <div className="news-card__thumb">
                       {lesson.imageUrl ? (
                         <Image

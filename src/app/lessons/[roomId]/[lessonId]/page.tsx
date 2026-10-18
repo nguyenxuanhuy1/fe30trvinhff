@@ -17,10 +17,6 @@ async function LessonPlayerPage({ params }: LessonPlayerPageProps) {
   const { roomId, lessonId } = await params;
   const lesson = await getLesson(lessonId).catch(() => null);
 
-  if (lesson === null) {
-    notFound();
-  }
-
   return (
     <LessonHost
       roomId={roomId}
