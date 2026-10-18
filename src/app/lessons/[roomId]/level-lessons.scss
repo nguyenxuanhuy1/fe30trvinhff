@@ -369,7 +369,7 @@ main:has(.level-lessons) {
     }
 
     @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
-      padding: 9px 10px 8px;
+      padding: 8px 10px 14px;
     }
   }
 
@@ -463,25 +463,27 @@ main:has(.level-lessons) {
     }
 
     @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
-      font-size: 14.5px;
-      line-height: 1.28;
-      max-height: calc(1.28em * 2);
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
-      -webkit-text-stroke: 0.8px #000;
-      letter-spacing: 0.15px;
-      margin-top: 1px;
-      padding: 0 1px;
-    }
-
-    @media (max-width: 480px) {
       font-size: 13.5px;
       line-height: 1.25;
       max-height: calc(1.25em * 2);
       -webkit-line-clamp: 2;
       line-clamp: 2;
+      -webkit-text-stroke: 0.8px #000;
+      letter-spacing: 0.15px;
+      margin-top: 1px;
+      margin-bottom: 3px;
+      padding: 0 1px;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 12.5px;
+      line-height: 1.22;
+      max-height: calc(1.22em * 2);
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-text-stroke: 0.75px #000;
       padding: 0 1px;
+      margin-bottom: 2px;
     }
   }
 
@@ -548,13 +550,13 @@ main:has(.level-lessons) {
     }
 
     @media (max-width: 768px), (max-height: 520px) and (orientation: landscape) {
-      padding: 3.5px 9px;
+      padding: 2.5px 7px;
       margin-right: 2px;
       margin-bottom: 2px;
     }
 
     @media (max-width: 480px) {
-      padding: 3px 8px;
+      padding: 2.5px 6px;
       margin-right: 1.5px;
       margin-bottom: 1.5px;
     }

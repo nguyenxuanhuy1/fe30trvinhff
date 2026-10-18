@@ -231,12 +231,27 @@ export function CartView() {
                         <span className="cart-shop-card__placeholder-text">Chưa có ảnh</span>
                       </div>
                     )}
-                    {isOwned && (
-                      <div className="cart-shop-card__owned-badge">
-                        <span>✓ ĐÃ SỞ HỮU</span>
-                      </div>
-                    )}
                   </div>
+
+                  {/* Box ĐÃ SỞ HỮU nằm chính giữa ranh giới giữa ảnh và nội dung */}
+                  {isOwned && (
+                    <div className="cart-shop-card__divider-badge" aria-label="Đã sở hữu">
+                      <div className="cart-shop-card__divider-badge-inner">
+                        <svg
+                          className="cart-shop-card__divider-badge-icon"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span className="cart-shop-card__divider-badge-text">ĐÃ SỞ HỮU</span>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Vùng thông tin sản phẩm */}
                   <div className="cart-shop-card__body">
@@ -244,23 +259,14 @@ export function CartView() {
                       {item.name}
                     </h3>
 
-                    {/* Vùng chân card: Giá xu & Nút Mua */}
-                    <div className="cart-card-footer">
-                      <div className="cart-card-price" title={`Giá: ${item.coinPrice} Xu`}>
-                        <CoinIcon className="cart-card-price__icon" />
-                        <span className="cart-card-price__val">{item.coinPrice} Xu</span>
-                      </div>
+                    {/* Vùng chân card: Giá xu & Nút Mua (Chỉ hiển thị khi CHƯA mua) */}
+                    {!isOwned && (
+                      <div className="cart-card-footer">
+                        <div className="cart-card-price" title={`Giá: ${item.coinPrice} Xu`}>
+                          <CoinIcon className="cart-card-price__icon" />
+                          <span className="cart-card-price__val">{item.coinPrice} Xu</span>
+                        </div>
 
-                      {isOwned ? (
-                        <button
-                          type="button"
-                          className="cart-card-buy-btn cart-card-buy-btn--owned"
-                          disabled
-                          title="Bạn đã sở hữu vật phẩm này rồi"
-                        >
-                          Đã sở hữu
-                        </button>
-                      ) : (
                         <button
                           type="button"
                           className={`cart-card-buy-btn ${item.isSpecial ? "cart-card-buy-btn--special" : ""} ${!canAfford ? "cart-card-buy-btn--disabled" : ""}`}
@@ -273,8 +279,8 @@ export function CartView() {
                         >
                           {canAfford ? "Mua Ngay" : "Thiếu Xu"}
                         </button>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
