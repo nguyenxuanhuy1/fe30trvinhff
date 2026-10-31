@@ -8,7 +8,7 @@ interface ErrorPageProps {
 }
 
 function ErrorPage({ error, reset }: ErrorPageProps) {
-  return <ErrorState error={error} onRetry={reset} />;
+  return <ErrorState error={error} onRetry={reset} fullScreen />;
 }
 
 export default ErrorPage;

@@ -19,7 +19,7 @@ export function LessonHost({ roomId, lessonId, lesson: initialLesson }: LessonHo
   const router = useRouter();
   const [phase, setPhase] = useState<"inventory" | "play">("inventory");
 
-  const { lesson, isLoading, error, refetch } = useGameLesson({
+  const { lesson, isLoading, isFetching, error, refetch } = useGameLesson({
     lessonId,
     initialLesson,
   });
@@ -70,6 +70,7 @@ export function LessonHost({ roomId, lessonId, lesson: initialLesson }: LessonHo
           <ErrorState
             error={error}
             message="Không thể tải nội dung trò chơi. Vui lòng thử lại."
+            isRetrying={isFetching}
             onRetry={() => void refetch()}
           />
         </div>

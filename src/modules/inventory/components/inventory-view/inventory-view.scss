@@ -787,6 +787,17 @@ body:has(.inventory-retro) {
 }
 
 // -------------------------------------------------------------
+// Lỗi tải tủ đồ: hiển thị ngay trong khung camera, không che header
+.inventory-retro__load-error {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 5;
+  width: min(340px, calc(100% - 24px));
+}
+
+// -------------------------------------------------------------
 // 6. THÔNG BÁO TỦ ĐỒ TRỐNG Ở GÓC BÊN DƯỚI, CĂN GIỮA MÀN HÌNH (KHÔNG CHE GIAO DIỆN NGƯỜI)
 // -------------------------------------------------------------
 .inventory-retro__empty {

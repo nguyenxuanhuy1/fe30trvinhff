@@ -73,6 +73,7 @@ export function useGameLesson({ lessonId, initialLesson }: UseGameLessonOptions)
     isLoading,
     isFromCache: Boolean(cachedData || (query.data && query.isFetchedAfterMount === false)),
     error: query.error,
+    isFetching: query.isFetching,
     refetch: query.refetch,
   };
 }

@@ -81,19 +81,6 @@ export function ProfileView({ initialUser, user: propUser }: ProfileViewProps) {
     return <LoadingState />;
   }
 
-  if (inventoryQuery.isError || ordersQuery.isError) {
-    return (
-      <ErrorState
-        error={inventoryQuery.error || ordersQuery.error}
-        onRetry={() => {
-          inventoryQuery.refetch();
-          ordersQuery.refetch();
-          groupQuery.refetch();
-        }}
-      />
-    );
-  }
-
   // Format giới tính hiển thị
   const genderDisplay =
     user.gender === "FEMALE"
@@ -214,7 +201,18 @@ export function ProfileView({ initialUser, user: propUser }: ProfileViewProps) {
             {/* ---------------------------------------------------- */}
             {activeTab === "inventory" && (
               <div className="profile-inventory-panel">
-                {isLoadingInventory || catalogQuery.isLoading ? (
+                {(inventoryQuery.isError && !inventory) || (catalogQuery.isError && catalogItems.length === 0) ? (
+                  <ErrorState
+                    compact
+                    error={inventoryQuery.error || catalogQuery.error}
+                    message="Không tải được danh sách trang bị."
+                    isRetrying={inventoryQuery.isFetching || catalogQuery.isFetching}
+                    onRetry={() => {
+                      if (inventoryQuery.isError) void inventoryQuery.refetch();
+                      if (catalogQuery.isError) void catalogQuery.refetch();
+                    }}
+                  />
+                ) : isLoadingInventory || catalogQuery.isLoading ? (
                   <div className="profile-empty-state">
                     <span className="profile-empty-state__icon">⏳</span>
                     <p className="profile-empty-state__text">Đang tải danh sách trang bị...</p>
@@ -290,7 +288,15 @@ export function ProfileView({ initialUser, user: propUser }: ProfileViewProps) {
                   </Link>
                 </div>
 
-                {isLoadingOrders ? (
+                {ordersQuery.isError && !ordersQuery.data ? (
+                  <ErrorState
+                    compact
+                    error={ordersQuery.error}
+                    message="Không tải được lịch sử đơn hàng."
+                    isRetrying={ordersQuery.isFetching}
+                    onRetry={() => void ordersQuery.refetch()}
+                  />
+                ) : isLoadingOrders ? (
                   <div className="profile-empty-state">
                     <span className="profile-empty-state__icon">⏳</span>
                     <p className="profile-empty-state__text">Đang tải lịch sử đơn hàng...</p>

@@ -132,14 +132,12 @@ export function LevelLessonsView({ roomId }: LevelLessonsViewProps) {
           <ul className="level-lessons__grid">
             <GameCardSkeleton count={6} variant="lesson" />
           </ul>
-        ) : roomQuery.isError || lessonsQuery.isError ? (
+        ) : lessonsQuery.isError && lessons.length === 0 ? (
           <ErrorState
-            error={roomQuery.error || lessonsQuery.error}
+            error={lessonsQuery.error}
             message="Không thể tải danh sách bài học của cấp độ này."
-            onRetry={() => {
-              void roomQuery.refetch();
-              void lessonsQuery.refetch();
-            }}
+            isRetrying={lessonsQuery.isFetching}
+            onRetry={() => void lessonsQuery.refetch()}
           />
         ) : filteredLessons.length === 0 ? (
           <EmptyState

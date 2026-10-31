@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import axios from "axios";
 import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/modules/auth";
 import { claimDailyReward, getDailyRewardStatus } from "../../services/reward.service";
 import type { DailyRewardStatus } from "../../types";
 import { CoinIcon } from "@/components/ui/coin-icon";
+import { ErrorState } from "@/components/ui/error-state";
 import "./daily-reward-modal.scss";
 
 interface DailyRewardModalProps {
@@ -14,56 +17,56 @@ interface DailyRewardModalProps {
   onRewardClaimed?: (coinsEarned: number, totalCoins: number) => void;
 }
 
+const DAILY_REWARD_STATUS_KEY = "daily-reward-status";
+const SKELETON_DAYS = [1, 2, 3, 4, 5, 6, 7];
+
+// Ưu tiên thông báo backend trả về thay vì "Request failed with status code 500"
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (axios.isAxiosError(error)) {
+    const message = (error.response?.data as { message?: unknown } | undefined)?.message;
+    if (typeof message === "string" && message.length > 0) return message;
+    if (!error.response) return "Không kết nối được máy chủ. Vui lòng kiểm tra mạng và thử lại.";
+  }
+  return fallback;
+}
+
 export function DailyRewardModal({
   isOpen,
   onClose,
   onRewardClaimed,
 }: DailyRewardModalProps) {
   const { user, updateCoins } = useAuth();
-  const [status, setStatus] = useState<DailyRewardStatus | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [isClaiming, setIsClaiming] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [claimError, setClaimError] = useState<string | null>(null);
 
   const userId = user?.id;
+  const queryKey = [DAILY_REWARD_STATUS_KEY, userId];
+
+  // Mỗi lần mở bảng đều lấy trạng thái mới (staleTime 0); lỗi chỉ hiện trong thân bảng
+  const statusQuery = useQuery({
+    queryKey,
+    queryFn: getDailyRewardStatus,
+    enabled: isOpen && Boolean(userId),
+    staleTime: 0,
+    refetchOnMount: "always",
+  });
+
+  const status = statusQuery.data ?? null;
+  const serverCoins = status?.userCoins;
 
   useEffect(() => {
-    if (!isOpen) return;
-    if (!userId) {
-      setIsLoading(false);
-      return;
-    }
-
-    let isMounted = true;
-    async function loadStatus() {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const data = await getDailyRewardStatus();
-        if (isMounted) {
-          setStatus(data);
-          if (data.userCoins !== undefined) {
-            updateCoins(data.userCoins);
-          }
-        }
-      } catch (err: unknown) {
-        if (isMounted) {
-          const msg = err instanceof Error ? err.message : "Không thể tải trạng thái nhận xu";
-          setError(msg);
-        }
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
-    }
-
-    void loadStatus();
-
-    return () => {
-      isMounted = false;
-    };
+    if (serverCoins !== undefined) updateCoins(serverCoins);
+    // updateCoins từ context không ổn định tham chiếu, chỉ đồng bộ khi số xu đổi
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, userId]);
+  }, [serverCoins]);
 
+  // Đóng bảng thì xoá lỗi nhận xu cũ (điều chỉnh state ngay khi render, không dùng effect)
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (prevIsOpen !== isOpen) {
+    setPrevIsOpen(isOpen);
+    if (!isOpen) setClaimError(null);
+  }
 
   if (!isOpen) return null;
 
@@ -71,33 +74,34 @@ export function DailyRewardModal({
     if (isClaiming || !status || status.hasClaimedToday || !status.enabled) return;
 
     setIsClaiming(true);
-    setError(null);
+    setClaimError(null);
 
     try {
       const res = await claimDailyReward();
       updateCoins(res.userCoins);
 
-      // Cập nhật lại status state
-      setStatus((prev) => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          hasClaimedToday: true,
-          userCoins: res.userCoins,
-          claimedDays: [...prev.claimedDays, res.dayIndex],
-        };
-      });
+      queryClient.setQueryData<DailyRewardStatus>(queryKey, (prev) =>
+        prev
+          ? {
+              ...prev,
+              hasClaimedToday: true,
+              userCoins: res.userCoins,
+              claimedDays: [...prev.claimedDays, res.dayIndex],
+            }
+          : prev,
+      );
 
-      if (onRewardClaimed) {
-        onRewardClaimed(res.coinsEarned, res.userCoins);
-      }
+      onRewardClaimed?.(res.coinsEarned, res.userCoins);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Không thể nhận xu lúc này.";
-      setError(msg);
+      setClaimError(getErrorMessage(err, "Không thể nhận xu lúc này. Vui lòng thử lại."));
+      // Đồng bộ lại (vd: đã nhận ở tab khác) mà không xoá bảng đang hiển thị
+      void statusQuery.refetch();
     } finally {
       setIsClaiming(false);
     }
   }
+
+  const statusFailed = statusQuery.isError && !status;
 
   return (
     <div
@@ -124,9 +128,6 @@ export function DailyRewardModal({
           <h2 className="daily-reward-modal__title">ĐĂNG NHẬP NHẬN XU HÀNG NGÀY</h2>
         </div>
 
-        {/* THÔNG BÁO LỖI (NẾU CÓ) */}
-        {error && <div className="daily-reward-modal__error">{error}</div>}
-
         {!user ? (
           <div className="daily-reward-modal__disabled-box">
             <span className="daily-reward-modal__lock-icon">🔒</span>
@@ -146,13 +147,38 @@ export function DailyRewardModal({
               ĐĂNG NHẬP NGAY
             </Link>
           </div>
-        ) : isLoading ? (
-          <div className="daily-reward-modal__loading">
-            <span className="daily-reward-modal__spinner" />
-            <p>Đang tải thông tin kho báu...</p>
-          </div>
+        ) : statusFailed ? (
+          <ErrorState
+            compact
+            title="Không tải được bảng điểm danh"
+            message={getErrorMessage(statusQuery.error, "Đã xảy ra sự cố khi tải dữ liệu điểm danh.")}
+            isRetrying={statusQuery.isFetching}
+            onRetry={() => void statusQuery.refetch()}
+          />
         ) : !status ? (
-          <div className="daily-reward-modal__error">Không thể tải dữ liệu điểm danh.</div>
+          // Đang tải: giữ nguyên khung 7 ngày bằng skeleton
+          <div className="daily-reward-grid" aria-busy="true" aria-label="Đang tải thông tin kho báu">
+            {SKELETON_DAYS.map((dayNum) => (
+              <div
+                key={dayNum}
+                className={`daily-reward-card daily-reward-card--locked daily-reward-card--skeleton${dayNum === 7 ? " daily-reward-card--big" : ""}`}
+                aria-hidden="true"
+              >
+                <div className="daily-reward-card__head">
+                  <span className="daily-reward-card__day">
+                    {dayNum === 7 ? "NGÀY 7 ★" : `NGÀY ${dayNum}`}
+                  </span>
+                </div>
+                <div className="daily-reward-card__coin-box">
+                  <span className="daily-reward-card__coin-icon">
+                    {dayNum === 7 ? "👑" : <CoinIcon />}
+                  </span>
+                  <span className="daily-reward-card__amount">…</span>
+                  <span className="daily-reward-card__unit">XU</span>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : !status.enabled ? (
           <div className="daily-reward-modal__disabled-box">
             <span className="daily-reward-modal__lock-icon">🔒</span>
@@ -217,6 +243,11 @@ export function DailyRewardModal({
 
             {/* PHẦN CHÂN MODAL & NÚT NHẬN */}
             <div className="daily-reward-modal__footer">
+              {claimError && (
+                <div className="daily-reward-modal__error" role="alert">
+                  {claimError}
+                </div>
+              )}
               <div className="daily-reward-modal__action-wrap">
                 {status.hasClaimedToday ? (
                   <button
@@ -238,7 +269,9 @@ export function DailyRewardModal({
                     <span className="daily-reward-modal__btn-text">
                       {isClaiming
                         ? "Đang nhận..."
-                        : `Nhận +${status.todayReward} xu`}
+                        : claimError
+                          ? `Thử nhận lại +${status.todayReward} xu`
+                          : `Nhận +${status.todayReward} xu`}
                     </span>
                   </button>
                 )}

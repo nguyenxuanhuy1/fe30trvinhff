@@ -162,9 +162,9 @@ function FriendsPage() {
   const hasOverviewData = overview !== undefined;
   const isInitialLoading = !hasOverviewData && (isAuthLoading || (isLoading && Boolean(user)));
 
-  if (overviewQuery.isError && user) {
-    return <ErrorState error={overviewQuery.error} onRetry={() => overviewQuery.refetch()} />;
-  }
+  // Lỗi chỉ hiển thị tại các ô dữ liệu bị ảnh hưởng, header/tìm kiếm vẫn dùng được.
+  const overviewFailed = overviewQuery.isError && !hasOverviewData && Boolean(user);
+  const retryOverview = () => void overviewQuery.refetch();
 
   if (!user && !isAuthLoading) return null;
 
@@ -221,7 +221,15 @@ function FriendsPage() {
                 </div>
               </div>
 
-              {isInitialLoading ? (
+              {overviewFailed ? (
+                <ErrorState
+                  compact
+                  error={overviewQuery.error}
+                  message="Không tải được lời mời."
+                  isRetrying={overviewQuery.isFetching}
+                  onRetry={retryOverview}
+                />
+              ) : isInitialLoading ? (
                 <div className="friends-floating-bar__empty">
                   Đang tải lời mời...
                 </div>
@@ -304,7 +312,14 @@ function FriendsPage() {
           </aside>
 
           <section className="friends-col-right">
-            {isInitialLoading ? (
+            {overviewFailed ? (
+              <ErrorState
+                error={overviewQuery.error}
+                message="Không tải được thông tin nhóm."
+                isRetrying={overviewQuery.isFetching}
+                onRetry={retryOverview}
+              />
+            ) : isInitialLoading ? (
               <div style={{ padding: "12px 0" }}>
                 <FriendsOverviewSkeleton />
               </div>

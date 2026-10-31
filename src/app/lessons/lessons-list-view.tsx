@@ -64,10 +64,11 @@ function LessonsListView() {
         <ul className="levels-page__grid">
           <GameCardSkeleton count={4} variant="image-card" />
         </ul>
-      ) : roomsQuery.isError ? (
+      ) : roomsQuery.isError && rooms.length === 0 ? (
         <ErrorState
           error={roomsQuery.error}
           message="Không thể tải danh sách cấp độ học."
+          isRetrying={roomsQuery.isFetching}
           onRetry={() => void roomsQuery.refetch()}
         />
       ) : rooms.length === 0 ? (

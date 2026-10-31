@@ -12,7 +12,7 @@ function GlobalError({ error, reset }: GlobalErrorProps) {
   return (
     <html lang="vi">
       <body>
-        <ErrorState error={error} onRetry={reset} />
+        <ErrorState error={error} onRetry={reset} fullScreen />
       </body>
     </html>
   );

@@ -293,6 +293,17 @@ $ink: #241710;
   }
 }
 
+// Skeleton giữ khung 7 ngày khi đang tải
+.daily-reward-card--skeleton {
+  pointer-events: none;
+  animation: dailySkeletonPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes dailySkeletonPulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.9; }
+}
+
 @keyframes dailySpin {
   to { transform: rotate(360deg); }
 }

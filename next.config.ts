@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
-import { BACKEND_ORIGIN } from "./src/config/env";
+import { env } from "./src/config/env";
+
+const site = new URL(env.siteUrl);
 
 const nextConfig: NextConfig = {
   turbopack: {
@@ -18,12 +20,9 @@ const nextConfig: NextConfig = {
         hostname: "**",
       },
       {
-        protocol: "http",
-        hostname: "127.0.0.1",
-      },
-      {
-        protocol: "http",
-        hostname: "localhost",
+        // Ảnh do chính domain phục vụ (dev chạy http://localhost cũng khớp)
+        protocol: site.protocol.replace(":", "") as "http" | "https",
+        hostname: site.hostname,
       },
     ],
   },
@@ -137,14 +136,6 @@ const nextConfig: NextConfig = {
         source: "/lesson/:path*",
         destination: "/lessons/:path*",
         permanent: true,
-      },
-    ];
-  },
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${BACKEND_ORIGIN}/api/:path*`,
       },
     ];
   },

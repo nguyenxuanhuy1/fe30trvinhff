@@ -1,15 +1,30 @@
-const isServer = typeof window === "undefined";
+/**
+ * Nguồn cấu hình duy nhất của frontend. Chỉ đọc đúng một biến môi trường:
+ *
+ *   NEXT_PUBLIC_SITE_URL = domain của site, vd https://steamaze.vn
+ *
+ * Mọi thứ khác suy ra từ domain này, API luôn nằm ở <domain>/api
+ * (vd https://steamaze.vn/api/auth/me). Không có giá trị dự phòng: thiếu biến
+ * thì báo lỗi ngay khi build/khởi động thay vì âm thầm chạy với địa chỉ sai.
+ *
+ * Phải viết process.env.NEXT_PUBLIC_SITE_URL nguyên văn để Next thay giá trị
+ * vào bundle phía trình duyệt lúc build.
+ */
+const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 
-// Backend luôn chạy cùng máy, chỉ nghe trên 127.0.0.1
-const BACKEND_ORIGIN = "http://127.0.0.1:8080";
+if (!rawSiteUrl) {
+  throw new Error(
+    "[env] Thiếu NEXT_PUBLIC_SITE_URL (domain của site, vd https://steamaze.vn). Khai báo trong file .env trước khi chạy/build.",
+  );
+}
 
-const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const siteUrl = rawSiteUrl.replace(/\/+$/, "");
+const apiUrl = `${siteUrl}/api`;
 
 const env = {
-  // Server gọi thẳng backend, trình duyệt gọi qua proxy /api của Next
-  apiUrl: isServer ? `${BACKEND_ORIGIN}/api` : "/api",
   appName: "STEAMaze",
-  siteUrl: rawSiteUrl.replace(/\/+$/, ""),
+  siteUrl,
+  apiUrl,
 } as const;
 
-export { env, BACKEND_ORIGIN };
+export { env };

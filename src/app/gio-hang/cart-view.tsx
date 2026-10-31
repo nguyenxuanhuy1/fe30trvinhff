@@ -174,13 +174,12 @@ export function CartView() {
           <div className="cart-grid">
             <GameCardSkeleton count={8} variant="shop" />
           </div>
-        ) : itemsQuery.isError ? (
+        ) : itemsQuery.isError && items.length === 0 ? (
           <ErrorState
             error={itemsQuery.error}
-            onRetry={() => {
-              itemsQuery.refetch();
-              if (user) ordersQuery.refetch();
-            }}
+            message="Không tải được danh sách vật phẩm."
+            isRetrying={itemsQuery.isFetching}
+            onRetry={() => void itemsQuery.refetch()}
           />
         ) : items.length === 0 ? (
           <EmptyState

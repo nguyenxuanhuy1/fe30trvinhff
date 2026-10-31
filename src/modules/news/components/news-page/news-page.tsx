@@ -33,6 +33,7 @@ function NewsPage({ articles }: NewsPageProps) {
     data: articleList = [],
     isLoading,
     isError,
+    isFetching,
     error,
     refetch,
   } = useQuery({
@@ -99,14 +100,17 @@ function NewsPage({ articles }: NewsPageProps) {
     setSelectedArticle(null);
   };
 
-  if (isError) {
-    return <ErrorState error={error} onRetry={() => refetch()} />;
-  }
-
   return (
     <div className="newspaper-page">
       <div className="newspaper-page__container">
-        {isLoading && articleList.length === 0 ? (
+        {isError && articleList.length === 0 ? (
+          <ErrorState
+            error={error}
+            message="Không tải được danh sách bài viết."
+            isRetrying={isFetching}
+            onRetry={() => void refetch()}
+          />
+        ) : isLoading && articleList.length === 0 ? (
           <NewsPageSkeleton />
         ) : articleList.length === 0 ? (
           <EmptyState

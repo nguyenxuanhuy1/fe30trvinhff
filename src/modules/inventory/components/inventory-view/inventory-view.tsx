@@ -565,17 +565,11 @@ function InventoryView({
     return <LoadingState />;
   }
 
-  if (catalogQuery.isError || inventoryQuery.isError) {
-    return (
-      <ErrorState
-        error={catalogQuery.error || inventoryQuery.error}
-        onRetry={() => {
-          catalogQuery.refetch();
-          inventoryQuery.refetch();
-        }}
-      />
-    );
-  }
+  // Lỗi chỉ hiển thị trong khung tủ đồ, header/camera vẫn giữ nguyên
+  const catalogFailed = catalogQuery.isError && items.length === 0;
+  const inventoryFailed =
+    Boolean(user) && inventoryQuery.isError && !inventoryQuery.inventory;
+  const itemsLoadFailed = catalogFailed || inventoryFailed;
 
   if (!user) {
     return (
@@ -815,7 +809,22 @@ function InventoryView({
               );
             })}
 
-          {ownedItems.length === 0 && (
+          {itemsLoadFailed && (
+            <div className="inventory-retro__load-error">
+              <ErrorState
+                compact
+                error={catalogQuery.error || inventoryQuery.error}
+                message="Không tải được tủ đồ."
+                isRetrying={catalogQuery.isFetching || inventoryQuery.isFetching}
+                onRetry={() => {
+                  if (catalogFailed) void catalogQuery.refetch();
+                  if (inventoryFailed) void inventoryQuery.refetch();
+                }}
+              />
+            </div>
+          )}
+
+          {!itemsLoadFailed && ownedItems.length === 0 && (
             <div className="inventory-retro__empty" role="status">
               <span className="inventory-retro__empty-text">
                 🎒 Tủ đồ của bạn đang trống
