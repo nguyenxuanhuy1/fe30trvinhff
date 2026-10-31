@@ -40,8 +40,10 @@ const PASS_THRESHOLD = 70; // Yêu cầu trên 70% (> 70%)
 
 function parseScorePercentage(data: unknown): number {
   if (!data || typeof data !== "object") return 100;
-  const d = data as Record<string, any>;
-  const res = d.result && typeof d.result === "object" ? d.result : {};
+  const d = data as Record<string, unknown>;
+  const res = d.result && typeof d.result === "object" ? (d.result as Record<string, unknown>) : {};
+  const dDetails = d.details && typeof d.details === "object" ? (d.details as Record<string, unknown>) : undefined;
+  const resDetails = res.details && typeof res.details === "object" ? (res.details as Record<string, unknown>) : undefined;
 
   // 1. Kiểm tra trường tỷ lệ / phần trăm / độ chính xác trực tiếp
   const pct =
@@ -53,8 +55,8 @@ function parseScorePercentage(data: unknown): number {
     res.scorePercentage ??
     res.accuracy ??
     res.accuracyPct ??
-    d.details?.accuracyPct ??
-    res.details?.accuracyPct ??
+    dDetails?.accuracyPct ??
+    resDetails?.accuracyPct ??
     d.completedRatio ??
     res.completedRatio;
 
@@ -145,6 +147,14 @@ function LessonCompleteBridge({
   }, []);
 
   const activeEquipped = storeEquipped.length > 0 ? storeEquipped : localEquipped;
+  const [catalogData, setCatalogData] = useState<Record<string, unknown> | null>(null);
+
+  useEffect(() => {
+    fetch("/items/catalog.json")
+      .then((res) => (res.ok ? res.json() : {}))
+      .then((data) => setCatalogData(data))
+      .catch(() => {});
+  }, []);
 
   const sendInitToFrame = useCallback(() => {
     if (!frameRef.current?.contentWindow) return;
@@ -155,13 +165,18 @@ function LessonCompleteBridge({
       window.localStorage.getItem("inventory_camera_mode") !== "off";
     try {
       frameRef.current.contentWindow.postMessage(
-        { type: "INIT", equipped: finalEquipped, camera: isCamOn },
+        {
+          type: "INIT",
+          equipped: finalEquipped,
+          camera: isCamOn,
+          catalog: catalogData,
+        },
         "*",
       );
     } catch (e) {
       console.warn("[LessonCompleteBridge] postMessage INIT error:", e);
     }
-  }, [activeEquipped]);
+  }, [activeEquipped, catalogData]);
 
   const { updateCoins } = useAuth();
 
@@ -279,16 +294,21 @@ function LessonCompleteBridge({
 
   const processedHtml = useMemo(() => {
     if (!html || html.trim().length === 0) return html;
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const baseTag = origin ? `<base href="${origin}/">` : "";
     const fullscreenOverride = `
 <style id="lab-sdk-fullscreen-override">
   html, body { width: 100% !important; height: 100% !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important; }
   #stage, .stage { width: 100% !important; height: 100% !important; max-width: none !important; }
 </style>
 `;
-    if (html.includes("</head>")) {
-      return html.replace("</head>", `${fullscreenOverride}</head>`);
+    if (html.includes("<head>")) {
+      return html.replace("<head>", `<head>${baseTag}`).replace("</head>", `${fullscreenOverride}</head>`);
     }
-    return `${fullscreenOverride}${html}`;
+    if (html.includes("</head>")) {
+      return html.replace("</head>", `${baseTag}${fullscreenOverride}</head>`);
+    }
+    return `${baseTag}${fullscreenOverride}${html}`;
   }, [html]);
 
   if (html.trim().length === 0) {
@@ -308,7 +328,7 @@ function LessonCompleteBridge({
         srcDoc={processedHtml}
         onLoad={sendInitToFrame}
         style={completion !== null ? { pointerEvents: "none" } : undefined}
-        // Cấp quyền camera và microphone cho các bài học cần hand tracking
+        // Cho phép script, cùng origin để tải đồ/MediaPipe/Camera
         sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"
         allow="camera; microphone; fullscreen"
       />

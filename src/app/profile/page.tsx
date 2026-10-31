@@ -1,6 +1,4 @@
-import Link from "next/link";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { getMe } from "@/modules/auth/services/auth.service";
 import type { User } from "@/modules/auth/types";
 import { ProfileView } from "./profile-view";

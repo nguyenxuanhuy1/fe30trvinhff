@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdminSession } from "@/modules/auth/server/admin-session";
 import { AdminView } from "./admin-view";

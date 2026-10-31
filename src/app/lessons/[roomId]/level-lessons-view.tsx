@@ -74,7 +74,6 @@ export function LevelLessonsView({ roomId }: LevelLessonsViewProps) {
     queryFn: () => getLessons(roomId),
   });
 
-  const room = roomQuery.data;
   const lessons = lessonsQuery.data ?? [];
   const isLoading = roomQuery.isLoading || lessonsQuery.isLoading;
 
@@ -129,7 +128,7 @@ export function LevelLessonsView({ roomId }: LevelLessonsViewProps) {
           </div>
         </div>
 
-        {(lessonsQuery.isLoading || roomQuery.isLoading) && lessons.length === 0 ? (
+        {isLoading && lessons.length === 0 ? (
           <ul className="level-lessons__grid">
             <GameCardSkeleton count={6} variant="lesson" />
           </ul>

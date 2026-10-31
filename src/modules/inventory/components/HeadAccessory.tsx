@@ -11,10 +11,12 @@ Những chỗ đã đổi:
 5. Kiểm tra pose.isVisible, nếu mất mặt hoặc sát mép thì tự ẩn canvas (clearRect).
 */
 
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useHeadTracking, Pose } from "../hooks/useHeadTracking";
 import { ACCESSORIES, AccessoryConfig } from "../config/accessories";
 import { getCroppedItem } from "../utils/crop-item";
+
+type CustomOverrides = Partial<AccessoryConfig>;
 
 const cropImage = async (src: string): Promise<string> => {
   const result = await getCroppedItem(src);
@@ -27,7 +29,7 @@ type RenderProps = {
   ox: number; oy: number;
 };
 
-function placeHat(pose: Pose, cfg: AccessoryConfig, customOverrides: any): RenderProps {
+function placeHat(pose: Pose, cfg: AccessoryConfig, customOverrides: CustomOverrides): RenderProps {
   const { p10, up, faceHeight, headWidth, rollHead } = pose;
   const hairLift = customOverrides.hairLift ?? cfg.hairLift ?? 0.12;
   const scale = customOverrides.scale ?? cfg.scale ?? 1.3;
@@ -43,7 +45,7 @@ function placeHat(pose: Pose, cfg: AccessoryConfig, customOverrides: any): Rende
   return { cx: anchor.x + offsetX * headWidth, cy: anchor.y, w, h: 0, rot: rollHead, sx: 1, sy: 1, ox: 0.5, oy: 1 };
 }
 
-function placeGlasses(pose: Pose, cfg: AccessoryConfig, customOverrides: any): RenderProps {
+function placeGlasses(pose: Pose, cfg: AccessoryConfig, customOverrides: CustomOverrides): RenderProps {
   const { eyeMid, up, right, eyeDist, rollEyes, yawSqueeze } = pose;
   const scale = customOverrides.scale ?? cfg.scale ?? 1.6;
   const offsetX = customOverrides.offsetX ?? cfg.offsetX ?? 0;
@@ -58,7 +60,7 @@ function placeGlasses(pose: Pose, cfg: AccessoryConfig, customOverrides: any): R
   return { cx: center.x, cy: center.y, w, h: 0, rot: rollEyes, sx: yawSqueeze, sy: 1, ox: 0.5, oy: 0.5 };
 }
 
-function placeMask(pose: Pose, cfg: AccessoryConfig, customOverrides: any, cw: number, ch: number): RenderProps {
+function placeMask(pose: Pose, cfg: AccessoryConfig, customOverrides: CustomOverrides, cw: number, ch: number): RenderProps {
   const { p10, p152, up, right, headWidth, faceHeight, rollHead, yawSqueeze } = pose;
   const scaleX = customOverrides.scaleX ?? cfg.scaleX ?? 1.05;
   const scaleY = customOverrides.scaleY ?? cfg.scaleY ?? 1.2;
@@ -199,7 +201,7 @@ export function HeadAccessory({
 
   const [croppedSrc, setCroppedSrc] = useState<string>("");
   const [loaded, setLoaded] = useState(false);
-  const [customCfg, setCustomCfg] = useState<any>({});
+  const [customCfg, setCustomCfg] = useState<CustomOverrides>({});
   const [isDebug, setIsDebug] = useState(false);
 
   useEffect(() => {
@@ -207,7 +209,7 @@ export function HeadAccessory({
   }, []);
 
   const baseCfg = ACCESSORIES[accessoryId] || { type: 'hat', scale: 1.3, hairLift: 0.12 };
-  const ext = (baseCfg as any).ext || "webp";
+  const ext = baseCfg.ext || "webp";
   let loadId = accessoryId;
   if (loadId === 'chuotuser' || loadId === 'chuotuser-hole') {
     loadId = 'chuotuser'; // The file is actually just chuotuser.webp

@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { BACKEND_ORIGIN } from "./src/config/env";
 
 const nextConfig: NextConfig = {
   turbopack: {
@@ -36,6 +37,10 @@ const nextConfig: NextConfig = {
             key: "Cache-Control",
             value: "public, max-age=31536000, immutable",
           },
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*",
+          },
         ],
       },
       {
@@ -46,6 +51,10 @@ const nextConfig: NextConfig = {
           {
             key: "Cache-Control",
             value: "no-cache, must-revalidate",
+          },
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*",
           },
         ],
       },
@@ -132,11 +141,10 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    const backendUrl = process.env.BACKEND_URL || "http://127.0.0.1:8080";
     return [
       {
         source: "/api/:path*",
-        destination: `${backendUrl}/api/:path*`,
+        destination: `${BACKEND_ORIGIN}/api/:path*`,
       },
     ];
   },

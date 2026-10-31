@@ -1,7 +1,7 @@
 "use client";
 
 import { Tag } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useEquip } from "../../hooks/use-equip";
 import { anchorLabels, inventoryPage, inventoryView, slotLabels } from "../../inventory.const";
 import type { CatalogItem } from "../../types";
@@ -13,9 +13,6 @@ interface ItemGridProps {
   equipped: string[];
   onError: (text: string) => void;
 }
-
-// Lọc theo trạng thái: null = tất cả, true = đang mặc, false = chưa mặc
-type Filter = "all" | "equipped" | "notEquipped";
 
 function ItemGrid({ items, owned, equipped, onError }: ItemGridProps) {
   const { equip, unequip, isEquipping, isUnequipping } = useEquip(items);

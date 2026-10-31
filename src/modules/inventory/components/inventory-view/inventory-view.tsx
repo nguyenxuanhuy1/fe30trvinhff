@@ -10,7 +10,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/modules/auth";
 import { useRetroEquipStore } from "@/stores/retro-equip-store";
 import { Modal, Slider } from "antd";
-import Cropper from "react-easy-crop";
+import Cropper, { type Area } from "react-easy-crop";
 import { HeadAccessory } from "../HeadAccessory";
 import { StaticSvgAccessory } from "../static-svg-accessory";
 import { preloadFaceLandmarker } from "../../hooks/useHeadTracking";
@@ -86,7 +86,7 @@ function InventoryView({
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -428,7 +428,7 @@ function InventoryView({
     }
   };
 
-  const onCropComplete = useCallback((_croppedArea: any, croppedAreaPixels: any) => {
+  const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
@@ -809,7 +809,6 @@ function InventoryView({
                   accessoryId={item.id}
                   containerRef={wrapperRef}
                   videoRef={videoRef}
-                  // @ts-ignore
                   isCameraOn={isCameraOn}
                   uploadedImage={uploadedImage}
                 />

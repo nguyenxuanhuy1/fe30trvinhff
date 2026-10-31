@@ -11,7 +11,6 @@ import {
   getMyOrders,
   purchaseShopItem,
   type ShopItem,
-  type ShopOrder,
 } from "@/modules/shop";
 import { toast } from "@/components/ui/game-toast";
 import { CoinIcon } from "@/components/ui/coin-icon";

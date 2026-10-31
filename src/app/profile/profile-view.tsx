@@ -8,7 +8,7 @@ import type { User, UserGroupInfo } from "@/modules/auth/types";
 import { getMyOrders, type ShopOrder } from "@/modules/shop";
 import { getMyGroup } from "@/modules/friends";
 import { useAuth } from "@/modules/auth";
-import { getInventory, useCatalog, type Inventory } from "@/modules/inventory";
+import { getInventory, useCatalog } from "@/modules/inventory";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui";
 import { CoinIcon } from "@/components/ui/coin-icon";
 import { AvatarEditor } from "./avatar-editor/avatar-editor";
@@ -16,7 +16,6 @@ import {
   InboxOutlined,
   ShoppingOutlined,
   SkinOutlined,
-  TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 

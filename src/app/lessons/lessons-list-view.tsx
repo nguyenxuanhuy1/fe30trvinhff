@@ -2,11 +2,10 @@
 
 import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import { getRooms } from "@/modules/lessons";
 import { ImageCard } from "@/modules/lessons/components/image-card/ImageCard";
 import { useInventory, useItemPreload } from "@/modules/inventory";
-import { EmptyState, ErrorState, GameButton, GameCardSkeleton } from "@/components/ui";
+import { EmptyState, ErrorState, GameCardSkeleton } from "@/components/ui";
 import { LessonsBackButton } from "./components/lessons-back-button/lessons-back-button";
 import { LessonsTopHud } from "./components/lessons-top-hud/lessons-top-hud";
 import { LessonsBottomDock } from "./components/lessons-bottom-dock/lessons-bottom-dock";

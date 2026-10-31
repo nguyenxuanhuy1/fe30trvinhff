@@ -1,28 +1,54 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+function isValidCredential(val: string | undefined | null): boolean {
+  if (!val || typeof val !== "string") return false;
+  const trimmed = val.trim();
+  if (
+    trimmed === "" ||
+    trimmed === "undefined" ||
+    trimmed === "null" ||
+    trimmed === "[object Object]"
+  ) {
+    return false;
+  }
+  return true;
+}
+
 function hasAuthCredentials(request: NextRequest): boolean {
   // 1. Kiểm tra qua NextRequest cookie jar
-  if (
-    request.cookies.get("token")?.value ||
-    request.cookies.get("refreshToken")?.value ||
-    request.cookies.get("user")?.value
-  ) {
+  const token = request.cookies.get("token")?.value;
+  const refreshToken = request.cookies.get("refreshToken")?.value;
+  const user = request.cookies.get("user")?.value;
+
+  if (isValidCredential(token) || isValidCredential(refreshToken) || isValidCredential(user)) {
     return true;
   }
 
   // 2. Fallback kiểm tra chuỗi header Cookie thô (phòng trường hợp Edge runtime phân tách cookie bị sót sau proxy/load balancer)
   const cookieHeader = request.headers.get("cookie");
   if (cookieHeader) {
-    if (/(?:^|;\s*)(?:token|refreshToken|user)=([^;]+)/.test(cookieHeader)) {
-      return true;
+    const match = cookieHeader.match(/(?:^|;\s*)(?:token|refreshToken|user)=([^;]+)/);
+    if (match) {
+      try {
+        if (isValidCredential(decodeURIComponent(match[1]))) {
+          return true;
+        }
+      } catch {
+        if (isValidCredential(match[1])) {
+          return true;
+        }
+      }
     }
   }
 
   // 3. Authorization header
   const authHeader = request.headers.get("authorization");
   if (authHeader && authHeader.startsWith("Bearer ")) {
-    return true;
+    const bearer = authHeader.slice(7).trim();
+    if (isValidCredential(bearer)) {
+      return true;
+    }
   }
 
   return false;

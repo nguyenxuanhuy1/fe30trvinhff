@@ -1,15 +1,15 @@
 const isServer = typeof window === "undefined";
 
+// Backend luôn chạy cùng máy, chỉ nghe trên 127.0.0.1
+const BACKEND_ORIGIN = "http://127.0.0.1:8080";
+
 const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-const rawBackendUrl = process.env.BACKEND_URL || "http://127.0.0.1:8080";
 
 const env = {
-  apiUrl: isServer
-    ? `${(process.env.BACKEND_URL || rawSiteUrl).replace(/\/+$/, "")}/api`
-    : (process.env.NEXT_PUBLIC_API_URL || "/api"),
-  appName: process.env.NEXT_PUBLIC_APP_NAME || "Frontend App",
+  // Server gọi thẳng backend, trình duyệt gọi qua proxy /api của Next
+  apiUrl: isServer ? `${BACKEND_ORIGIN}/api` : "/api",
+  appName: "STEAMaze",
   siteUrl: rawSiteUrl.replace(/\/+$/, ""),
 } as const;
 
-export { env };
-
+export { env, BACKEND_ORIGIN };

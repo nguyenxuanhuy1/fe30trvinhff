@@ -296,7 +296,7 @@
       .filter(Boolean);
   }
 
-  function init(ids) {
+  function init(ids, directCatalog) {
     if (state.ready || state.failed) {
       return;
     }
@@ -304,16 +304,29 @@
     var ui = ensureOverlay();
     ui.setProgress(5, "Đang tải danh mục đồ");
 
-    window
-      .fetch(CATALOG_URL, { cache: "no-cache" })
-      .then(function (res) {
-        if (!res.ok) {
-          throw new Error("HTTP " + res.status);
-        }
-        return res.json();
-      })
+    var catalogPromise;
+    if (directCatalog && typeof directCatalog === "object" && Object.keys(directCatalog).length > 0) {
+      catalogPromise = Promise.resolve(directCatalog);
+    } else if (state.catalog && typeof state.catalog === "object" && Object.keys(state.catalog).length > 0) {
+      catalogPromise = Promise.resolve(state.catalog);
+    } else {
+      catalogPromise = window
+        .fetch(CATALOG_URL, { cache: "no-cache" })
+        .then(function (res) {
+          if (!res.ok) {
+            throw new Error("HTTP " + res.status);
+          }
+          return res.json();
+        })
+        .catch(function (fetchErr) {
+          console.warn("[LabSDK] Không tải được catalog qua mạng, dùng cấu hình mặc định:", fetchErr);
+          return state.catalog || {};
+        });
+    }
+
+    catalogPromise
       .then(function (catalog) {
-        var items = buildEquipped(Array.isArray(ids) ? ids : [], catalog);
+        var items = buildEquipped(Array.isArray(ids) ? ids : [], catalog || {});
         state.equipped = items;
 
         if (items.length === 0) {
@@ -340,12 +353,20 @@
         }
       })
       .catch(function (err) {
-        console.error("[LabSDK] chuẩn bị đồ thất bại", err);
-        ensureOverlay().fail(
-          "Không tải được danh mục đồ (" +
-            (err && err.message ? err.message : "lỗi mạng") +
-            "). Bạn có thể thử tải lại trang.",
-        );
+        console.error("[LabSDK] chuẩn bị đồ gặp lỗi, tự động bỏ qua để vào game:", err);
+        if (overlay) {
+          overlay.close();
+        }
+        state.ready = true;
+
+        var callbacks = state.readyCallbacks.splice(0, state.readyCallbacks.length);
+        for (var i = 0; i < callbacks.length; i += 1) {
+          try {
+            callbacks[i](state.equipped || []);
+          } catch (cbErr) {
+            console.error("[LabSDK] onReady callback lỗi", cbErr);
+          }
+        }
       });
   }
 
@@ -377,6 +398,10 @@
 
     clearTimeout(autoInitTimer);
 
+    if (data.catalog && typeof data.catalog === "object") {
+      state.catalog = data.catalog;
+    }
+
     var ids = data.equipped;
     if (!Array.isArray(ids) || ids.length === 0) {
       try {
@@ -397,7 +422,7 @@
       state.avatarUrl = data.avatarUrl;
     }
 
-    init(ids);
+    init(ids, data.catalog);
   });
 
   // ------------------------------------------------------------ vẽ đồ lên mặt/tay

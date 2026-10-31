@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { FaceLandmarker } from "@mediapipe/tasks-vision";
 
 export type Point = { x: number; y: number };
 
@@ -26,8 +27,8 @@ export type Pose = {
 };
 
 // --- SINGLETON STATE ---
-let landmarkerPromise: Promise<any> | null = null;
-let landmarkerInstance: any = null;
+let landmarkerPromise: Promise<FaceLandmarker | null> | null = null;
+let landmarkerInstance: FaceLandmarker | null = null;
 let activeTrackers = 0;
 let loopId: number | null = null;
 let isModelLoaded = false;
@@ -78,7 +79,7 @@ const FACE_OVAL = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 39
 let lastVideoTime = -1;
 let lastFaceTime = 0;
 
-export function preloadFaceLandmarker(): Promise<any> | null {
+export function preloadFaceLandmarker(): Promise<FaceLandmarker | null> | null {
   if (typeof window === "undefined") return null;
 
   if (!landmarkerPromise) {
@@ -177,7 +178,7 @@ export function useHeadTracking(
           if (document.visibilityState !== "visible") return;
 
           const video = videoRef.current;
-          if (!video || video.readyState < 2) return;
+          if (!video || video.readyState < 2 || !landmarkerInstance) return;
 
           if (video.currentTime !== lastVideoTime) {
             lastVideoTime = video.currentTime;

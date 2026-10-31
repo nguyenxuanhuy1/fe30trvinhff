@@ -22,11 +22,10 @@ import {
   REFRESH_TOKEN_COOKIE,
   USER_COOKIE,
   LOCAL_STORAGE_TOKEN,
-  LOCAL_STORAGE_REFRESH,
   LOCAL_STORAGE_USER,
+  sanitizeToken,
   getCookie,
   setCookie,
-  deleteCookie,
   clearAuthCookies as clearAllAuthCookies,
 } from "@/lib/api/client";
 
@@ -48,8 +47,9 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 function getInitialUser(): User | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_USER) || getCookie(USER_COOKIE);
-    return raw ? JSON.parse(raw) : null;
+    const raw = sanitizeToken(localStorage.getItem(LOCAL_STORAGE_USER)) || sanitizeToken(getCookie(USER_COOKIE));
+    if (!raw) return null;
+    return JSON.parse(raw);
   } catch {
     return null;
   }
@@ -58,7 +58,7 @@ function getInitialUser(): User | null {
 function getInitialToken(): string | null {
   if (typeof window === "undefined") return null;
   try {
-    return getCookie(TOKEN_COOKIE) || localStorage.getItem(LOCAL_STORAGE_TOKEN) || null;
+    return sanitizeToken(getCookie(TOKEN_COOKIE)) || sanitizeToken(localStorage.getItem(LOCAL_STORAGE_TOKEN)) || null;
   } catch {
     return null;
   }
@@ -132,6 +132,20 @@ function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     void hydrateFromCookie();
+  }, []);
+
+  useEffect(() => {
+    function handleLogoutEvent() {
+      setToken(null);
+      setUser(null);
+      setIsLoading(false);
+    }
+    if (typeof window !== "undefined") {
+      window.addEventListener("auth:logout", handleLogoutEvent);
+      return () => {
+        window.removeEventListener("auth:logout", handleLogoutEvent);
+      };
+    }
   }, []);
 
   const login = useCallback(async (payload: LoginPayload) => {
