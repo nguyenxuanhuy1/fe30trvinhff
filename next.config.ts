@@ -14,11 +14,10 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
+    // Chỉ tối ưu ảnh của chính domain. Trước đây cho phép mọi domain https ("**"),
+    // ai cũng dùng được /_next/image của site làm máy tải + nén ảnh miễn phí từ bất kỳ đâu.
+    // Ảnh từ link ngoài (ảnh bìa bài viết, ảnh đại diện...) đều đã dùng `unoptimized`.
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**",
-      },
       {
         // Ảnh do chính domain phục vụ (dev chạy http://localhost cũng khớp)
         protocol: site.protocol.replace(":", "") as "http" | "https",
@@ -39,6 +38,33 @@ const nextConfig: NextConfig = {
           {
             key: "Access-Control-Allow-Origin",
             value: "*",
+          },
+        ],
+      },
+      {
+        // Ảnh đồ trang bị thực tế là .png (rule .webp ở trên không khớp nên trước đây
+        // trình duyệt phải hỏi lại máy chủ mỗi lần). Không dùng immutable vì ảnh có thể
+        // bị thay cùng tên: lưu 7 ngày, hết hạn vẫn dùng bản cũ trong lúc tải bản mới ngầm.
+        source: "/items/:itemId.png",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=604800, stale-while-revalidate=2592000",
+          },
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*",
+          },
+        ],
+      },
+      {
+        // Ảnh giao diện (ảnh nền, hoa văn, ảnh chuột...): trước đây max-age=0 nên mỗi lần
+        // vào trang đều hỏi lại máy chủ. Lưu 7 ngày, cập nhật ngầm khi có ảnh mới.
+        source: "/images/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=604800, stale-while-revalidate=2592000",
           },
         ],
       },
@@ -136,6 +162,14 @@ const nextConfig: NextConfig = {
         source: "/lesson/:path*",
         destination: "/lessons/:path*",
         permanent: true,
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "http://127.0.0.1:8080/api/:path*",
       },
     ];
   },

@@ -12,9 +12,9 @@ import { LessonsBottomDock } from "./components/lessons-bottom-dock/lessons-bott
 import "./lessons-list-view.scss";
 
 /**
- * Trang Lựa chọn Cấp độ học.
- * Hiển thị các cấp độ (Cấp 1, Cấp 2, Cấp 3...) do người dùng / admin thêm vào.
- * Khi bấm vào một cấp độ, chuyển router tới trang các bài học của cấp độ đó.
+ * Trang chọn phòng học.
+ * Hiển thị các phòng do admin tạo, tên phòng do admin tự đặt (không cố định theo lớp).
+ * Khi bấm vào một phòng, chuyển tới trang các bài học của phòng đó.
  */
 function LessonsListView() {
   const inventoryQuery = useInventory();
@@ -67,15 +67,15 @@ function LessonsListView() {
       ) : roomsQuery.isError && rooms.length === 0 ? (
         <ErrorState
           error={roomsQuery.error}
-          message="Không thể tải danh sách cấp độ học."
+          message="Không thể tải danh sách phòng học."
           isRetrying={roomsQuery.isFetching}
           onRetry={() => void roomsQuery.refetch()}
         />
       ) : rooms.length === 0 ? (
         <EmptyState
           icon="📚"
-          title="Chưa có cấp độ nào"
-          description="Hiện tại hệ thống chưa có cấp độ học nào được tạo. Quản trị viên có thể vào trang Quản trị để thêm các cấp độ mới."
+          title="Chưa có phòng học nào"
+          description="Hiện tại hệ thống chưa có phòng học nào. Quản trị viên có thể vào trang Quản trị để thêm phòng mới."
           actionText="Đi tới trang Quản trị"
           actionHref="/admin"
         />

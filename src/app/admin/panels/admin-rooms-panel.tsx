@@ -15,6 +15,12 @@ import {
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
+  MAX_UPLOAD_IMAGE_LABEL,
+  getErrorMessage,
+  isFormValidationError,
+  readImageFileAsDataUrl,
+} from "../admin.utils";
+import {
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
@@ -45,7 +51,7 @@ export function AdminRoomsPanel() {
     try {
       setRooms(await getRooms());
     } catch {
-      message.error("Không thể tải danh sách cấp độ phòng học.");
+      message.error("Không thể tải danh sách phòng học.");
     } finally {
       setIsLoading(false);
     }
@@ -56,16 +62,14 @@ export function AdminRoomsPanel() {
   }, []);
 
   const handleOpenCreateModal = () => {
-    if (rooms.length >= 4) {
-      message.warning("Hệ thống chỉ hỗ trợ tối đa 4 cấp độ (từ Lớp 6 đến Lớp 9).");
-      return;
-    }
+    // Tên phòng do admin tự đặt, không còn mặc định Lớp 6-9 và không giới hạn số phòng
     setEditingRoom(null);
     setImageUrl("");
     form.resetFields();
+    const nextOrder = rooms.reduce((max, r) => Math.max(max, r.order), 0) + 1;
     form.setFieldsValue({
-      name: `Lớp ${6 + rooms.length}`,
-      order: rooms.length + 1,
+      name: "",
+      order: nextOrder,
     });
     setIsModalOpen(true);
   };
@@ -85,26 +89,18 @@ export function AdminRoomsPanel() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      message.error("Vui lòng chọn tệp định dạng hình ảnh (PNG, JPG, WEBP, SVG...).");
-      return;
-    }
-
-    if (file.size > 15 * 1024 * 1024) {
-      message.error("Kích thước ảnh vượt quá 15MB. Vui lòng chọn ảnh nhẹ hơn.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64String = event.target?.result as string;
-      setImageUrl(base64String);
-      message.success("Đã chọn ảnh thành công (định dạng Base64)!");
-    };
-    reader.onerror = () => {
-      message.error("Không thể đọc file ảnh.");
-    };
-    reader.readAsDataURL(file);
+    // Nén ảnh trước khi lưu (thu nhỏ + WebP), mất khoảng nửa giây với ảnh lớn
+    message.loading({ content: "Đang nén ảnh...", key: "compress_image", duration: 0 });
+    readImageFileAsDataUrl(file)
+      .then((dataUrl) => {
+        message.destroy("compress_image");
+        setImageUrl(dataUrl);
+        message.success("Đã chọn ảnh thành công!");
+      })
+      .catch((err: Error) => {
+        message.destroy("compress_image");
+        message.error(err.message);
+      });
 
     // Reset input để có thể chọn lại file cùng tên nếu muốn
     e.target.value = "";
@@ -141,10 +137,10 @@ export function AdminRoomsPanel() {
       form.resetFields();
       setImageUrl("");
     } catch (err: unknown) {
-      if (err && typeof err === "object" && "errorFields" in err) {
+      if (isFormValidationError(err)) {
         return;
       }
-      message.error("Có lỗi xảy ra khi lưu phòng học.");
+      message.error(getErrorMessage(err, "Có lỗi xảy ra khi lưu phòng học."));
     } finally {
       setIsSubmitting(false);
     }
@@ -155,8 +151,8 @@ export function AdminRoomsPanel() {
       await deleteRoom(room.id);
       setRooms((prev) => prev.filter((r) => r.id !== room.id));
       message.success(`Đã xóa phòng "${room.name}".`);
-    } catch {
-      message.error("Không thể xóa phòng học này.");
+    } catch (err) {
+      message.error(getErrorMessage(err, "Không thể xóa phòng học này."));
     }
   };
 
@@ -255,7 +251,6 @@ export function AdminRoomsPanel() {
             type="primary"
             icon={<PlusOutlined />}
             onClick={handleOpenCreateModal}
-            disabled={rooms.length >= 4}
             size="middle"
           >
             Thêm
@@ -287,10 +282,15 @@ export function AdminRoomsPanel() {
         <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
           <Form.Item
             name="name"
-            label="Tên phòng (Lớp)"
-            rules={[{ required: true, message: "Vui lòng nhập tên phòng" }]}
+            label="Tên phòng"
+            extra="Tên tự đặt, hiển thị trên thẻ phòng cho học sinh (2-100 ký tự)."
+            rules={[
+              { required: true, whitespace: true, message: "Vui lòng nhập tên phòng" },
+              { min: 2, message: "Tên phòng phải có ít nhất 2 ký tự" },
+              { max: 100, message: "Tên phòng tối đa 100 ký tự" },
+            ]}
           >
-            <Input placeholder="Ví dụ: Lớp 6" />
+            <Input placeholder="Ví dụ: Khám phá ánh sáng" maxLength={100} showCount />
           </Form.Item>
 
           <Form.Item
@@ -302,7 +302,7 @@ export function AdminRoomsPanel() {
           </Form.Item>
 
           {/* VÙNG THÊM ẢNH LƯU BASE64 */}
-          <Form.Item label="Hình ảnh phòng học (Lưu Base64)">
+          <Form.Item label="Hình ảnh phòng học" extra={`Ảnh tự động được nén trước khi lưu, tối đa ${MAX_UPLOAD_IMAGE_LABEL} sau khi nén`}>
             <input
               type="file"
               ref={fileInputRef}
@@ -319,7 +319,7 @@ export function AdminRoomsPanel() {
                   onClick={() => fileInputRef.current?.click()}
                   style={{ flex: 1, height: 40, fontWeight: 500 }}
                 >
-                  Chọn ảnh từ máy tính (lưu Base64)
+                  Chọn ảnh từ máy tính
                 </Button>
                 {imageUrl && (
                   <Button danger icon={<DeleteOutlined />} onClick={handleClearImage}>
@@ -372,7 +372,7 @@ export function AdminRoomsPanel() {
                   }}
                 >
                   <PictureOutlined style={{ fontSize: 28, marginBottom: 6, display: "block" }} />
-                  <span>Chưa có ảnh. Bấm nút phía trên để tải ảnh lên (lưu Base64)</span>
+                  <span>Chưa có ảnh. Bấm nút phía trên để tải ảnh lên</span>
                 </div>
               )}
             </Space>

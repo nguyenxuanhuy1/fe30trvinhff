@@ -8,6 +8,8 @@ import { Slider } from "antd";
 import Cropper from "react-easy-crop";
 import { GameButton, GameModal, toast } from "@/components/ui";
 import getCroppedImg from "@/utils/cropImage";
+import { getDataUrlError, getImageTypeError } from "@/utils/image-limit";
+import { getApiErrorMessage } from "@/utils/api-error";
 import { avatarEditor } from "./avatar-editor.const";
 import "./avatar-editor.scss";
 
@@ -35,6 +37,13 @@ function AvatarEditor({ username, currentAvatarUrl }: AvatarEditorProps) {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
+      // Ảnh gốc được phép lớn vì còn cắt lại; dung lượng kiểm tra sau khi cắt
+      const typeError = getImageTypeError(file);
+      if (typeError) {
+        toast.error(typeError);
+        e.target.value = "";
+        return;
+      }
       const reader = new FileReader();
       reader.addEventListener("load", () => {
         setCropImageSrc(reader.result?.toString() || "");
@@ -58,13 +67,23 @@ function AvatarEditor({ username, currentAvatarUrl }: AvatarEditorProps) {
       toast.loading({ content: "Đang lưu ảnh...", key: "upload_avatar" });
       const croppedImage = await getCroppedImg(cropImageSrc, croppedAreaPixels);
 
+      // Ảnh sau khi cắt vẫn phải dưới 500KB mới được lưu
+      const sizeError = getDataUrlError(croppedImage);
+      if (sizeError) {
+        toast.error({ content: sizeError, key: "upload_avatar" });
+        return;
+      }
+
       await updateUser({ avatarUrl: croppedImage });
 
       toast.success({ content: "Đã lưu ảnh thành công!", key: "upload_avatar" });
       setIsCropModalOpen(false);
     } catch (error) {
       console.error("Lỗi khi lưu ảnh:", error);
-      toast.error({ content: "Lưu ảnh thất bại, vui lòng thử lại!", key: "upload_avatar" });
+      toast.error({
+        content: getApiErrorMessage(error, "Lưu ảnh thất bại, vui lòng thử lại!"),
+        key: "upload_avatar",
+      });
     }
   };
 

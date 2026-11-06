@@ -15,6 +15,7 @@ import {
   message,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import { getErrorMessage, isFormValidationError } from "../admin.utils";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -35,6 +36,7 @@ import {
 } from "@/modules/users";
 
 const PAGE_SIZE = 15;
+const GENDER_LABELS: Record<string, string> = { MALE: "Nam", FEMALE: "Nữ", OTHER: "Khác" };
 
 interface AdminUsersPanelProps {
   currentUserId: string;
@@ -92,7 +94,7 @@ export function AdminUsersPanel({ currentUserId }: AdminUsersPanelProps) {
     form.setFieldsValue({
       username: user.username,
       role: user.role,
-      gender: user.gender || "MALE",
+      gender: user.gender || undefined,
       password: "",
     });
     setIsModalOpen(true);
@@ -106,10 +108,14 @@ export function AdminUsersPanel({ currentUserId }: AdminUsersPanelProps) {
 
       if (editingUser) {
         // Cập nhật người dùng
+        // Chỉ gửi vai trò khi thật sự đổi: backend đổi vai trò sẽ thu hồi phiên
+        // đăng nhập của tài khoản đó, nên không gửi kèm khi chỉ sửa giới tính
         const payload: UpdateUserPayload = {
-          role: values.role as UserRoleValue,
-          gender: values.gender,
+          gender: values.gender ?? null,
         };
+        if (values.role !== editingUser.role) {
+          payload.role = values.role as UserRoleValue;
+        }
         if (values.password && values.password.trim()) {
           payload.password = values.password.trim();
         }
@@ -135,14 +141,10 @@ export function AdminUsersPanel({ currentUserId }: AdminUsersPanelProps) {
       setIsModalOpen(false);
       form.resetFields();
     } catch (err: unknown) {
-      if (err && typeof err === "object" && "errorFields" in err) {
+      if (isFormValidationError(err)) {
         return;
       }
-      const msg =
-        err && typeof err === "object" && "response" in err
-          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
-          : "Thao tác thất bại";
-      message.error(msg || "Có lỗi xảy ra khi lưu người dùng.");
+      message.error(getErrorMessage(err, "Có lỗi xảy ra khi lưu người dùng."));
     } finally {
       setIsSubmitting(false);
     }
@@ -155,8 +157,8 @@ export function AdminUsersPanel({ currentUserId }: AdminUsersPanelProps) {
       setUsers((prev) => prev.filter((u) => u.id !== user.id));
       setMeta((prev) => ({ ...prev, total: Math.max(0, prev.total - 1) }));
       message.success(`Đã xóa tài khoản "${user.username}".`);
-    } catch {
-      message.error("Xóa tài khoản thất bại.");
+    } catch (err) {
+      message.error(getErrorMessage(err, "Xóa tài khoản thất bại."));
     }
   };
 
@@ -196,6 +198,7 @@ export function AdminUsersPanel({ currentUserId }: AdminUsersPanelProps) {
       render: (gender: string | null) => {
         if (gender === "MALE") return <Tag>Nam</Tag>;
         if (gender === "FEMALE") return <Tag>Nữ</Tag>;
+        if (gender === "OTHER") return <Tag>Khác</Tag>;
         return <Tag>Chưa rõ</Tag>;
       },
     },
@@ -383,12 +386,15 @@ export function AdminUsersPanel({ currentUserId }: AdminUsersPanelProps) {
             <Form.Item
               name="gender"
               label="Giới tính"
-              rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
+              rules={[{ required: !editingUser, message: "Vui lòng chọn giới tính" }]}
             >
               <Select
+                allowClear
+                placeholder="Chưa rõ"
                 options={[
                   { value: "MALE", label: "Nam" },
                   { value: "FEMALE", label: "Nữ" },
+                  { value: "OTHER", label: "Khác" },
                 ]}
               />
             </Form.Item>
@@ -397,8 +403,16 @@ export function AdminUsersPanel({ currentUserId }: AdminUsersPanelProps) {
               name="role"
               label="Vai trò"
               rules={[{ required: true, message: "Vui lòng chọn vai trò" }]}
+              extra={
+                editingUser?.id === currentUserId
+                  ? "Không thể tự đổi vai trò của chính mình."
+                  : editingUser
+                    ? "Đổi vai trò sẽ buộc tài khoản này đăng nhập lại."
+                    : undefined
+              }
             >
               <Select
+                disabled={editingUser?.id === currentUserId}
                 options={[
                   { value: "MEMBER", label: "Thành viên (MEMBER)" },
                   { value: "ADMIN", label: "Quản trị viên (ADMIN)" },
@@ -437,7 +451,7 @@ export function AdminUsersPanel({ currentUserId }: AdminUsersPanelProps) {
               <div><span style={{ fontSize: 12, color: "#94a3b8" }}>Chuỗi ngày:</span> <div style={{ fontSize: 13.5, fontWeight: 500 }}>{viewingUser.streak ?? 0} ngày</div></div>
               <div><span style={{ fontSize: 12, color: "#94a3b8" }}>Vai trò:</span> <div style={{ fontSize: 13.5, fontWeight: 500 }}><Tag>{viewingUser.role}</Tag></div></div>
               <div><span style={{ fontSize: 12, color: "#94a3b8" }}>Số xu:</span> <div style={{ fontSize: 13.5, fontWeight: 600, color: "#2563eb" }}>{(viewingUser.coins ?? 0).toLocaleString("vi-VN")} xu</div></div>
-              <div><span style={{ fontSize: 12, color: "#94a3b8" }}>Giới tính:</span> <div style={{ fontSize: 13.5, fontWeight: 500 }}>{viewingUser.gender || "Chưa rõ"}</div></div>
+              <div><span style={{ fontSize: 12, color: "#94a3b8" }}>Giới tính:</span> <div style={{ fontSize: 13.5, fontWeight: 500 }}>{(viewingUser.gender && GENDER_LABELS[viewingUser.gender]) || "Chưa rõ"}</div></div>
               <div style={{ gridColumn: "span 2" }}><span style={{ fontSize: 12, color: "#94a3b8" }}>Ngày tham gia:</span> <div style={{ fontSize: 13, color: "#475569" }}>{new Date(viewingUser.createdAt).toLocaleString("vi-VN")}</div></div>
             </div>
           </div>

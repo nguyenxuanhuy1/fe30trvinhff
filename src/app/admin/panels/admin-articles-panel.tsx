@@ -16,6 +16,12 @@ import {
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
+  MAX_UPLOAD_IMAGE_LABEL,
+  getErrorMessage,
+  isFormValidationError,
+  readImageFileAsDataUrl,
+} from "../admin.utils";
+import {
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
@@ -26,6 +32,7 @@ import {
 import {
   createArticle,
   deleteArticle,
+  getArticle,
   getArticles,
   updateArticle,
   type CreateArticlePayload,
@@ -61,6 +68,28 @@ export function AdminArticlesPanel() {
 
   // Modal chỉ xem chi tiết bài viết
   const [viewingArticle, setViewingArticle] = useState<NewsArticle | null>(null);
+  // id bài đang tải chi tiết (danh sách không kèm nội dung toàn văn)
+  const [loadingDetailId, setLoadingDetailId] = useState<string | null>(null);
+
+  // Danh sách bài viết không có trường content, phải gọi chi tiết mới có nội dung
+  async function fetchArticleDetail(article: NewsArticle): Promise<NewsArticle | null> {
+    setLoadingDetailId(article.id ?? null);
+    try {
+      return await getArticle(article.id ?? article.slug);
+    } catch (err) {
+      message.error(getErrorMessage(err, "Không tải được nội dung bài viết."));
+      return null;
+    } finally {
+      setLoadingDetailId(null);
+    }
+  }
+
+  async function handleOpenViewModal(article: NewsArticle) {
+    const detail = await fetchArticleDetail(article);
+    if (detail) {
+      setViewingArticle(detail);
+    }
+  }
 
   // Load articles
   async function loadArticles() {
@@ -96,27 +125,19 @@ export function AdminArticlesPanel() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      message.error("Vui lòng chọn tệp định dạng hình ảnh (PNG, JPG, WEBP, SVG...).");
-      return;
-    }
-
-    if (file.size > 15 * 1024 * 1024) {
-      message.error("Kích thước ảnh vượt quá 15MB. Vui lòng chọn ảnh nhẹ hơn.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64String = event.target?.result as string;
-      setCoverImageUrl(base64String);
-      form.setFieldValue("coverImage", base64String);
-      message.success("Đã chọn ảnh bìa thành công (lưu Base64)!");
-    };
-    reader.onerror = () => {
-      message.error("Không thể đọc file ảnh.");
-    };
-    reader.readAsDataURL(file);
+    // Nén ảnh trước khi lưu (thu nhỏ + WebP), mất khoảng nửa giây với ảnh lớn
+    message.loading({ content: "Đang nén ảnh...", key: "compress_image", duration: 0 });
+    readImageFileAsDataUrl(file)
+      .then((dataUrl) => {
+        message.destroy("compress_image");
+        setCoverImageUrl(dataUrl);
+        form.setFieldValue("coverImage", dataUrl);
+        message.success("Đã chọn ảnh bìa thành công!");
+      })
+      .catch((err: Error) => {
+        message.destroy("compress_image");
+        message.error(err.message);
+      });
     e.target.value = "";
   };
 
@@ -145,7 +166,11 @@ export function AdminArticlesPanel() {
   };
 
   // Mở modal chỉnh sửa
-  const handleOpenEditModal = (article: NewsArticle) => {
+  const handleOpenEditModal = async (listItem: NewsArticle) => {
+    const article = await fetchArticleDetail(listItem);
+    if (!article) {
+      return;
+    }
     setEditingArticle(article);
     form.resetFields();
     setCoverImageUrl(article.coverImage || "");
@@ -180,8 +205,8 @@ export function AdminArticlesPanel() {
             .filter(Boolean)
         : [];
 
-      const rawCover = coverImageUrl?.trim() || values.coverImage?.trim() || undefined;
-      const finalCover = rawCover && rawCover.length > 0 ? rawCover : undefined;
+      // Gửi chuỗi rỗng khi không có ảnh để backend gỡ ảnh bìa cũ
+      const finalCover = coverImageUrl?.trim() || values.coverImage?.trim() || "";
 
       const payload: CreateArticlePayload = {
         title: (values.title || "").trim(),
@@ -211,22 +236,10 @@ export function AdminArticlesPanel() {
       setIsModalOpen(false);
       form.resetFields();
     } catch (err: unknown) {
-      if (err && typeof err === "object" && "errorFields" in err) {
+      if (isFormValidationError(err)) {
         return;
       }
-      console.error("Lỗi khi lưu bài viết:", err);
-      let msg = "Thao tác thất bại";
-      if (err && typeof err === "object") {
-        if ("response" in err) {
-          const res = (err as { response?: { data?: { message?: string } } }).response;
-          if (res?.data?.message) {
-            msg = res.data.message;
-          }
-        } else if ("message" in err && typeof (err as { message?: unknown }).message === "string") {
-          msg = (err as { message: string }).message;
-        }
-      }
-      message.error(msg);
+      message.error(getErrorMessage(err, "Lưu bài viết thất bại."));
     } finally {
       setIsSubmitting(false);
     }
@@ -239,8 +252,8 @@ export function AdminArticlesPanel() {
       await deleteArticle(article.id);
       setArticles((prev) => prev.filter((a) => a.id !== article.id));
       message.success(`Đã xóa bài viết "${article.title}".`);
-    } catch {
-      message.error("Xóa bài viết thất bại.");
+    } catch (err) {
+      message.error(getErrorMessage(err, "Xóa bài viết thất bại."));
     }
   };
 
@@ -337,7 +350,8 @@ export function AdminArticlesPanel() {
           <Button
             size="small"
             icon={<EyeOutlined />}
-            onClick={() => setViewingArticle(record)}
+            loading={loadingDetailId === record.id}
+            onClick={() => void handleOpenViewModal(record)}
           >
             Xem
           </Button>
@@ -346,7 +360,8 @@ export function AdminArticlesPanel() {
             ghost
             size="small"
             icon={<EditOutlined />}
-            onClick={() => handleOpenEditModal(record)}
+            disabled={loadingDetailId === record.id}
+            onClick={() => void handleOpenEditModal(record)}
           >
             Sửa
           </Button>
@@ -380,6 +395,7 @@ export function AdminArticlesPanel() {
               { value: "TIN TỨC", label: "Tin tức" },
               { value: "KHÁM PHÁ", label: "Khám phá" },
               { value: "SỰ KIỆN", label: "Sự kiện" },
+              { value: "CỘNG ĐỒNG", label: "Cộng đồng" },
               { value: "HƯỚNG DẪN", label: "Hướng dẫn" },
             ]}
           />
@@ -504,7 +520,7 @@ export function AdminArticlesPanel() {
             </Form.Item>
           </div>
 
-          <Form.Item label="Ảnh bìa">
+          <Form.Item label="Ảnh bìa" extra={`Ảnh tự động được nén trước khi lưu, tối đa ${MAX_UPLOAD_IMAGE_LABEL} sau khi nén`}>
             <input
               type="file"
               ref={fileInputRef}

@@ -13,7 +13,8 @@ interface Room {
 interface RoomBasic {
   id: string;
   name: string;
-  imageUrl: string | null;
+  /** Không còn gửi kèm chi tiết bài học (ảnh nặng, không dùng tới) */
+  imageUrl?: string | null;
   order: number;
   createdAt: string;
   updatedAt: string;
@@ -28,6 +29,8 @@ interface Lesson {
   slug?: string | null;
   path?: string | null;
   requiredSlots?: string[] | null;
+  // false = bản nháp, chỉ admin thấy
+  published?: boolean;
   createdAt: string;
   updatedAt: string;
   isNew?: boolean;
@@ -52,6 +55,7 @@ interface LessonPayload {
   imageUrl?: string;
   html?: string;
   order?: number;
+  published?: boolean;
 }
 
 export type { Room, RoomBasic, RoomPayload, Lesson, LessonDetail, LessonPayload };

@@ -28,6 +28,7 @@ import {
   type SocialPlatform,
 } from "@/modules/social";
 import { adminPage } from "../admin.const";
+import { getErrorMessage } from "../admin.utils";
 
 const platformOptions: Array<{ value: SocialPlatform; label: string }> = [
   { value: "facebook", label: "Facebook" },
@@ -158,7 +159,7 @@ export function AdminSocialPanel() {
             platform,
             name: "Facebook",
             url: "",
-            description: "",
+            description: "Kênh chính thức của chúng tôi.",
             followers: "Đang cập nhật",
             actionLabel: "Theo dõi",
             color: "#1877f2",
@@ -211,10 +212,13 @@ export function AdminSocialPanel() {
       !content.profile.logoSrc.trim() ||
       (!content.profile.logoSrc.startsWith("/") &&
         !content.profile.logoSrc.startsWith("http://") &&
-        !content.profile.logoSrc.startsWith("https://") &&
-        !content.profile.logoSrc.startsWith("data:image/"))
+        !content.profile.logoSrc.startsWith("https://"))
     ) {
-      message.error("Logo phải là đường dẫn /images/..., link http(s) hoặc ảnh data:image/.");
+      message.error("Logo phải là đường dẫn /images/... hoặc link http(s).");
+      return;
+    }
+    if (content.profile.tagline.trim().length < 5 || content.profile.about.trim().length < 10) {
+      message.error("Mô tả ngắn cần ít nhất 5 ký tự, phần giới thiệu cần ít nhất 10 ký tự.");
       return;
     }
     if (
@@ -222,6 +226,16 @@ export function AdminSocialPanel() {
       content.channels.some((channel) => !channel.name.trim())
     ) {
       message.error("Vui lòng nhập đầy đủ tên kênh và nội dung các mục số liệu.");
+      return;
+    }
+    const incompleteChannel = content.channels.find(
+      (channel) =>
+        !channel.description.trim() || !channel.followers.trim() || !channel.actionLabel.trim(),
+    );
+    if (incompleteChannel) {
+      message.error(
+        `Kênh "${incompleteChannel.name}" cần nhập đủ mô tả, số người theo dõi và nhãn nút.`,
+      );
       return;
     }
 
@@ -249,8 +263,8 @@ export function AdminSocialPanel() {
       });
       setContent(updated);
       message.success(panelText.saveSuccess);
-    } catch {
-      message.error(panelText.saveFailed);
+    } catch (err) {
+      message.error(getErrorMessage(err, panelText.saveFailed));
     } finally {
       setIsSaving(false);
     }

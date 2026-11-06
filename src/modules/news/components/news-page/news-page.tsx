@@ -298,25 +298,38 @@ function NewsPage({ articles }: NewsPageProps) {
                 </div>
               )}
 
-              {/* 2. Tiêu đề bài viết */}
+              <div className="article-modal-simple__body">
+              {/* 2. Chuyên mục + tiêu đề bài viết */}
+              {selectedArticle.category && (
+                <span className="article-modal-simple__category">
+                  {selectedArticle.category}
+                </span>
+              )}
               <h2 className="article-modal-simple__title">{selectedArticle.title}</h2>
 
-              {/* 3. Dòng thông tin tác giả, ngày tháng, chuyên mục */}
+              {/* 3. Dòng thông tin tác giả, ngày tháng, thời gian đọc */}
               <div className="article-modal-simple__meta">
-                <span className="article-modal-simple__date">
-                  📅 {formatArticleDateTime(selectedArticle.publishedAt)}
-                </span>
-                {selectedArticle.category && (
-                  <span className="article-modal-simple__category">
-                    {selectedArticle.category}
-                  </span>
-                )}
                 {selectedArticle.author && (
                   <span className="article-modal-simple__author">
-                    Tác giả: {selectedArticle.author}
-                    {selectedArticle.authorRole ? ` (${selectedArticle.authorRole})` : ""}
+                    <span className="article-modal-simple__author-avatar" aria-hidden="true">
+                      {selectedArticle.author.trim().charAt(0).toUpperCase()}
+                    </span>
+                    <span className="article-modal-simple__author-text">
+                      <strong>{selectedArticle.author}</strong>
+                      {selectedArticle.authorRole && <small>{selectedArticle.authorRole}</small>}
+                    </span>
                   </span>
                 )}
+                <span className="article-modal-simple__meta-info">
+                  <time dateTime={selectedArticle.publishedAt} className="article-modal-simple__date">
+                    {formatArticleDateTime(selectedArticle.publishedAt)}
+                  </time>
+                  {selectedArticle.readTime && (
+                    <span className="article-modal-simple__read-time">
+                      {selectedArticle.readTime}
+                    </span>
+                  )}
+                </span>
               </div>
 
               {/* 4. Đoạn mô tả / tóm tắt */}
@@ -348,6 +361,7 @@ function NewsPage({ articles }: NewsPageProps) {
                   ))}
                 </div>
               )}
+              </div>
 
               {/* 7. Nút đóng đơn giản ở chân modal */}
               <div className="article-modal-simple__footer">

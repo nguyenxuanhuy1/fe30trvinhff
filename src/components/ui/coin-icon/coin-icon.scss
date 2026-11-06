@@ -1,19 +1,71 @@
+// =============================================================
+// ICON XU VÀNG DÙNG CHUNG TOÀN WEB
+// Cùng tông với giao diện game: vàng kim + viền gỗ nâu đậm + font Baloo 2
+//
+// Lớp ngoài (.coin-icon-gold) chỉ giữ kích thước và làm "container".
+// Lớp trong (__face) mới vẽ đồng xu, dùng đơn vị cqmin = % cạnh nhỏ của lớp ngoài,
+// nhờ vậy icon to hay nhỏ đều giữ đúng tỉ lệ.
+// (Không đặt cqmin trên chính lớp ngoài vì khi đó nó tính theo màn hình.)
+// =============================================================
 .coin-icon-gold {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  vertical-align: -0.16em;
-  line-height: 1;
+  --coin-symbol-color: #6b3410;
+  --coin-rim: #42220f;
+
+  display: inline-block;
   flex-shrink: 0;
-  box-shadow: none !important;
-  filter: none !important;
+  box-sizing: border-box;
+  vertical-align: -0.18em;
+  line-height: 1;
+  container-type: size;
+  user-select: none;
   transition: transform 0.15s ease;
 
-  svg {
-    display: block;
+  &__face {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     height: 100%;
-    box-shadow: none !important;
-    filter: none !important;
+    box-sizing: border-box;
+    border-radius: 50%;
+    overflow: hidden;
+
+    // Viền gỗ nâu ngoài cùng
+    border: max(1px, 8cqmin) solid var(--coin-rim);
+
+    // Mặt xu: vàng sáng phía trên, cam đậm phía dưới, có đốm sáng bóng
+    background:
+      radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.8) 0 8%, transparent 22%),
+      linear-gradient(180deg, #fff3c4 0%, #ffd45c 42%, #f2a52c 76%, #c4691a 100%);
+  }
+
+  // Chữ $: font game, nét đậm, khắc nổi
+  &__symbol {
+    position: relative;
+    font-family: var(--font-game, "Baloo 2"), "Baloo 2", system-ui, sans-serif;
+    font-weight: 800;
+    font-size: 62cqmin;
+    line-height: 1;
+    color: var(--coin-symbol-color);
+    text-shadow: 0 3cqmin 0 rgba(255, 246, 210, 0.7);
+    transform: translateY(4cqmin);
+  }
+}
+
+// Trình duyệt cũ chưa hỗ trợ cqmin: dùng giá trị cố định cho cỡ phổ biến (~18px)
+@supports not (width: 1cqmin) {
+  .coin-icon-gold {
+    font-size: 18px;
+
+    &__face {
+      border-width: 1.5px;
+    }
+
+    &__symbol {
+      font-size: 0.62em;
+      transform: none;
+      text-shadow: none;
+    }
   }
 }

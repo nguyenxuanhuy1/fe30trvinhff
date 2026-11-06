@@ -12,6 +12,7 @@ import { getInventory, useCatalog } from "@/modules/inventory";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui";
 import { CoinIcon } from "@/components/ui/coin-icon";
 import { AvatarEditor } from "./avatar-editor/avatar-editor";
+import { warmUpFaceModel } from "@/modules/inventory/hooks/useHeadTracking";
 import {
   InboxOutlined,
   ShoppingOutlined,
@@ -267,7 +268,7 @@ export function ProfileView({ initialUser, user: propUser }: ProfileViewProps) {
                 )}
 
                 <div className="profile-inventory-panel__cta">
-                  <Link href="/inventory" className="profile-game-btn profile-game-btn--primary">
+                  <Link href="/inventory" onClick={warmUpFaceModel} className="profile-game-btn profile-game-btn--primary">
                     <span>🎮 Thử Đồ / Tủ Đồ</span>
                   </Link>
                   <Link href="/gio-hang" className="profile-game-btn profile-game-btn--secondary">

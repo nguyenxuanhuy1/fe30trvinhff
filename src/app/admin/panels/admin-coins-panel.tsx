@@ -14,6 +14,7 @@ import {
   message,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import { getErrorMessage } from "../admin.utils";
 import {
   SaveOutlined,
   SearchOutlined,
@@ -40,34 +41,52 @@ export function AdminCoinsPanel() {
   const [users, setUsers] = useState<UserCoinItem[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [search, setSearch] = useState("");
+  const [userPage, setUserPage] = useState(1);
+  const [userPageSize, setUserPageSize] = useState(20);
+  const [userTotal, setUserTotal] = useState(0);
 
   // Modal / Adjust State
   const [adjustingUser, setAdjustingUser] = useState<UserCoinItem | null>(null);
   const [adjustAmount, setAdjustAmount] = useState<number>(10);
   const [isAdjusting, setIsAdjusting] = useState(false);
 
-  async function loadData(searchKw = search) {
+  async function loadConfig() {
     try {
       const cfg = await getDailyRewardConfig();
       setConfig(cfg);
       setDayRewardsInput(cfg.dayRewards);
-    } catch {
-      message.error("Không thể tải cấu hình điểm danh.");
+    } catch (err) {
+      message.error(getErrorMessage(err, "Không thể tải cấu hình điểm danh."));
     }
+  }
 
+  // Phân trang ở máy chủ: backend mỗi lần trả tối đa 100 tài khoản
+  async function loadUsers(page = userPage, pageSize = userPageSize, searchKw = search) {
     try {
       setIsLoadingUsers(true);
-      const usersData = await getUsersCoins({ search: searchKw.trim() || undefined });
+      const usersData = await getUsersCoins({
+        search: searchKw.trim() || undefined,
+        page,
+        limit: pageSize,
+      });
       setUsers(usersData.users);
-    } catch {
-      message.error("Không thể tải danh sách tài khoản xu.");
+      setUserTotal(usersData.total);
+      setUserPage(page);
+      setUserPageSize(pageSize);
+    } catch (err) {
+      message.error(getErrorMessage(err, "Không thể tải danh sách tài khoản xu."));
     } finally {
       setIsLoadingUsers(false);
     }
   }
 
+  function handleSearch() {
+    void loadUsers(1, userPageSize, search);
+  }
+
   useEffect(() => {
-    void loadData();
+    void loadConfig();
+    void loadUsers(1);
   }, []);
 
   const handleRewardChange = (index: number, val: number | null) => {
@@ -86,8 +105,8 @@ export function AdminCoinsPanel() {
       setConfig(updated);
       setDayRewardsInput(updated.dayRewards);
       message.success("Đã cập nhật cấu hình chuỗi điểm danh 7 ngày thành công!");
-    } catch {
-      message.error("Lưu cấu hình điểm danh thất bại.");
+    } catch (err) {
+      message.error(getErrorMessage(err, "Lưu cấu hình điểm danh thất bại."));
     } finally {
       setIsSavingConfig(false);
     }
@@ -95,6 +114,10 @@ export function AdminCoinsPanel() {
 
   const handleConfirmAdjust = async () => {
     if (!adjustingUser) return;
+    if (!Number.isInteger(adjustAmount) || adjustAmount === 0) {
+      message.warning("Vui lòng nhập số xu nguyên khác 0.");
+      return;
+    }
     setIsAdjusting(true);
     try {
       const result = await adjustUserCoins({
@@ -106,8 +129,8 @@ export function AdminCoinsPanel() {
       );
       message.success(`Đã điều chỉnh ${result.delta >= 0 ? `+${result.delta}` : result.delta} xu cho ${result.username} (Số dư mới: ${result.newCoins} xu)`);
       setAdjustingUser(null);
-    } catch {
-      message.error("Điều chỉnh xu thất bại.");
+    } catch (err) {
+      message.error(getErrorMessage(err, "Điều chỉnh xu thất bại."));
     } finally {
       setIsAdjusting(false);
     }
@@ -132,7 +155,6 @@ export function AdminCoinsPanel() {
       dataIndex: "coins",
       key: "coins",
       width: 150,
-      sorter: (a, b) => a.coins - b.coins,
       render: (coins: number) => (
         <span>
           <CoinIcon size={14} /> {coins.toLocaleString("vi-VN")} xu
@@ -242,11 +264,11 @@ export function AdminCoinsPanel() {
               prefix={<SearchOutlined />}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              onPressEnter={() => loadData(search)}
+              onPressEnter={handleSearch}
               style={{ width: 320 }}
               allowClear
             />
-            <Button onClick={() => loadData(search)}>Tìm</Button>
+            <Button onClick={handleSearch}>Tìm</Button>
           </div>
         </div>
 
@@ -256,9 +278,13 @@ export function AdminCoinsPanel() {
           rowKey="id"
           loading={isLoadingUsers}
           pagination={{
-            pageSize: 12,
+            current: userPage,
+            pageSize: userPageSize,
+            total: userTotal,
             showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50", "100"],
             showTotal: (total) => `Tổng cộng ${total} tài khoản`,
+            onChange: (page, pageSize) => void loadUsers(page, pageSize),
           }}
           scroll={{ x: 800, y: "calc(100vh - 440px)" }}
           style={{ width: "100%" }}
@@ -287,6 +313,9 @@ export function AdminCoinsPanel() {
             >
               <InputNumber
                 value={adjustAmount}
+                precision={0}
+                min={-1_000_000}
+                max={1_000_000}
                 onChange={(val) => setAdjustAmount(val ?? 0)}
                 style={{ width: "100%" }}
               />

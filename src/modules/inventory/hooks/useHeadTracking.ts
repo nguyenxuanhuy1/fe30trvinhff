@@ -79,42 +79,197 @@ const FACE_OVAL = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 39
 let lastVideoTime = -1;
 let lastFaceTime = 0;
 
+// =====================================================================
+// TẢI MODEL AI MỘT LẦN + LƯU CACHE TRÊN MÁY NGƯỜI DÙNG
+//
+// - Trong 1 phiên: model chỉ khởi tạo 1 lần (landmarkerPromise dùng chung),
+//   chuyển qua lại giữa Tủ đồ / sảnh chờ bài học / phòng thí nghiệm không tải lại.
+// - Giữa các lần mở web: file model + wasm (~13MB) được lưu vào Cache Storage
+//   của trình duyệt, lần sau đọc thẳng từ máy, không tải qua mạng nữa.
+// - Trạng thái (đang tải / xong / lỗi + %) phát cho mọi trang qua useFaceModelStatus
+//   để hiện 1 màn loading duy nhất trước khi cho bấm gắn đồ.
+// =====================================================================
+
+// Đổi số phiên bản khi thay model hoặc nâng @mediapipe/tasks-vision để xoá cache cũ
+const AI_CACHE_NAME = "steamaze-ai-models-v1";
+const WASM_BASE = "/vendor/tasks-vision/wasm";
+const FACE_MODEL_URL = "/models/face_landmarker.task";
+
+export type FaceModelStatus = "idle" | "loading" | "ready" | "error";
+
+let modelStatus: FaceModelStatus = "idle";
+let modelProgress = 0; // 0..100
+const statusListeners = new Set<() => void>();
+
+function setModelStatus(status: FaceModelStatus, progress = modelProgress) {
+  modelStatus = status;
+  modelProgress = Math.max(0, Math.min(100, Math.round(progress)));
+  statusListeners.forEach((fn) => fn());
+}
+
+/** Trạng thái tải model AI, dùng chung cho mọi trang có camera. */
+export function useFaceModelStatus() {
+  const [snapshot, setSnapshot] = useState({ status: modelStatus, progress: modelProgress });
+  useEffect(() => {
+    const fn = () => setSnapshot({ status: modelStatus, progress: modelProgress });
+    statusListeners.add(fn);
+    fn();
+    return () => {
+      statusListeners.delete(fn);
+    };
+  }, []);
+  return snapshot;
+}
+
+/** Model đã sẵn sàng trong bộ nhớ chưa (đồng bộ, không cần chờ). */
+export function isFaceModelReady() {
+  return modelStatus === "ready";
+}
+
+/**
+ * Lấy file từ Cache Storage của máy; chưa có thì tải qua mạng rồi lưu lại.
+ * onBytes báo số byte đã nhận để tính % tổng.
+ */
+async function fetchWithDeviceCache(
+  url: string,
+  onBytes: (loaded: number, total: number) => void,
+): Promise<ArrayBuffer> {
+  let cache: Cache | null = null;
+  try {
+    if ("caches" in window) {
+      cache = await caches.open(AI_CACHE_NAME);
+      const hit = await cache.match(url);
+      if (hit) {
+        const buf = await hit.arrayBuffer();
+        onBytes(buf.byteLength, buf.byteLength);
+        return buf;
+      }
+    }
+  } catch {
+    // Cache Storage bị chặn (chế độ riêng tư...) thì tải thường
+    cache = null;
+  }
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`Không tải được ${url} (${res.status})`);
+  }
+
+  const total = Number(res.headers.get("content-length")) || 0;
+  let buf: ArrayBuffer;
+
+  if (res.body && total > 0) {
+    // Đọc theo từng phần để hiện % tải
+    const reader = res.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let loaded = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      loaded += value.byteLength;
+      onBytes(loaded, total);
+    }
+    const out = new Uint8Array(loaded);
+    let offset = 0;
+    for (const c of chunks) {
+      out.set(c, offset);
+      offset += c.byteLength;
+    }
+    buf = out.buffer as ArrayBuffer;
+  } else {
+    buf = await res.arrayBuffer();
+    onBytes(buf.byteLength, buf.byteLength);
+  }
+
+  if (cache) {
+    try {
+      await cache.put(
+        url,
+        new Response(buf.slice(0), {
+          headers: { "Content-Type": res.headers.get("content-type") || "application/octet-stream" },
+        }),
+      );
+    } catch {
+      // Hết dung lượng lưu trữ thì bỏ qua, lần sau tải lại qua mạng
+    }
+  }
+
+  return buf;
+}
+
 export function preloadFaceLandmarker(): Promise<FaceLandmarker | null> | null {
   if (typeof window === "undefined") return null;
 
   if (!landmarkerPromise) {
+    setModelStatus("loading", 0);
+
     landmarkerPromise = (async () => {
+      const blobUrls: string[] = [];
       try {
-        const { FaceLandmarker, FilesetResolver } = await import(
-          "@mediapipe/tasks-vision"
-        );
-        const vision = await FilesetResolver.forVisionTasks(
-          "/vendor/tasks-vision/wasm"
-        );
+        const { FaceLandmarker, FilesetResolver } = await import("@mediapipe/tasks-vision");
+
+        // FilesetResolver tự chọn bản wasm có/không SIMD hợp với máy
+        const paths = await FilesetResolver.forVisionTasks(WASM_BASE);
+
+        // 3 file cần tải, cộng dồn byte để ra % chung
+        const progress = new Map<string, { loaded: number; total: number }>();
+        const report = (key: string) => (loaded: number, total: number) => {
+          progress.set(key, { loaded, total });
+          let sumLoaded = 0;
+          let sumTotal = 0;
+          progress.forEach((p) => {
+            sumLoaded += p.loaded;
+            sumTotal += p.total;
+          });
+          // Dành 10% cuối cho bước khởi tạo model trên GPU/CPU
+          if (sumTotal > 0 && progress.size === 3) {
+            setModelStatus("loading", Math.min(1, sumLoaded / sumTotal) * 90);
+          }
+        };
+
+        const [loaderBuf, wasmBuf, modelBuf] = await Promise.all([
+          fetchWithDeviceCache(paths.wasmLoaderPath, report("loader")),
+          fetchWithDeviceCache(paths.wasmBinaryPath, report("wasm")),
+          fetchWithDeviceCache(FACE_MODEL_URL, report("model")),
+        ]);
+        setModelStatus("loading", 90);
+
+        // Đưa file từ bộ nhớ vào MediaPipe qua blob URL, không gọi mạng nữa
+        const loaderUrl = URL.createObjectURL(new Blob([loaderBuf], { type: "text/javascript" }));
+        const wasmUrl = URL.createObjectURL(new Blob([wasmBuf], { type: "application/wasm" }));
+        blobUrls.push(loaderUrl, wasmUrl);
+        const fileset = { ...paths, wasmLoaderPath: loaderUrl, wasmBinaryPath: wasmUrl };
+        const modelBytes = new Uint8Array(modelBuf);
+
+        let created: FaceLandmarker;
         try {
-          return await FaceLandmarker.createFromOptions(vision, {
-            baseOptions: {
-              modelAssetPath: "/models/face_landmarker.task",
-              delegate: "GPU",
-            },
+          created = await FaceLandmarker.createFromOptions(fileset, {
+            baseOptions: { modelAssetBuffer: modelBytes, delegate: "GPU" },
             runningMode: "VIDEO",
             numFaces: 1,
           });
         } catch (e) {
           console.warn("GPU failed, falling back to CPU", e);
-          return await FaceLandmarker.createFromOptions(vision, {
-            baseOptions: {
-              modelAssetPath: "/models/face_landmarker.task",
-              delegate: "CPU",
-            },
+          created = await FaceLandmarker.createFromOptions(fileset, {
+            baseOptions: { modelAssetBuffer: modelBytes, delegate: "CPU" },
             runningMode: "VIDEO",
             numFaces: 1,
           });
         }
+
+        landmarkerInstance = created;
+        setModelStatus("ready", 100);
+        return created;
       } catch (err) {
         console.error("Lỗi khi tải FaceLandmarker:", err);
+        // Cho phép thử lại ở lần mở trang sau
         landmarkerPromise = null;
+        setModelStatus("error", 0);
         throw err;
+      } finally {
+        // MediaPipe đã đọc xong file vào bộ nhớ, giải phóng blob URL
+        blobUrls.forEach((u) => URL.revokeObjectURL(u));
       }
     })();
   }
@@ -332,4 +487,19 @@ export function useHeadTracking(
     }, [videoRef, containerRef]);
 
   return poseRef;
+}
+
+/**
+ * Gọi khi người dùng BẤM chuyển sang trang có camera (bài học, tủ đồ...)
+ * để model bắt đầu tải ngay trong lúc chuyển trang.
+ * Người dùng đã tắt camera thì không tải.
+ */
+export function warmUpFaceModel() {
+  if (typeof window === "undefined") return;
+  try {
+    if (window.localStorage.getItem("inventory_camera_mode") === "off") return;
+  } catch {
+    // localStorage bị chặn thì vẫn tải như bình thường
+  }
+  void preloadFaceLandmarker()?.catch(() => undefined);
 }

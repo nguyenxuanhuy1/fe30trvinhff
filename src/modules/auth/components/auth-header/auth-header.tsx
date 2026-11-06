@@ -119,6 +119,8 @@ function AuthHeader({ inMenu = false, hideProfileLink = false }: AuthHeaderProps
             alt={`Avatar của ${user.username}`}
             width={32}
             height={32}
+            // Ảnh đại diện có thể là Base64 hoặc link ngoài: hiển thị thẳng, không qua bộ tối ưu ảnh
+            unoptimized
           />
         </span>
         <span className="auth-header__username">{user.username}</span>

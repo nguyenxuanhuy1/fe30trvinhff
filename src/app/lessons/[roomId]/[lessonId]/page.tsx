@@ -1,11 +1,5 @@
-import { cache } from "react";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { getLesson as getLessonOriginal } from "@/modules/lessons";
 import { LessonHost } from "./lesson-host";
 import "./lesson-player.scss";
-
-const getLesson = cache(getLessonOriginal);
 
 interface LessonPlayerPageProps {
   params: Promise<{ roomId: string; lessonId: string }>;
@@ -13,17 +7,15 @@ interface LessonPlayerPageProps {
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Không tải bài trên máy chủ nữa: trước đây mỗi lần mở bài, nội dung (~1-2MB) bị nhúng
+ * thẳng vào trang nên trình duyệt không lưu lại được. Giờ LessonHost tự tải ở trình
+ * duyệt: có bản lưu trên máy thì hiện ngay, đồng thời kiểm tra bản mới (xem useGameLesson).
+ */
 async function LessonPlayerPage({ params }: LessonPlayerPageProps) {
   const { roomId, lessonId } = await params;
-  const lesson = await getLesson(lessonId).catch(() => null);
 
-  return (
-    <LessonHost
-      roomId={roomId}
-      lessonId={lessonId}
-      lesson={lesson}
-    />
-  );
+  return <LessonHost roomId={roomId} lessonId={lessonId} />;
 }
 
 export default LessonPlayerPage;

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useEquipStore } from "@/stores/equip-store";
 import { api } from "@/lib/api/client";
 import { useAuth } from "@/modules/auth";
+import { warmUpFaceModel } from "@/modules/inventory/hooks/useHeadTracking";
 
 /**
  * Sân khấu bài học + cầu nối hoàn thành màn.
@@ -488,6 +489,7 @@ function LessonCompleteBridge({
                 <>
                   <Link
                     href="/inventory"
+                    onClick={warmUpFaceModel}
                     className="lesson-result-card__btn lesson-result-card__btn--inventory"
                   >
                     <span>Mở tủ đồ</span>

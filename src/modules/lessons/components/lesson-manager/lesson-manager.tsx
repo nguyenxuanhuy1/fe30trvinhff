@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { compressImageFile } from "@/utils/image-compress";
 import type { Lesson, LessonPayload } from "@/modules/lessons";
 import { lessonManagerContent } from "./lesson-manager.const";
 import "./lesson-manager.scss";
@@ -25,6 +26,7 @@ function LessonManager({
   errorMessage,
 }: LessonManagerProps) {
   const [name, setName] = useState(lesson?.name ?? "");
+  const [imageError, setImageError] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState(lesson?.imageUrl ?? "");
   const [html, setHtml] = useState(htmlValue);
   const [order, setOrder] = useState(lesson ? String(lesson.order) : "");
@@ -81,17 +83,19 @@ function LessonManager({
           onChange={(event) => {
             const file = event.target.files?.[0];
             if (file) {
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                if (e.target?.result) {
-                  setImageUrl(e.target.result as string);
-                }
-              };
-              reader.readAsDataURL(file);
+              // Nén ảnh (thu nhỏ + WebP) rồi mới đọc thành Base64; 500KB tính sau khi nén
+              setImageError(null);
+              compressImageFile(file)
+                .then((dataUrl) => setImageUrl(dataUrl))
+                .catch((err: Error) => {
+                  setImageError(err.message);
+                  event.target.value = "";
+                });
             }
           }}
           style={{ marginTop: 8 }}
         />
+        {imageError !== null && <p className="lesson-manager__error">{imageError}</p>}
       </label>
 
       <label className="lesson-manager__field">
@@ -102,7 +106,6 @@ function LessonManager({
           onChange={(event) => setHtml(event.target.value)}
           placeholder={lessonManagerContent.hints.htmlPlaceholder}
           rows={8}
-          maxLength={200000}
         />
         <span className="lesson-manager__note">{lessonManagerContent.keepHtmlNote}</span>
       </label>

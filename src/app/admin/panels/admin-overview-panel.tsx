@@ -126,7 +126,7 @@ export function AdminOverviewPanel({ onNavigateTab }: AdminOverviewPanelProps) {
               </div>
             </div>
 
-            {/* 3. BÀI HỌC CẢ 4 LỚP */}
+            {/* 3. TỔNG SỐ BÀI HỌC */}
             <div className="admin-metric-card admin-metric-card--lessons">
               <div className="admin-metric-card__top">
                 <div className="admin-metric-card__icon-box">
@@ -238,10 +238,10 @@ export function AdminOverviewPanel({ onNavigateTab }: AdminOverviewPanelProps) {
               </Space>
             </Col>
 
-            {/* CỘT PHẢI: CHI TIẾT BÀI HỌC CẢ 4 LỚP & ĐIỀU HƯỚNG NHANH */}
+            {/* CỘT PHẢI: BÀI HỌC THEO PHÒNG & ĐIỀU HƯỚNG NHANH */}
             <Col xs={24} lg={12}>
               <Space direction="vertical" size={20} style={{ width: "100%" }}>
-                {/* 1. PHÂN BỐ BÀI HỌC CẢ 4 LỚP */}
+                {/* 1. PHÂN BỐ BÀI HỌC THEO PHÒNG */}
                 <div className="admin-overview-subcard">
                   <div className="admin-overview-subcard__header">
                     <div className="admin-overview-subcard__title-wrap">

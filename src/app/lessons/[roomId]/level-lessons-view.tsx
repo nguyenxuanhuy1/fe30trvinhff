@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getLessons, getRoom, preloadAndCacheGame } from "@/modules/lessons";
 import { useInventory, useItemPreload } from "@/modules/inventory";
+import { warmUpFaceModel } from "@/modules/inventory/hooks/useHeadTracking";
 import { EmptyState, ErrorState, GameCardSkeleton } from "@/components/ui";
 import "./level-lessons.scss";
 
@@ -135,7 +136,7 @@ export function LevelLessonsView({ roomId }: LevelLessonsViewProps) {
         ) : lessonsQuery.isError && lessons.length === 0 ? (
           <ErrorState
             error={lessonsQuery.error}
-            message="Không thể tải danh sách bài học của cấp độ này."
+            message="Không thể tải danh sách bài học của phòng này."
             isRetrying={lessonsQuery.isFetching}
             onRetry={() => void lessonsQuery.refetch()}
           />
@@ -177,7 +178,11 @@ export function LevelLessonsView({ roomId }: LevelLessonsViewProps) {
                     className="news-card ui-game-card"
                     onMouseEnter={() => void preloadAndCacheGame(lesson.id)}
                     onTouchStart={() => void preloadAndCacheGame(lesson.id)}
-                    onClick={() => void preloadAndCacheGame(lesson.id)}
+                    onClick={() => {
+                      void preloadAndCacheGame(lesson.id);
+                      // Vào bài sẽ mở camera: tải sẵn model AI trong lúc chuyển trang
+                      warmUpFaceModel();
+                    }}
                   >
                     <div className="news-card__thumb">
                       {lesson.imageUrl ? (
@@ -188,7 +193,8 @@ export function LevelLessonsView({ roomId }: LevelLessonsViewProps) {
                           sizes="(max-width: 640px) 100vw, (max-width: 900px) 50vw, 33vw"
                           priority={index < 3}
                           className="news-card__image"
-                          unoptimized={lesson.imageUrl.startsWith("data:")}
+                          // Ảnh đã nén sẵn, phục vụ qua /api/images có cache: không qua bộ tối ưu của Next
+                          unoptimized
                         />
                       ) : (
                         <div className="news-card__placeholder">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { compressImageFile } from "@/utils/image-compress";
 import type { Room, RoomPayload } from "@/modules/lessons";
 import { roomManagerContent } from "./room-manager.const";
 import "./room-manager.scss";
@@ -16,6 +17,7 @@ interface RoomManagerProps {
 
 function RoomManager({ room, onSubmit, onCancel, isSaving, errorMessage }: RoomManagerProps) {
 
+  const [imageError, setImageError] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState(room?.imageUrl ?? "");
 
 
@@ -51,17 +53,19 @@ function RoomManager({ room, onSubmit, onCancel, isSaving, errorMessage }: RoomM
           onChange={(event) => {
             const file = event.target.files?.[0];
             if (file) {
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                if (e.target?.result) {
-                  setImageUrl(e.target.result as string);
-                }
-              };
-              reader.readAsDataURL(file);
+              // Nén ảnh (thu nhỏ + WebP) rồi mới đọc thành Base64; 500KB tính sau khi nén
+              setImageError(null);
+              compressImageFile(file)
+                .then((dataUrl) => setImageUrl(dataUrl))
+                .catch((err: Error) => {
+                  setImageError(err.message);
+                  event.target.value = "";
+                });
             }
           }}
           style={{ marginTop: 8 }}
         />
+        {imageError !== null && <p className="room-manager__error">{imageError}</p>}
       </label>
 
       {/* Đã bỏ trường Thứ tự hiển thị theo yêu cầu */}

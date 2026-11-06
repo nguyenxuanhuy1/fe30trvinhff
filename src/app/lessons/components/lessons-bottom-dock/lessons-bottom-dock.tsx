@@ -9,6 +9,7 @@ import { getReceivedInvitations } from "@/modules/friends/services/friends.servi
 import { toast } from "@/components/ui/game-toast";
 import { CoinIcon } from "@/components/ui/coin-icon";
 import "./lessons-bottom-dock.scss";
+import { warmUpFaceModel } from "@/modules/inventory/hooks/useHeadTracking";
 
 export function LessonsBottomDock() {
   const router = useRouter();
@@ -56,6 +57,7 @@ export function LessonsBottomDock() {
           {/* 1. TỦ ĐỒ (Bên trái 1) */}
           <Link
             href="/inventory"
+            onClick={warmUpFaceModel}
             className="lessons-dock__item lessons-dock__item--nav"
             data-label="Tủ Đồ"
             aria-label="Tủ đồ"

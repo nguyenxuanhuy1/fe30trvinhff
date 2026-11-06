@@ -10,11 +10,18 @@ import {
   Popconfirm,
   Select,
   Space,
+  Switch,
   Table,
   Tag,
   message,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import {
+  MAX_UPLOAD_IMAGE_LABEL,
+  getErrorMessage,
+  isFormValidationError,
+  readImageFileAsDataUrl,
+} from "../admin.utils";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -113,6 +120,7 @@ export function AdminLessonsPanel() {
     form.setFieldsValue({
       name: `Bài học ${lessons.length + 1}`,
       order: lessons.length + 1,
+      published: true,
       html: "<!doctype html>\n<html>\n<head>\n  <meta charset=\"utf-8\">\n  <title>Bài học</title>\n</head>\n<body>\n  <h1>Nội dung bài học mới</h1>\n</body>\n</html>",
     });
     setIsModalOpen(true);
@@ -128,11 +136,12 @@ export function AdminLessonsPanel() {
       form.setFieldsValue({
         name: lesson.name,
         order: lesson.order,
+        published: detail.published ?? true,
         html: detail.html || "",
       });
       setIsModalOpen(true);
-    } catch {
-      message.error("Không tải được chi tiết bài học.");
+    } catch (err) {
+      message.error(getErrorMessage(err, "Không tải được chi tiết bài học."));
     }
   };
 
@@ -140,26 +149,18 @@ export function AdminLessonsPanel() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      message.error("Vui lòng chọn tệp định dạng hình ảnh (PNG, JPG, WEBP, SVG...).");
-      return;
-    }
-
-    if (file.size > 15 * 1024 * 1024) {
-      message.error("Kích thước ảnh vượt quá 15MB. Vui lòng chọn ảnh nhẹ hơn.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64String = event.target?.result as string;
-      setImageUrl(base64String);
-      message.success("Đã chọn ảnh thành công (định dạng Base64)!");
-    };
-    reader.onerror = () => {
-      message.error("Không thể đọc file ảnh.");
-    };
-    reader.readAsDataURL(file);
+    // Nén ảnh trước khi lưu (thu nhỏ + WebP), mất khoảng nửa giây với ảnh lớn
+    message.loading({ content: "Đang nén ảnh...", key: "compress_image", duration: 0 });
+    readImageFileAsDataUrl(file)
+      .then((dataUrl) => {
+        message.destroy("compress_image");
+        setImageUrl(dataUrl);
+        message.success("Đã chọn ảnh thành công!");
+      })
+      .catch((err: Error) => {
+        message.destroy("compress_image");
+        message.error(err.message);
+      });
 
     e.target.value = "";
   };
@@ -178,8 +179,9 @@ export function AdminLessonsPanel() {
       const payload: LessonPayload = {
         name: values.name.trim(),
         order: Number(values.order),
-        html: values.html,
+        html: values.html ?? "",
         imageUrl: finalImageUrl,
+        published: values.published !== false,
       };
 
       if (editingLesson) {
@@ -202,10 +204,10 @@ export function AdminLessonsPanel() {
       form.resetFields();
       setImageUrl("");
     } catch (err: unknown) {
-      if (err && typeof err === "object" && "errorFields" in err) {
+      if (isFormValidationError(err)) {
         return;
       }
-      message.error("Có lỗi xảy ra khi lưu bài học.");
+      message.error(getErrorMessage(err, "Có lỗi xảy ra khi lưu bài học."));
     } finally {
       setIsSubmitting(false);
     }
@@ -216,8 +218,8 @@ export function AdminLessonsPanel() {
       await deleteLesson(lesson.id);
       setLessons((prev) => prev.filter((l) => l.id !== lesson.id));
       message.success(`Đã xóa bài học "${lesson.name}".`);
-    } catch {
-      message.error("Xóa bài học thất bại.");
+    } catch (err) {
+      message.error(getErrorMessage(err, "Xóa bài học thất bại."));
     }
   };
 
@@ -258,6 +260,14 @@ export function AdminLessonsPanel() {
       key: "order",
       width: 100,
       render: (order: number) => <span>#{order}</span>,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "published",
+      key: "published",
+      width: 120,
+      render: (published?: boolean) =>
+        published === false ? <Tag>Bản nháp</Tag> : <Tag color="green">Đã xuất bản</Tag>,
     },
     {
       title: "Thao tác",
@@ -356,7 +366,7 @@ export function AdminLessonsPanel() {
         destroyOnClose
       >
         <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 140px", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 130px", gap: 12 }}>
             <Form.Item
               name="name"
               label="Tên bài học"
@@ -372,10 +382,14 @@ export function AdminLessonsPanel() {
             >
               <InputNumber min={1} style={{ width: "100%" }} />
             </Form.Item>
+
+            <Form.Item name="published" label="Xuất bản" valuePropName="checked">
+              <Switch checkedChildren="Hiện" unCheckedChildren="Nháp" />
+            </Form.Item>
           </div>
 
           {/* VÙNG THÊM ẢNH BÀI HỌC LƯU BASE64 */}
-          <Form.Item label="Hình ảnh bài học (Lưu Base64)">
+          <Form.Item label="Hình ảnh bài học" extra={`Ảnh tự động được nén trước khi lưu, tối đa ${MAX_UPLOAD_IMAGE_LABEL} sau khi nén`}>
             <input
               type="file"
               ref={fileInputRef}
@@ -392,7 +406,7 @@ export function AdminLessonsPanel() {
                   onClick={() => fileInputRef.current?.click()}
                   style={{ flex: 1, height: 40, fontWeight: 500 }}
                 >
-                  Chọn ảnh từ máy tính (lưu Base64)
+                  Chọn ảnh từ máy tính
                 </Button>
                 {imageUrl && (
                   <Button danger icon={<DeleteOutlined />} onClick={handleClearImage}>
@@ -445,7 +459,7 @@ export function AdminLessonsPanel() {
                   }}
                 >
                   <PictureOutlined style={{ fontSize: 24, marginBottom: 4, display: "block" }} />
-                  <span>Chưa có ảnh bài học. Bấm nút phía trên để tải ảnh lên (lưu Base64)</span>
+                  <span>Chưa có ảnh bài học. Bấm nút phía trên để tải ảnh lên</span>
                 </div>
               )}
             </Space>
@@ -454,7 +468,7 @@ export function AdminLessonsPanel() {
           <Form.Item
             name="html"
             label="Mã nguồn HTML nội dung bài học"
-            rules={[{ required: true, message: "Vui lòng nhập nội dung HTML của bài học" }]}
+            extra="Có thể để trống với bài học dạng plugin (chạy từ file riêng)."
           >
             <Input.TextArea
               rows={12}

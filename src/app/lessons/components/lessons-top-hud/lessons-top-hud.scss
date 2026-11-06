@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap');
-
 $font-game: var(--font-game, "Baloo 2"), "Baloo 2", cursive, system-ui, sans-serif;
 
 .lessons-top-hud {
@@ -9,6 +7,7 @@ $font-game: var(--font-game, "Baloo 2"), "Baloo 2", cursive, system-ui, sans-ser
   z-index: 100;
   display: flex;
   align-items: center;
+  gap: 8px;
   user-select: none;
 
   @media (max-width: 640px) {
@@ -19,6 +18,10 @@ $font-game: var(--font-game, "Baloo 2"), "Baloo 2", cursive, system-ui, sans-ser
   // Avatar + tên và Dropdown
   &__user-wrap {
     position: relative;
+    // Dùng flex để nút không bị canh theo đường chân chữ (thừa khoảng trống phía dưới),
+    // giúp nút tài khoản thẳng hàng với box giữ chuỗi
+    display: flex;
+    align-items: center;
   }
 
   &__user-btn {
@@ -479,6 +482,182 @@ $font-game: var(--font-game, "Baloo 2"), "Baloo 2", cursive, system-ui, sans-ser
     .lessons-top-hud__dropdown {
       right: 0 !important;
       left: auto !important;
+    }
+  }
+}
+
+// =============================================================
+// NGỌN LỬA GIỮ CHUỖI: CÙNG KIỂU VỚI NÚT TÀI KHOẢN (AVATAR + TÊN)
+// Ngọn lửa và số ngày nằm cùng cấp trong 1 box, không viền riêng cho lửa
+// =============================================================
+.lessons-top-hud {
+  &__streak {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 42px;
+    padding: 2px 14px 2px 11px;
+    border: 2px solid #5a3824;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #442a1b 0%, #2a160d 100%);
+    box-shadow:
+      inset 0 -3px 0 #1f1008,
+      inset 0 1px 0 rgba(255, 220, 180, 0.2),
+      0 4px 10px rgba(0, 0, 0, 0.45);
+    white-space: nowrap;
+    cursor: default;
+    box-sizing: border-box;
+  }
+
+
+  &__flame {
+    width: 18px;
+    height: 23px;
+    flex-shrink: 0;
+    overflow: visible;
+    transform-origin: 50% 100%;
+    animation: lessonsHudFlameFlicker 1.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 3px rgba(255, 138, 31, 0.7));
+  }
+
+  &__flame-outer {
+    fill: #ff8a1f;
+    fill: url(#lessonsHudFlameOuter);
+    stroke: #3b2214;
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+  }
+
+  &__flame-inner {
+    fill: #ffe9a3;
+    fill: url(#lessonsHudFlameInner);
+  }
+
+  &__streak-value {
+    font-family: $font-game;
+    font-weight: 800;
+    font-size: 16px;
+    line-height: 1;
+    color: #ffb340;
+    letter-spacing: 0.25px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    min-width: 0.6em;
+    text-align: center;
+  }
+
+  // Có chuỗi nhưng hôm nay chưa vào
+  &__streak--dim &__flame {
+    animation: none;
+    filter: saturate(0.55) brightness(0.9);
+  }
+
+  &__streak--dim &__streak-value {
+    color: #e0b98a;
+  }
+
+  // Chưa có chuỗi / đã đứt: lửa tắt
+  &__streak--off &__flame {
+    animation: none;
+    filter: grayscale(1) opacity(0.55);
+  }
+
+
+  &__streak--off &__streak-value {
+    color: #b9a796;
+  }
+}
+
+@keyframes lessonsHudFlameFlicker {
+  0%,
+  100% {
+    transform: scale(1, 1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.05, 0.96) rotate(-2deg);
+  }
+  50% {
+    transform: scale(0.96, 1.06) rotate(1.5deg);
+  }
+  75% {
+    transform: scale(1.03, 0.98) rotate(-1deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lessons-top-hud__flame {
+    animation: none;
+  }
+}
+
+// Kích thước khớp nút tài khoản ở từng màn hình
+@media (max-width: 640px) {
+  .lessons-top-hud {
+    gap: 6px;
+
+    &__streak {
+      height: 32px;
+      padding: 2px 9px 2px 7px;
+      gap: 3px;
+    }
+
+    &__flame {
+      width: 14px;
+      height: 18px;
+    }
+
+
+    &__streak-value {
+      font-size: 12px;
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  .lessons-top-hud {
+    gap: 10px;
+
+    &__streak {
+      height: 52px;
+      padding: 4px 18px 4px 14px;
+      gap: 6px;
+      border-width: 2.5px;
+      box-shadow:
+        inset 0 -4px 0 #1f1008,
+        inset 0 1px 0 rgba(255, 220, 180, 0.25),
+        0 6px 14px rgba(0, 0, 0, 0.48);
+    }
+
+
+    &__flame {
+      width: 22px;
+      height: 28px;
+    }
+
+    &__streak-value {
+      font-size: 17px;
+    }
+  }
+}
+
+@media (min-width: 1440px) {
+  .lessons-top-hud {
+    gap: 12px;
+
+    &__streak {
+      height: 58px;
+      padding: 5px 22px 5px 17px;
+      gap: 7px;
+      border-width: 3px;
+    }
+
+
+    &__flame {
+      width: 24px;
+      height: 30px;
+    }
+
+    &__streak-value {
+      font-size: 18px;
     }
   }
 }

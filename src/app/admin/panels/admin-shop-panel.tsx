@@ -19,6 +19,12 @@ import {
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
+  MAX_UPLOAD_IMAGE_LABEL,
+  getErrorMessage,
+  isFormValidationError,
+  readImageFileAsDataUrl,
+} from "../admin.utils";
+import {
   CheckCircleFilled,
   DeleteOutlined,
   EditOutlined,
@@ -74,27 +80,19 @@ export function AdminShopPanel() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      message.error("Vui lòng chọn tệp định dạng hình ảnh (PNG, JPG, WEBP, SVG...).");
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      message.error("Kích thước ảnh vượt quá 10MB. Vui lòng chọn ảnh nhẹ hơn.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64String = event.target?.result as string;
-      form.setFieldValue("imageUrl", base64String);
-      setSelectedAssetUrl(base64String);
-      message.success("Đã tải ảnh lên thành công!");
-    };
-    reader.onerror = () => {
-      message.error("Không thể đọc file ảnh.");
-    };
-    reader.readAsDataURL(file);
+    // Nén ảnh trước khi lưu (thu nhỏ + WebP), mất khoảng nửa giây với ảnh lớn
+    message.loading({ content: "Đang nén ảnh...", key: "compress_image", duration: 0 });
+    readImageFileAsDataUrl(file, { maxSize: 1024 })
+      .then((dataUrl) => {
+        message.destroy("compress_image");
+        form.setFieldValue("imageUrl", dataUrl);
+        setSelectedAssetUrl(dataUrl);
+        message.success("Đã tải ảnh lên thành công!");
+      })
+      .catch((err: Error) => {
+        message.destroy("compress_image");
+        message.error(err.message);
+      });
     e.target.value = "";
   };
 
@@ -107,6 +105,9 @@ export function AdminShopPanel() {
   const [orderStatusFilter, setOrderStatusFilter] = useState("ALL");
   const [orderSearch, setOrderSearch] = useState("");
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+  const [orderPage, setOrderPage] = useState(1);
+  const [orderPageSize, setOrderPageSize] = useState(20);
+  const [orderTotal, setOrderTotal] = useState(0);
 
   // Load items
   async function loadItems() {
@@ -114,8 +115,8 @@ export function AdminShopPanel() {
       setIsLoadingItems(true);
       const data = await getShopItems({ all: true });
       setItems(data);
-    } catch {
-      message.error("Không thể tải danh sách sản phẩm.");
+    } catch (err) {
+      message.error(getErrorMessage(err, "Không thể tải danh sách sản phẩm."));
     } finally {
       setIsLoadingItems(false);
     }
@@ -134,17 +135,22 @@ export function AdminShopPanel() {
     }
   }
 
-  // Load orders
-  async function loadOrders() {
+  // Load orders (phân trang ở máy chủ, backend trả tối đa 100 đơn mỗi lần)
+  async function loadOrders(page = 1, pageSize = orderPageSize) {
     try {
       setIsLoadingOrders(true);
       const res = await getAdminOrders({
         status: orderStatusFilter === "ALL" ? undefined : orderStatusFilter,
         search: orderSearch.trim() || undefined,
+        page,
+        limit: pageSize,
       });
       setOrders(res.orders);
-    } catch {
-      message.error("Không thể tải danh sách đơn hàng.");
+      setOrderTotal(res.total);
+      setOrderPage(page);
+      setOrderPageSize(pageSize);
+    } catch (err) {
+      message.error(getErrorMessage(err, "Không thể tải danh sách đơn hàng."));
     } finally {
       setIsLoadingOrders(false);
     }
@@ -152,7 +158,6 @@ export function AdminShopPanel() {
 
   useEffect(() => {
     void loadItems();
-    void loadOrders();
     void loadAssets();
   }, []);
 
@@ -204,6 +209,7 @@ export function AdminShopPanel() {
       imageUrl: initialUrl,
       coinPrice: 10,
       isSpecial: false,
+      isActive: true,
       stock: undefined,
     });
     setIsItemModalOpen(true);
@@ -224,6 +230,7 @@ export function AdminShopPanel() {
       imageUrl: item.imageUrl,
       coinPrice: item.coinPrice,
       isSpecial: item.isSpecial,
+      isActive: item.isActive,
       stock: item.stock === null ? undefined : item.stock,
     });
     setIsItemModalOpen(true);
@@ -245,7 +252,10 @@ export function AdminShopPanel() {
       };
 
       if (editingItem) {
-        const updated = await updateShopItem(editingItem.id, payload);
+        const updated = await updateShopItem(editingItem.id, {
+          ...payload,
+          isActive: values.isActive !== false,
+        });
         setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
         message.success(`Đã cập nhật sản phẩm "${updated.name}" thành công!`);
       } else {
@@ -257,14 +267,10 @@ export function AdminShopPanel() {
       setIsItemModalOpen(false);
       form.resetFields();
     } catch (err: unknown) {
-      if (err && typeof err === "object" && "errorFields" in err) {
+      if (isFormValidationError(err)) {
         return; // Validation errors handled by antd
       }
-      const msg =
-        err && typeof err === "object" && "response" in err
-          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
-          : "Thao tác thất bại";
-      message.error(msg || "Có lỗi xảy ra.");
+      message.error(getErrorMessage(err, "Lưu sản phẩm thất bại."));
     } finally {
       setIsSubmittingItem(false);
     }
@@ -276,23 +282,42 @@ export function AdminShopPanel() {
       await deleteShopItem(item.id);
       setItems((prev) => prev.filter((i) => i.id !== item.id));
       message.success(`Đã xóa sản phẩm "${item.name}".`);
-    } catch {
-      message.error("Xóa sản phẩm thất bại.");
+    } catch (err) {
+      message.error(getErrorMessage(err, "Xóa sản phẩm thất bại."));
     }
   };
 
   // Cập nhật trạng thái đơn hàng
-  const handleStatusChange = async (orderId: string, newStatus: string) => {
+  const applyStatusChange = async (orderId: string, newStatus: string) => {
     setUpdatingOrderId(orderId);
     try {
       const updated = await updateOrderStatus(orderId, newStatus);
-      setOrders((prev) => prev.map((ord) => (ord.id === orderId ? updated : ord)));
+      // Backend trả user rút gọn, chỉ cập nhật trạng thái để bảng không mất dữ liệu người mua
+      setOrders((prev) =>
+        prev.map((ord) => (ord.id === orderId ? { ...ord, status: updated.status } : ord)),
+      );
       message.success("Đã cập nhật trạng thái đơn hàng!");
-    } catch {
-      message.error("Cập nhật trạng thái thất bại.");
+    } catch (err) {
+      message.error(getErrorMessage(err, "Cập nhật trạng thái thất bại."));
     } finally {
       setUpdatingOrderId(null);
     }
+  };
+
+  // Huỷ đơn sẽ hoàn xu, trả kho, gỡ đồ khỏi tủ và không mở lại được nên phải hỏi lại
+  const handleStatusChange = (order: ShopOrder, newStatus: string) => {
+    if (newStatus !== "CANCELLED") {
+      void applyStatusChange(order.id, newStatus);
+      return;
+    }
+    Modal.confirm({
+      title: "Xác nhận huỷ đơn hàng",
+      content: `Huỷ đơn sẽ hoàn ${order.coinPrice} xu cho người mua, trả lại tồn kho và gỡ món đồ khỏi tủ đồ. Đơn đã huỷ không thể mở lại.`,
+      okText: "Huỷ đơn",
+      okButtonProps: { danger: true },
+      cancelText: "Không",
+      onOk: () => applyStatusChange(order.id, newStatus),
+    });
   };
 
   // Cấu hình cột bảng Sản phẩm (Antd Table)
@@ -370,6 +395,14 @@ export function AdminShopPanel() {
         ),
     },
     {
+      title: "Trạng thái",
+      dataIndex: "isActive",
+      key: "isActive",
+      width: 120,
+      render: (isActive: boolean) =>
+        isActive ? <Tag color="green">Đang bán</Tag> : <Tag>Tạm ngưng</Tag>,
+    },
+    {
       title: "Thao tác",
       key: "actions",
       width: 200,
@@ -394,7 +427,7 @@ export function AdminShopPanel() {
           </Button>
           <Popconfirm
             title="Xác nhận xóa"
-            description={`Bạn có chắc muốn xóa "${record.name}" khỏi cửa hàng?`}
+            description={`Bạn có chắc muốn xóa "${record.name}"? Sản phẩm đã có đơn hàng thì chỉ có thể tạm ngưng bán.`}
             onConfirm={() => handleDeleteItem(record)}
             okText="Xóa"
             cancelText="Hủy"
@@ -516,8 +549,8 @@ export function AdminShopPanel() {
           size="small"
           value={record.status}
           loading={updatingOrderId === record.id}
-          disabled={updatingOrderId === record.id}
-          onChange={(newVal) => handleStatusChange(record.id, newVal)}
+          disabled={updatingOrderId === record.id || record.status === "CANCELLED"}
+          onChange={(newVal) => handleStatusChange(record, newVal)}
           style={{ width: "100%" }}
           options={[
             { value: "PENDING", label: "Chờ xử lý" },
@@ -621,14 +654,14 @@ export function AdminShopPanel() {
                 prefix={<SearchOutlined />}
                 value={orderSearch}
                 onChange={(e) => setOrderSearch(e.target.value)}
-                onPressEnter={loadOrders}
+                onPressEnter={() => void loadOrders(1)}
                 style={{ width: 320 }}
                 allowClear
               />
             </div>
 
             <div className="admin-table-container__actions">
-              <Button icon={<ReloadOutlined />} onClick={loadOrders} loading={isLoadingOrders}>
+              <Button icon={<ReloadOutlined />} onClick={() => void loadOrders(orderPage)} loading={isLoadingOrders}>
                 Làm mới
               </Button>
             </div>
@@ -640,10 +673,13 @@ export function AdminShopPanel() {
             rowKey="id"
             loading={isLoadingOrders}
             pagination={{
-              pageSize: 12,
+              current: orderPage,
+              pageSize: orderPageSize,
+              total: orderTotal,
               showSizeChanger: true,
-              pageSizeOptions: ["10", "12", "20", "50"],
+              pageSizeOptions: ["10", "20", "50", "100"],
               showTotal: (total) => `Tổng cộng ${total} đơn hàng`,
+              onChange: (page, pageSize) => void loadOrders(page, pageSize),
             }}
             scroll={{ x: 1050, y: "calc(100vh - 290px)" }}
             style={{ width: "100%" }}
@@ -746,8 +782,9 @@ export function AdminShopPanel() {
                         <Button
                           icon={<UploadOutlined />}
                           onClick={() => fileInputRef.current?.click()}
+                          title={`Ảnh tự động được nén trước khi lưu, tối đa ${MAX_UPLOAD_IMAGE_LABEL} sau khi nén`}
                         >
-                          Tải ảnh từ máy
+                          Tải ảnh từ máy (≤ {MAX_UPLOAD_IMAGE_LABEL})
                         </Button>
                         <input
                           type="file"
@@ -994,6 +1031,17 @@ export function AdminShopPanel() {
               <InputNumber min={0} style={{ width: "100%" }} placeholder="Vô hạn" />
             </Form.Item>
           </div>
+
+          {editingItem && (
+            <Form.Item
+              name="isActive"
+              label="Trạng thái bán"
+              valuePropName="checked"
+              extra="Tạm ngưng sẽ ẩn sản phẩm khỏi cửa hàng nhưng vẫn giữ lịch sử đơn hàng."
+            >
+              <Switch checkedChildren="Đang bán" unCheckedChildren="Tạm ngưng" />
+            </Form.Item>
+          )}
 
           <Form.Item name="description" label="Mô tả sản phẩm">
             <Input.TextArea rows={3} placeholder="Mô tả tính năng, quà tặng hoặc hướng dẫn nhận..." />

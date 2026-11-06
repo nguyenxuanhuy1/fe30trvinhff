@@ -42,7 +42,7 @@ interface UpdateUserPayload {
   username?: string;
   password?: string;
   role?: UserRoleValue;
-  gender?: "MALE" | "FEMALE" | "OTHER";
+  gender?: "MALE" | "FEMALE" | "OTHER" | null;
   avatarUrl?: string;
 }
 

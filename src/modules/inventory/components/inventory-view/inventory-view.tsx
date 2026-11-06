@@ -13,7 +13,7 @@ import { Modal, Slider } from "antd";
 import Cropper, { type Area } from "react-easy-crop";
 import { HeadAccessory } from "../HeadAccessory";
 import { StaticSvgAccessory } from "../static-svg-accessory";
-import { preloadFaceLandmarker } from "../../hooks/useHeadTracking";
+import { preloadFaceLandmarker, useFaceModelStatus } from "../../hooks/useHeadTracking";
 import { GameButton, GameModal, toast, ErrorState } from "@/components/ui";
 import { LoadingState } from "@/components/ui/loading-state";
 import { useCatalog } from "../../hooks/use-catalog";
@@ -22,6 +22,8 @@ import getCroppedImg from "@/utils/cropImage";
 import { useInventory } from "../../hooks/use-inventory";
 import { slotOrder } from "../../inventory.const";
 import type { CatalogItem, ItemSlot } from "../../types";
+import { getDataUrlError, getImageTypeError } from "@/utils/image-limit";
+import { getApiErrorMessage } from "@/utils/api-error";
 import "./inventory-view.scss";
 
 /**
@@ -192,20 +194,32 @@ function InventoryView({
 
   const [isMounted, setIsMounted] = useState(false);
   const [isCameraReady, setIsCameraReady] = useState(false);
+  // Model AI gắn đồ lên mặt: tải 1 lần, lưu cache trên máy, dùng chung mọi trang
+  const faceModel = useFaceModelStatus();
+  // Mạng quá chậm thì sau 60s vẫn mở trang, đồ sẽ tự gắn khi model tải xong
+  const [modelWaitExpired, setModelWaitExpired] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("inventory_camera_mode");
     if (stored === "off") {
       setIsCameraOn(false);
       setIsCameraReady(true);
+    } else {
+      // Bắt đầu tải model ngay khi vào trang, chạy song song với mở camera
+      void preloadFaceLandmarker()?.catch(() => undefined);
     }
     setIsMounted(true);
+
+    const modelTimer = setTimeout(() => setModelWaitExpired(true), 60000);
 
     // Timeout an toàn tối đa 2s để không bao giờ giữ loading quá lâu nếu webcam phản hồi chậm
     const timer = setTimeout(() => {
       setIsCameraReady(true);
     }, 2000);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(modelTimer);
+    };
   }, []);
 
   // Quản lý Camera an toàn: khởi động song song ngay khi mount, nạp sẵn AI và stream
@@ -242,7 +256,7 @@ function InventoryView({
     setIsTransitioning(true);
 
     async function startCamera() {
-      preloadFaceLandmarker();
+      void preloadFaceLandmarker()?.catch(() => undefined);
 
       try {
         if (!navigator.mediaDevices?.getUserMedia) {
@@ -405,6 +419,13 @@ function InventoryView({
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Ảnh gốc được phép lớn vì còn cắt lại; dung lượng kiểm tra sau khi cắt
+      const typeError = getImageTypeError(file);
+      if (typeError) {
+        toast.error(typeError);
+        e.target.value = "";
+        return;
+      }
       const reader = new FileReader();
       reader.onload = async (event) => {
         const base64 = event.target?.result as string;
@@ -438,6 +459,13 @@ function InventoryView({
     try {
       toast.loading({ content: "Đang lưu ảnh...", key: "upload_avatar" });
       const croppedImage = await getCroppedImg(cropImageSrc, croppedAreaPixels);
+
+      // Ảnh sau khi cắt vẫn phải dưới 500KB mới được lưu
+      const sizeError = getDataUrlError(croppedImage);
+      if (sizeError) {
+        toast.error({ content: sizeError, key: "upload_avatar" });
+        return;
+      }
       
       setUploadedImage(croppedImage);
       try {
@@ -449,7 +477,10 @@ function InventoryView({
       setIsCropModalOpen(false);
     } catch (error) {
       console.error("Lỗi khi lưu ảnh:", error);
-      toast.error({ content: "Lưu ảnh thất bại, vui lòng thử lại!", key: "upload_avatar" });
+      toast.error({
+        content: getApiErrorMessage(error, "Lưu ảnh thất bại, vui lòng thử lại!"),
+        key: "upload_avatar",
+      });
     }
   };
 
@@ -558,11 +589,30 @@ function InventoryView({
       : ownedItems.slice(0, perColumn);
   const rightItems =
     isNarrow || perColumn === null ? [] : ownedItems.slice(perColumn);
+  // Chờ model AI xong mới cho vào trang, tránh bấm đồ mà không gắn lên mặt.
+  // Đã tải ở trang trước (hoặc có cache trên máy) thì status = ready, không chờ nữa.
+  const isWaitingFaceModel =
+    Boolean(user) &&
+    isCameraOn &&
+    !cameraError &&
+    !modelWaitExpired &&
+    (faceModel.status === "idle" || faceModel.status === "loading");
+
   const isInitialLoading =
-    isFetchingInitialData || (!isCameraReady && isCameraOn && !cameraError);
+    isFetchingInitialData ||
+    (!isCameraReady && isCameraOn && !cameraError) ||
+    isWaitingFaceModel;
 
   if (isInitialLoading) {
-    return <LoadingState />;
+    return (
+      <LoadingState
+        title={
+          isWaitingFaceModel
+            ? `Đang tải AI nhận diện khuôn mặt... ${faceModel.progress}%`
+            : "Đang tải..."
+        }
+      />
+    );
   }
 
   // Lỗi chỉ hiển thị trong khung tủ đồ, header/camera vẫn giữ nguyên
@@ -786,6 +836,25 @@ function InventoryView({
 
           {cameraError !== null && (
             <p className="inventory-retro__camera-error">{cameraError}</p>
+          )}
+
+          {isCameraOn && cameraError === null && faceModel.status === "error" && (
+            <p className="inventory-retro__camera-error">
+              Không tải được AI nhận diện khuôn mặt nên chưa gắn được đồ.{" "}
+              <button
+                type="button"
+                onClick={() => void preloadFaceLandmarker()?.catch(() => undefined)}
+                style={{ textDecoration: "underline", background: "none", border: 0, color: "inherit", cursor: "pointer", padding: 0, font: "inherit" }}
+              >
+                Thử lại
+              </button>
+            </p>
+          )}
+
+          {isCameraOn && cameraError === null && faceModel.status === "loading" && (
+            <p className="inventory-retro__camera-error">
+              Đang tải AI nhận diện khuôn mặt... {faceModel.progress}%
+            </p>
           )}
 
           {/* Đồ chồng lên camera, toạ độ % nên co giãn theo khung khi bật camera */}

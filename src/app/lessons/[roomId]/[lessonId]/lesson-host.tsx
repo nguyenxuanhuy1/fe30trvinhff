@@ -18,11 +18,23 @@ interface LessonHostProps {
 export function LessonHost({ roomId, lessonId, lesson: initialLesson }: LessonHostProps) {
   const router = useRouter();
   const [phase, setPhase] = useState<"inventory" | "play">("inventory");
+  // Bản bài được chốt lúc bấm "Vào chơi": bản mới từ máy chủ về muộn cũng không làm
+  // khung chơi tải lại giữa chừng (bản mới đã được lưu, lần mở sau sẽ dùng)
+  const [playingLesson, setPlayingLesson] = useState<LessonDetail | null>(null);
 
-  const { lesson, isLoading, isFetching, error, refetch } = useGameLesson({
+  const {
+    lesson: latestLesson,
+    isLoading,
+    isFetching,
+    isGone,
+    error,
+    refetch,
+  } = useGameLesson({
     lessonId,
     initialLesson,
   });
+
+  const lesson = phase === "play" && playingLesson ? playingLesson : latestLesson;
 
   if (isLoading && !lesson) {
     return (
@@ -69,6 +81,25 @@ export function LessonHost({ roomId, lessonId, lesson: initialLesson }: LessonHo
         <div style={{ padding: "2rem" }}>
           <ErrorState
             error={error}
+            message={
+              isGone
+                ? "Bài học này không còn tồn tại hoặc đã bị ẩn."
+                : "Không thể tải nội dung trò chơi. Vui lòng thử lại."
+            }
+            isRetrying={isFetching}
+            onRetry={() => void refetch()}
+          />
+        </div>
+      </main>
+    );
+  }
+
+  // Phòng hờ: không bao giờ để trang trống
+  if (!lesson) {
+    return (
+      <main className="lesson-player">
+        <div style={{ padding: "2rem" }}>
+          <ErrorState
             message="Không thể tải nội dung trò chơi. Vui lòng thử lại."
             isRetrying={isFetching}
             onRetry={() => void refetch()}
@@ -78,15 +109,14 @@ export function LessonHost({ roomId, lessonId, lesson: initialLesson }: LessonHo
     );
   }
 
-  if (!lesson) {
-    return null;
-  }
-
   if (phase === "inventory") {
     return (
       <InventoryView
         mode="pre-lesson"
-        onEnterGame={() => setPhase("play")}
+        onEnterGame={() => {
+          setPlayingLesson(latestLesson);
+          setPhase("play");
+        }}
         onBack={() => router.push(`/lessons/${roomId}`)}
         enterGameText="Vào chơi"
       />

@@ -1092,161 +1092,284 @@ $news-font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
 // -------------------------------------------------------------
 // MODAL ĐỌC BÀI BÁO (ARTICLE READER)
+// Phong cách trang báo giấy: nền giấy điệp, mực nâu, điểm nhấn son đỏ
 // -------------------------------------------------------------
-.article-reader-modal {
+.game-modal-root .article-reader-modal {
+  .ant-modal-container,
   .ant-modal-content {
-    background: #ffffff !important;
-    border-radius: 16px !important;
+    background: $news-panel !important;
+    border: 2px solid #5a301a !important;
+    border-radius: 18px !important;
     padding: 0 !important;
     overflow: hidden !important;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16) !important;
-    border: 1px solid rgba(139, 90, 27, 0.18) !important;
-  }
-
-  .ant-modal-close {
-    top: 14px;
-    right: 14px;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.05);
-    color: #444;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.1);
-      color: #000;
-    }
+    box-shadow:
+      0 24px 60px rgba(32, 16, 8, 0.35),
+      0 4px 12px rgba(0, 0, 0, 0.12) !important;
   }
 
   .ant-modal-body {
     padding: 0 !important;
+    background: $news-panel !important;
+  }
+
+  // Nút đóng: nền tối tròn để nổi rõ trên ảnh bìa lẫn nền giấy
+  .ant-modal-close {
+    top: 14px !important;
+    right: 14px !important;
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .game-modal__close-badge {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    background: rgba(42, 22, 13, 0.72);
+    border: 1.5px solid rgba(255, 236, 200, 0.55);
+    color: #fff7e6;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
+
+    &:hover {
+      background: $news-red;
+      border-color: $news-red;
+      color: #fff;
+    }
   }
 }
 
 .article-modal-simple {
-  background: #ffffff;
-  color: #2b2520;
+  background: $news-panel;
+  color: $news-text;
   font-family: $news-font-serif;
 
   &__scroll {
-    max-height: min(80vh, 760px);
+    max-height: min(86vh, 860px);
     overflow-y: auto;
-    padding: 28px 32px 32px;
+    overscroll-behavior: contain;
     display: flex;
     flex-direction: column;
-    gap: 18px;
     box-sizing: border-box;
 
     &::-webkit-scrollbar {
-      width: 6px;
+      width: 8px;
     }
     &::-webkit-scrollbar-track {
-      background: #f5f2eb;
-      border-radius: 3px;
+      background: transparent;
     }
     &::-webkit-scrollbar-thumb {
-      background: rgba(139, 90, 27, 0.28);
-      border-radius: 3px;
+      background: rgba(139, 90, 27, 0.3);
+      border-radius: 8px;
+      border: 2px solid $news-panel;
       &:hover {
-        background: rgba(139, 90, 27, 0.45);
+        background: rgba(139, 90, 27, 0.5);
       }
     }
 
     @media (max-width: 640px) {
-      padding: 20px 16px 24px;
-      gap: 14px;
-      max-height: 82vh;
+      max-height: 88vh;
     }
   }
 
+  // Ảnh bìa tràn sát mép, mờ dần xuống nền giấy
   &__cover {
     position: relative;
+    flex-shrink: 0;
     width: 100%;
-    aspect-ratio: 16 / 9;
-    border-radius: 10px;
+    aspect-ratio: 16 / 8;
     overflow: hidden;
-    background: #f0ece3;
-    border: 1px solid rgba(139, 90, 27, 0.15);
+    background: $news-panel-alt;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 38%;
+      background: linear-gradient(180deg, transparent, rgba(250, 248, 241, 0.9));
+      pointer-events: none;
+    }
+
+    @media (max-width: 640px) {
+      aspect-ratio: 16 / 10;
+    }
   }
 
   &__cover-img {
     object-fit: cover;
   }
 
-  &__title {
-    margin: 0;
-    font-family: $news-font-serif;
-    font-size: clamp(20px, 2.6vw, 27px);
+  // Phần chữ: căn giữa, độ rộng vừa mắt đọc
+  &__body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    width: 100%;
+    margin: 0 auto;
+    // Máy tính: chữ cách mép khung 20px
+    padding: 20px 20px 8px;
+    box-sizing: border-box;
+
+    @media (max-width: 640px) {
+      gap: 14px;
+      padding: 24px 18px 4px;
+    }
+  }
+
+  // Nội dung nằm hẳn bên dưới ảnh bìa, không chèn lên ảnh
+  &__cover + &__body {
+    margin-top: 8px;
+  }
+
+  &__category {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: $news-red;
+    color: #fff8ec;
+    font-family: $news-font-sans;
+    font-size: 11.5px;
     font-weight: 800;
-    line-height: 1.35;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    box-shadow: 0 2px 6px rgba(110, 22, 10, 0.25);
+  }
+
+  &__title {
+    margin: -4px 0 0;
+    font-family: $news-font-serif;
+    font-size: clamp(24px, 3.4vw, 34px);
+    font-weight: 800;
+    line-height: 1.25;
     color: #2b180d;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
   }
 
   &__meta {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
+    gap: 10px 18px;
     flex-wrap: wrap;
-    font-size: 13px;
-    color: #715843;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(139, 90, 27, 0.15);
+    width: 100%;
+    padding: 14px 0;
+    border-top: 1px solid $news-border;
+    border-bottom: 1px solid $news-border;
     font-family: $news-font-sans;
+    font-size: 13px;
+    color: $news-text-muted;
+  }
+
+  &__author {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__author-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #8b5a1b 0%, #5a301a 100%);
+    border: 2px solid $news-gold-light;
+    box-shadow: 0 0 0 1px rgba(90, 48, 26, 0.4);
+    color: #fff7e6;
+    font-family: $news-font-game;
+    font-size: 15px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  &__author-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+
+    strong {
+      color: #2b180d;
+      font-size: 13.5px;
+      font-weight: 700;
+    }
+
+    small {
+      color: $news-text-muted;
+      font-size: 12px;
+    }
+  }
+
+  &__meta-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
   &__date {
     font-weight: 600;
   }
 
-  &__category {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 9px;
-    border-radius: 6px;
-    background: rgba(165, 59, 40, 0.08);
-    color: $news-red;
-    font-weight: 700;
-    font-size: 12px;
+  &__read-time::before {
+    content: "·";
+    margin-right: 8px;
   }
 
-  &__author {
-    font-weight: 500;
-    color: #635041;
-  }
-
+  // Đoạn tóm tắt: chữ lớn hơn, nghiêng, vạch son đỏ bên trái
   &__excerpt {
-    margin: 0;
-    padding: 12px 16px;
-    border-left: 3.5px solid #a53b28;
-    background: #faf6f0;
-    border-radius: 0 8px 8px 0;
-    font-size: 15px;
+    margin: 4px 0 0;
+    padding: 2px 0 2px 18px;
+    border-left: 4px solid $news-red;
+    font-size: 17.5px;
     line-height: 1.65;
     font-style: italic;
+    font-weight: 500;
     color: #4a3424;
-    box-sizing: border-box;
+
+    @media (max-width: 640px) {
+      font-size: 16px;
+      padding-left: 14px;
+    }
   }
 
   &__content {
-    font-size: 15.5px;
-    line-height: 1.8;
+    width: 100%;
+    font-size: 17px;
+    line-height: 1.85;
     color: #2c2520;
     word-break: break-word;
 
     p {
-      margin: 0 0 16px;
-      text-align: left;
+      margin: 0 0 1.15em;
+      text-align: justify;
+      hyphens: auto;
 
       &:last-child {
         margin-bottom: 0;
       }
     }
 
+    // Chữ cái đầu bài to, màu son đỏ kiểu báo in
+    > p:first-child::first-letter {
+      float: left;
+      margin: 0.08em 0.12em 0 0;
+      font-size: 3.4em;
+      font-weight: 800;
+      line-height: 0.85;
+      color: $news-red;
+    }
+
     @media (max-width: 640px) {
-      font-size: 14.5px;
-      line-height: 1.7;
+      font-size: 15.5px;
+      line-height: 1.75;
+
+      p {
+        text-align: left;
+      }
     }
   }
 
@@ -1255,60 +1378,87 @@ $news-font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     align-items: center;
     gap: 8px;
     flex-wrap: wrap;
-    padding-top: 8px;
-    border-top: 1px dashed rgba(139, 90, 27, 0.18);
+    width: 100%;
+    margin-top: 6px;
+    padding-top: 16px;
+    border-top: 1px dashed $news-border-strong;
   }
 
   &__tags-label {
     font-size: 12.5px;
     font-weight: 700;
-    color: #8b5a1b;
+    color: $news-gold;
     font-family: $news-font-sans;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
 
   &__tag {
     display: inline-flex;
     align-items: center;
-    padding: 2px 8px;
-    border-radius: 5px;
-    background: rgba(139, 90, 27, 0.07);
+    padding: 4px 11px;
+    border-radius: 999px;
+    background: $news-gold-light;
+    border: 1px solid $news-border;
     color: #7b4f17;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 600;
     font-family: $news-font-sans;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      background: $news-gold;
+      color: #fff;
+    }
   }
 
+  // Chân bài: dính đáy khung để luôn bấm đóng được
   &__footer {
+    position: sticky;
+    bottom: 0;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    padding-top: 16px;
-    margin-top: 6px;
-    border-top: 1px solid rgba(139, 90, 27, 0.15);
+    justify-content: center;
+    margin-top: 28px;
+    padding: 14px 20px;
+    background: linear-gradient(180deg, rgba(250, 248, 241, 0.85), $news-panel 40%);
+    border-top: 1px solid $news-border;
+    backdrop-filter: blur(4px);
   }
 
   &__close-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 22px;
-    border: 1.5px solid #8b5a1b;
-    border-radius: 8px;
-    background: #ffffff;
-    color: #5c3514;
-    font-family: $news-font-sans;
-    font-size: 13px;
+    min-width: 180px;
+    padding: 10px 26px;
+    border: 2px solid #5a301a;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #6c371d 0%, #562912 100%);
+    box-shadow:
+      inset 0 -3px 0 rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 220, 180, 0.25),
+      0 4px 10px rgba(32, 16, 8, 0.25);
+    color: #fff7e6;
+    font-family: $news-font-game;
+    font-size: 15px;
     font-weight: 700;
+    letter-spacing: 0.02em;
     cursor: pointer;
-    transition: all 0.16s ease;
+    transition: transform 0.12s ease, filter 0.12s ease;
 
     &:hover {
-      background: #8b5a1b;
-      color: #ffffff;
+      transform: translateY(-1px);
+      filter: brightness(1.1);
     }
 
     &:active {
-      transform: scale(0.98);
+      transform: translateY(1px);
+    }
+
+    &:focus-visible {
+      outline: 3px solid $news-gold-bright;
+      outline-offset: 2px;
     }
   }
 }

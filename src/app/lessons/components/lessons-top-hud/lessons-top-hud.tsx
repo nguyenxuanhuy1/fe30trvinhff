@@ -12,6 +12,51 @@ import "./lessons-top-hud.scss";
 
 const FALLBACK_AVATAR = "/images/chuotuser.webp";
 
+/** Ngày YYYY-MM-DD theo giờ Việt Nam, khớp cách backend tính chuỗi (streak.service.js) */
+function getVietnamDateString(date = new Date()) {
+  return new Date(date.getTime() + 7 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+
+/**
+ * Chuỗi còn hiệu lực khi lần vào gần nhất là hôm nay hoặc hôm qua.
+ * Lỡ từ 2 ngày trở lên thì chuỗi đã đứt, hiển thị 0.
+ */
+function getActiveStreak(streak?: number, lastLoginDate?: string | null) {
+  if (!streak || !lastLoginDate) return { days: 0, isLitToday: false };
+  const today = getVietnamDateString();
+  const yesterday = getVietnamDateString(new Date(Date.now() - 24 * 60 * 60 * 1000));
+  if (lastLoginDate === today) return { days: streak, isLitToday: true };
+  if (lastLoginDate === yesterday) return { days: streak, isLitToday: false };
+  return { days: 0, isLitToday: false };
+}
+
+/** Ngọn lửa chuỗi: gradient cam vàng, viền nâu */
+function StreakFlame() {
+  return (
+    <svg className="lessons-top-hud__flame" viewBox="0 0 32 40" aria-hidden="true">
+      <defs>
+        <linearGradient id="lessonsHudFlameOuter" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#ffd25a" />
+          <stop offset="55%" stopColor="#ff8a1f" />
+          <stop offset="100%" stopColor="#e2461b" />
+        </linearGradient>
+        <linearGradient id="lessonsHudFlameInner" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#fffbe6" />
+          <stop offset="100%" stopColor="#ffd45c" />
+        </linearGradient>
+      </defs>
+      <path
+        className="lessons-top-hud__flame-outer"
+        d="M16 2c1.2 5.6 6.6 8.6 9.4 14.2 3.6 7.2.8 17.6-9.4 21.8C5.8 33.8 3 23.4 6.6 16.2c1.2-2.4 2.8-4 4-5.2-.2 3 .6 5.4 2.6 6.8C13 11.6 13.6 6.4 16 2Z"
+      />
+      <path
+        className="lessons-top-hud__flame-inner"
+        d="M16.4 17.4c.8 3.2 4.6 5 5 9.4.4 4.6-2.4 8-5.4 8.8-3.4-.6-6-3.8-5.4-7.8.4-2.4 1.6-3.6 2.8-4.6.2 1.8.8 3 2 3.6-.2-3.4.2-6.6 1-9.4Z"
+      />
+    </svg>
+  );
+}
+
 export function LessonsTopHud() {
   const router = useRouter();
   const { user, logout } = useAuth();
@@ -78,6 +123,13 @@ export function LessonsTopHud() {
 
   const avatarSrc = user?.avatarUrl || user?.inventoryAvatarUrl || FALLBACK_AVATAR;
   const username = user?.username || "Khách";
+  const streak = getActiveStreak(user?.streak, user?.lastLoginDate);
+  const streakLabel =
+    streak.days === 0
+      ? "Chưa có chuỗi. Vào học mỗi ngày để thắp lửa!"
+      : streak.isLitToday
+      ? `Chuỗi ${streak.days} ngày liên tiếp`
+      : `Chuỗi ${streak.days} ngày. Vào học hôm nay để giữ chuỗi!`;
   // Ngưỡng giới hạn ký tự trên mobile: nếu dài hơn 10 chữ thì hiển thị 10 chữ kèm ...
   const MAX_MOBILE_CHARS = 10;
   const mobileUsername =
@@ -88,6 +140,25 @@ export function LessonsTopHud() {
   return (
     <>
       <aside className="lessons-top-hud" aria-label="Bảng điều khiển người chơi">
+        {/* Ngọn lửa giữ chuỗi, cùng kiểu với nút tài khoản, nằm bên trái */}
+        {user && (
+          <div
+            className={`lessons-top-hud__streak${
+              streak.days === 0
+                ? " lessons-top-hud__streak--off"
+                : streak.isLitToday
+                ? ""
+                : " lessons-top-hud__streak--dim"
+            }`}
+            role="img"
+            aria-label={streakLabel}
+            title={streakLabel}
+          >
+            <StreakFlame />
+            <span className="lessons-top-hud__streak-value">{streak.days}</span>
+          </div>
+        )}
+
         {/* Avatar + tên và Dropdown tài khoản */}
         <div className="lessons-top-hud__user-wrap" ref={dropdownRef}>
           <button

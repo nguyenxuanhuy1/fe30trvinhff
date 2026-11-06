@@ -22,7 +22,10 @@ export function ImageCard({ href, imageUrl, altText, priority = false }: ImageCa
             sizes="(max-width: 640px) 100vw, (max-width: 900px) 50vw, 33vw"
             priority={priority}
             className="image-card__image"
-            unoptimized={imageUrl.startsWith("data:")} // Nếu ảnh là base64 thì không nén qua API Next.js để tránh lỗi/quá tải
+            // Ảnh đã được nén sẵn khi tải lên và phục vụ qua /api/images (có cache 1 năm),
+            // nén thêm lần nữa qua bộ tối ưu ảnh của Next chỉ tốn CPU máy chủ.
+            // 3 ảnh đầu tải ngay (priority), các ảnh sau tự lazy load khi cuộn tới.
+            unoptimized
           />
         ) : (
           <div className="image-card__placeholder">Chưa có ảnh</div>
